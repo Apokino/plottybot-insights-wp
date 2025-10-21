@@ -329,6 +329,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currencyMin) currencyMin.textContent = currency;
         if (currencyMax) currencyMax.textContent = currency;
       }
+      // Trigger category fetch for the new market
+      const country = marketToCountry[value] || 'us';
+      if (allowedCountries.includes(country)) {
+        currentCountry = country;
+        fetchCategories(country);
+      }
     });
   });
 
