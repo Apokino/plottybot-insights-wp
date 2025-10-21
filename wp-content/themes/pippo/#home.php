@@ -123,9 +123,23 @@ $currencies = [
       </button>
     </div>
   </div>
+
+  <!-- Books Results Section -->
+  <div id="books-results" style="max-width: 1200px; margin: var(--spacing-48) auto 0;">
+    <div id="loading-indicator" style="display: none; text-align: center; padding: var(--spacing-40); color: var(--color-neutral-60);">
+      <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      <p style="margin-top: var(--spacing-16); font-size: 1.125rem; font-weight: 600;">Searching for books...</p>
+    </div>
+
+    <div id="books-container"></div>
+  </div>
 </div>
 
 <style>
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Remove slider styles since we use dropdowns now */
 .range-input, .range-slider-wrapper, .range-track-bg, .range-track-fill { display: none !important; }
 
@@ -274,27 +288,214 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Apply filters button
   const applyButton = document.getElementById('apply-filters');
+  const loadingIndicator = document.getElementById('loading-indicator');
+  const booksContainer = document.getElementById('books-container');
 
-  applyButton.addEventListener('click', function() {
-    const priceMax = parseFloat(document.getElementById('price-max').value);
-    const ratingsMax = parseFloat(document.getElementById('ratings-max').value);
+  applyButton.addEventListener('click', async function() {
+    // Parse range values
+    const bsrRange = document.getElementById('bsr-range').value;
+    const priceRange = document.getElementById('price-range').value;
+    const ratingsRange = document.getElementById('ratings-range').value;
 
-    const filters = {
+    // Helper function to parse range strings
+    function parseRange(rangeStr) {
+      if (rangeStr.includes('+')) {
+        const min = parseInt(rangeStr.replace('+', ''));
+        return [min, 999999999]; // Large max value for "+" ranges
+      }
+      const parts = rangeStr.split('-').map(s => parseInt(s));
+      return parts.length === 2 ? parts : [parts[0], parts[0]];
+    }
+
+    // Get selected categories
+    const selectedCategories = Array.from(document.querySelectorAll('input[name="categories[]"]:checked'))
+      .map(cb => cb.value);
+
+    // Build API payload
+    const payload = {
       market: marketSelector.value,
-      bsr_min: parseFloat(document.getElementById('bsr-min').value),
-      bsr_max: parseFloat(document.getElementById('bsr-max').value),
-      price_min: parseFloat(document.getElementById('price-min').value),
-      price_max: priceMax >= 100 ? 'unlimited' : priceMax,
-      publisher_type: publisherSelectorInput.value,
-      ratings_min: parseFloat(document.getElementById('ratings-min').value),
-      ratings_max: ratingsMax >= 1000 ? 'unlimited' : ratingsMax
+      bsr_range: parseRange(bsrRange),
+      price_range: parseRange(priceRange),
+      ratings_count_range: parseRange(ratingsRange),
+      rating_range: [4, 5], // Default rating range 4-5 stars
+      categories: selectedCategories,
+      publisher_type: publisherSelectorInput.value === 'self' ? 'self_publisher' : null,
+      limit: 100,
+      offset: 0
     };
 
-    console.log('Applied Filters:', filters);
+    // Remove null values
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === null) delete payload[key];
+    });
 
-    // TODO: Add your filter application logic here
-    // For example, send to a REST API endpoint or process the data
+    console.log('API Request Payload:', payload);
+
+    // Show loading indicator
+    loadingIndicator.style.display = 'block';
+    booksContainer.innerHTML = '';
+    applyButton.disabled = true;
+
+    try {
+      const response = await fetch('https://api-frontend-1044931876531.us-central1.run.app/api/v2/books/search_books', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('API Response:', data);
+
+      // Hide loading indicator
+      loadingIndicator.style.display = 'none';
+      applyButton.disabled = false;
+
+      // Render books
+      renderBooks(data.books, data.total_count);
+
+    } catch (error) {
+      console.error('Error fetching books:', error);
+      loadingIndicator.style.display = 'none';
+      applyButton.disabled = false;
+      booksContainer.innerHTML = `
+        <div style="text-align: center; padding: var(--spacing-40); color: var(--color-danger-60);">
+          <p style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-12);">Error loading books</p>
+          <p style="color: var(--color-neutral-60);">${error.message}</p>
+        </div>
+      `;
+    }
   });
+
+  // Function to render books
+  function renderBooks(books, totalCount) {
+    if (!books || books.length === 0) {
+      booksContainer.innerHTML = `
+        <div style="text-align: center; padding: var(--spacing-40); color: var(--color-neutral-60);">
+          <p style="font-size: 1.125rem; font-weight: 600;">No books found</p>
+          <p>Try adjusting your filters to see more results.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Map market codes to Amazon domains
+    const amazonDomains = {
+      'US': 'amazon.com',
+      'UK': 'amazon.co.uk',
+      'DE': 'amazon.de',
+      'FR': 'amazon.fr',
+      'ES': 'amazon.es'
+    };
+
+    // Header with count
+    let html = `
+      <div style="margin-bottom: var(--spacing-24); padding: var(--spacing-16); background: var(--color-neutral-10); border-radius: var(--radius-medium);">
+        <p style="font-size: 1.125rem; font-weight: 600; color: var(--color-neutral-90);">
+          Found ${totalCount || books.length} book${(totalCount || books.length) !== 1 ? 's' : ''}
+        </p>
+      </div>
+      <div style="display: grid; gap: var(--spacing-24);">
+    `;
+
+    // Render each book
+    books.forEach(book => {
+      const authors = Array.isArray(book.authors) ? book.authors.join(', ') : 'Unknown Author';
+      const rating = book.average_rating || 0;
+      const reviewsCount = book.reviews_count || 0;
+      const bsr = book.bsr || 'N/A';
+      const price = book.paperback_price || 'N/A';
+      const cover = book.cover || '';
+      const title = book.title || 'Untitled';
+      const asin = book.asin || '';
+
+      // Generate Amazon link
+      const market = marketSelector.value;
+      const amazonDomain = amazonDomains[market] || 'amazon.com';
+      const amazonLink = asin ? `https://www.${amazonDomain}/dp/${asin}` : '#';
+
+      // Generate star rating HTML
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = rating % 1 >= 0.5;
+      let starsHtml = '';
+      for (let i = 0; i < 5; i++) {
+        if (i < fullStars) {
+          starsHtml += '<span style="color: #FFA500; font-size: 1.125rem;">★</span>';
+        } else if (i === fullStars && hasHalfStar) {
+          starsHtml += '<span style="color: #FFA500; font-size: 1.125rem;">★</span>';
+        } else {
+          starsHtml += '<span style="color: #DDD; font-size: 1.125rem;">★</span>';
+        }
+      }
+
+      html += `
+        <div style="display: flex; gap: var(--spacing-24); padding: var(--spacing-24); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.3s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
+          <!-- Book Cover -->
+          <div style="flex-shrink: 0;">
+            <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: none;">
+              ${cover ? `<img src="${cover}" alt="${title}" style="width: 120px; height: auto; border-radius: var(--radius-medium); box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">` : `<div style="width: 120px; height: 180px; background: var(--color-neutral-20); border-radius: var(--radius-medium); display: flex; align-items: center; justify-content: center; color: var(--color-neutral-60);">No Image</div>`}
+            </a>
+          </div>
+
+          <!-- Book Details -->
+          <div style="flex: 1; min-width: 0;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 var(--spacing-8) 0; line-height: 1.4;">
+              <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="color: var(--color-neutral-90); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--color-primary-60)'" onmouseout="this.style.color='var(--color-neutral-90)'">
+                ${title}
+              </a>
+            </h3>
+
+            <p style="font-size: 0.95rem; color: var(--color-neutral-70); margin: 0 0 var(--spacing-12) 0;">
+              by ${authors}
+            </p>
+
+            <div style="display: flex; align-items: center; gap: var(--spacing-8); margin-bottom: var(--spacing-12);">
+              <div style="display: flex; align-items: center;">
+                ${starsHtml}
+              </div>
+              <span style="font-size: 1rem; font-weight: 600; color: var(--color-neutral-90);">${rating.toFixed(1)}</span>
+              <span style="font-size: 0.875rem; color: var(--color-neutral-60);">(${reviewsCount.toLocaleString()} ratings)</span>
+            </div>
+
+            <div style="display: flex; gap: var(--spacing-24); flex-wrap: wrap; margin-top: var(--spacing-16);">
+              <div>
+                <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">BSR</p>
+                <p style="font-size: 1rem; font-weight: 700; color: var(--color-primary-60); margin: 0;">#${typeof bsr === 'number' ? bsr.toLocaleString() : bsr}</p>
+              </div>
+
+              <div>
+                <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Price</p>
+                <p style="font-size: 1rem; font-weight: 700; color: var(--color-neutral-90); margin: 0;">${currencies[marketSelector.value] || '$'}${price}</p>
+              </div>
+
+              <div>
+                <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">ASIN</p>
+                <p style="font-size: 1rem; font-weight: 700; color: var(--color-neutral-90); margin: 0; font-family: monospace;">${asin}</p>
+              </div>
+
+              <div style="margin-left: auto;">
+                <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: var(--color-neutral-00); text-decoration: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(99, 102, 241, 0.3)'">
+                  View on Amazon →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    html += '</div>';
+    booksContainer.innerHTML = html;
+
+    // Scroll to results
+    document.getElementById('books-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   // Custom Market Dropdown Logic
   const marketDropdown = document.getElementById('market-dropdown');
