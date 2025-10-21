@@ -3206,3 +3206,19 @@ body.no-css {
   visibility: visible !important;
 }
 
+/* Dual-range slider handle fix */
+.range-slider-wrapper input[type="range"] {
+  z-index: 2;
+  position: relative;
+  pointer-events: auto;
+}
+.range-slider-wrapper input[type="range"].range-min {
+  z-index: 3;
+}
+.range-slider-wrapper input[type="range"].range-max {
+  z-index: 2;
+}
+/* When handles overlap, visually offset min handle slightly */
+.range-slider-wrapper input[type="range"].range-min:active {
+  z-index: 4;
+}
