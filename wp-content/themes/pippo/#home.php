@@ -16,8 +16,27 @@ $currencies = [
 <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/style-rtl.css">
 <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/pb-style.php">
 
-<div class="section plottybot-homepage aligncenter" style="padding: var(--spacing-48) var(--spacing-16);">
-  <div class="filters-container" style="max-width: 900px; margin: 0 auto; background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40);">
+<!-- Navigation Menu -->
+<div class="services-navigation" style="background: var(--color-neutral-00); border-bottom: 1px solid var(--color-neutral-30); box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: var(--spacing-48);">
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 var(--spacing-16);">
+    <nav style="display: flex; gap: 0;">
+      <button id="nav-book-search" class="service-nav-btn active" data-service="book-search" style="padding: var(--spacing-20) var(--spacing-32); background: none; border: none; border-bottom: 3px solid var(--color-primary-60); color: var(--color-neutral-90); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s; position: relative;">
+        📚 Book Search
+      </button>
+      <button id="nav-categories" class="service-nav-btn" data-service="categories" style="padding: var(--spacing-20) var(--spacing-32); background: none; border: none; border-bottom: 3px solid transparent; color: var(--color-neutral-60); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s; position: relative;">
+        📊 Categories
+      </button>
+      <button id="nav-ad-campaign" class="service-nav-btn" data-service="ad-campaign" style="padding: var(--spacing-20) var(--spacing-32); background: none; border: none; border-bottom: 3px solid transparent; color: var(--color-neutral-60); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s; position: relative;">
+        🎯 Ad Campaign Assistant
+      </button>
+    </nav>
+  </div>
+</div>
+
+<!-- Book Search Service -->
+<div id="service-book-search" class="service-section active" style="display: block;">
+  <div class="section plottybot-homepage aligncenter" style="padding: var(--spacing-48) var(--spacing-16);">
+    <div class="filters-container" style="max-width: 900px; margin: 0 auto; background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40);">
     <div class="filter-row" style="display: flex; gap: var(--spacing-32); margin-bottom: var(--spacing-32); flex-wrap: wrap;">
       <!-- Market Selector (Custom Dropdown) -->
       <div class="filter-group" style="flex: 1 1 300px; min-width: 220px; position: relative;">
@@ -133,11 +152,107 @@ $currencies = [
 
     <div id="books-container"></div>
   </div>
+  </div>
+</div>
+
+<!-- Categories Service -->
+<div id="service-categories" class="service-section" style="display: none;">
+  <div class="section plottybot-homepage aligncenter" style="padding: var(--spacing-48) var(--spacing-16);">
+    <div style="max-width: 900px; margin: 0 auto; background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40); text-align: center;">
+      <div style="margin-bottom: var(--spacing-32);">
+        <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">📊 Categories Analysis</h1>
+        <p class="text--body-lg" style="color: var(--color-neutral-70); margin-bottom: var(--spacing-32);">Advanced category insights and trend analysis coming soon.</p>
+      </div>
+      
+      <div style="padding: var(--spacing-48); background: var(--color-neutral-10); border-radius: var(--radius-large); margin-bottom: var(--spacing-32);">
+        <div style="font-size: 4rem; margin-bottom: var(--spacing-24);">🚧</div>
+        <h2 class="text--heading-md" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">Under Development</h2>
+        <p class="text--body-md" style="color: var(--color-neutral-60); max-width: 500px; margin: 0 auto;">
+          We're working on powerful category analysis tools that will help you discover trending categories, analyze competition, and identify profitable niches.
+        </p>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-24); text-align: left;">
+        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
+          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">📈 Trend Analysis</h3>
+          <p class="text--body-sm" style="color: var(--color-neutral-70);">Track category performance and identify emerging trends in real-time.</p>
+        </div>
+        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
+          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">🎯 Niche Discovery</h3>
+          <p class="text--body-sm" style="color: var(--color-neutral-70);">Find profitable sub-categories with low competition and high demand.</p>
+        </div>
+        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
+          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">📊 Market Insights</h3>
+          <p class="text--body-sm" style="color: var(--color-neutral-70);">Get detailed analytics on category performance across different markets.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ad Campaign Assistant Service -->
+<div id="service-ad-campaign" class="service-section" style="display: none;">
+  <div class="section plottybot-homepage aligncenter" style="padding: var(--spacing-48) var(--spacing-16);">
+    <div style="max-width: 900px; margin: 0 auto; background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40); text-align: center;">
+      <div style="margin-bottom: var(--spacing-32);">
+        <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">🎯 Ad Campaign Assistant</h1>
+        <p class="text--body-lg" style="color: var(--color-neutral-70); margin-bottom: var(--spacing-32);">AI-powered advertising optimization and campaign management tools.</p>
+      </div>
+      
+      <div style="padding: var(--spacing-48); background: var(--color-neutral-10); border-radius: var(--radius-large); margin-bottom: var(--spacing-32);">
+        <div style="font-size: 4rem; margin-bottom: var(--spacing-24);">🤖</div>
+        <h2 class="text--heading-md" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">Coming Soon</h2>
+        <p class="text--body-md" style="color: var(--color-neutral-60); max-width: 500px; margin: 0 auto;">
+          Our AI-powered advertising assistant will help you create, optimize, and manage your Amazon advertising campaigns for maximum ROI.
+        </p>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-24); text-align: left;">
+        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
+          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">🎯 Keyword Optimization</h3>
+          <p class="text--body-sm" style="color: var(--color-neutral-70);">AI-suggested keywords and bid optimization for better campaign performance.</p>
+        </div>
+        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
+          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">📊 Performance Analytics</h3>
+          <p class="text--body-sm" style="color: var(--color-neutral-70);">Deep insights into campaign performance with actionable recommendations.</p>
+        </div>
+        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
+          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">🚀 Auto-Optimization</h3>
+          <p class="text--body-sm" style="color: var(--color-neutral-70);">Automated campaign adjustments based on real-time performance data.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Navigation Styles */
+.service-nav-btn {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.service-nav-btn:hover {
+  color: var(--color-primary-60) !important;
+  background: var(--color-neutral-05) !important;
+}
+
+.service-nav-btn.active {
+  color: var(--color-neutral-90) !important;
+  border-bottom-color: var(--color-primary-60) !important;
+  background: var(--color-neutral-05) !important;
+}
+
+.service-section {
+  transition: opacity 0.3s ease;
+}
+
+.service-section:not(.active) {
+  display: none !important;
 }
 
 /* Remove slider styles since we use dropdowns now */
@@ -240,6 +355,48 @@ select option {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Service Navigation Functionality
+  const navButtons = document.querySelectorAll('.service-nav-btn');
+  const serviceSections = document.querySelectorAll('.service-section');
+  
+  function switchService(targetService) {
+    // Update navigation buttons
+    navButtons.forEach(btn => {
+      btn.classList.remove('active');
+      btn.style.borderBottomColor = 'transparent';
+      btn.style.color = 'var(--color-neutral-60)';
+      btn.style.background = 'none';
+    });
+    
+    // Update sections
+    serviceSections.forEach(section => {
+      section.classList.remove('active');
+      section.style.display = 'none';
+    });
+    
+    // Activate selected service
+    const activeBtn = document.querySelector(`[data-service="${targetService}"]`);
+    const activeSection = document.getElementById(`service-${targetService}`);
+    
+    if (activeBtn && activeSection) {
+      activeBtn.classList.add('active');
+      activeBtn.style.borderBottomColor = 'var(--color-primary-60)';
+      activeBtn.style.color = 'var(--color-neutral-90)';
+      activeBtn.style.background = 'var(--color-neutral-05)';
+      
+      activeSection.classList.add('active');
+      activeSection.style.display = 'block';
+    }
+  }
+  
+  // Add click event listeners to navigation buttons
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const service = this.getAttribute('data-service');
+      switchService(service);
+    });
+  });
+
   // Currency mapping
   const currencies = <?php echo json_encode($currencies); ?>;
 
