@@ -212,7 +212,7 @@ $currencies = [
 
         <!-- Search Button -->
         <div style="text-align: center;">
-          <button id="categories-search-btn" class="text--buttons" style="padding: var(--spacing-20) var(--spacing-48); background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: var(--color-neutral-00); border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1.125rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">
+          <button id="categories-search-btn" class="text--buttons" style="width: 100%; padding: var(--spacing-20); background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: var(--color-neutral-00); border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1.125rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">
             🔍 Search Categories
           </button>
         </div>
@@ -431,6 +431,30 @@ select option {
   width: 16px;
   height: 16px;
 }
+
+/* Sort Buttons Styles */
+.sort-buttons {
+  display: flex;
+  border: 2px solid var(--color-neutral-30);
+  border-radius: var(--radius-medium);
+  overflow: hidden;
+}
+
+.sort-btn {
+  padding: 8px 16px;
+  background: var(--color-neutral-00);
+  color: var(--color-neutral-90);
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sort-btn.active {
+  background: var(--color-primary-60);
+  color: var(--color-neutral-00);
+}
 </style>
 
 <script>
@@ -536,8 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
       'Politics & History', 'Computers & Internet', 'Gift Books', 'Self-help',
       'Cooking, Food & Wine', 'Science', 'Teens', 'Music & Arts', 'Foreign Language Books',
       'Travel', 'Calendars', 'Science Fiction & Fantasy', 'Esoteric', 'Health & Medicine',
-      'Scores, Songbooks & Lyrics', 'Music & Scores', 'Health & Wellness',
-      'Art & Photography', 'Comic & Manga', 'Health Sciences & Medicine',
+      'Scores, Songbooks & Lyrics', 'Music & Scores', 'Health Sciences & Medicine',
       'Biologies & Memoirs', 'Rest of the World (En)', 'Fitness & Strength Training',
       'Health & Fitness', 'Music & Singing', 'Art & Culture', 'Audio Books',
       'Political Science & International Relations', 'Medicine & Health Sciences',
@@ -739,9 +762,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Function to render categories results
-    function renderCategoriesResults(data) {
+    function renderCategoriesResults(data, sortOrder = 'desc') {
       const { count, results, search_criteria } = data;
       
+      // Sort results based on sortOrder
+      const sortedResults = [...results].sort((a, b) => {
+        const aSales = a.copies_per_day || 0;
+        const bSales = b.copies_per_day || 0;
+        if (sortOrder === 'asc') {
+          return aSales - bSales;
+        } else {
+          return bSales - aSales;
+        }
+      });
+
       // Amazon bestseller base URLs by market
       const amazonBestsellerUrls = {
         'us': 'https://www.amazon.com/Best-Sellers-Books/zgbs/books/',
@@ -753,9 +787,22 @@ document.addEventListener('DOMContentLoaded', function() {
       
       let html = `
         <div style="margin-bottom: var(--spacing-24); padding: var(--spacing-24); background: var(--color-neutral-10); border-radius: var(--radius-medium);">
-          <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 var(--spacing-12) 0; color: var(--color-neutral-90);">
-            Search Results for "${search_criteria.macro_category}"
-          </h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-12);">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0; color: var(--color-neutral-90);">
+              Search Results for "${search_criteria.macro_category}"
+            </h3>
+            <div style="display: flex; align-items: center; gap: var(--spacing-12);">
+              <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-neutral-70);">Sort by Daily Sales:</span>
+              <div class="sort-buttons" style="display: flex; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); overflow: hidden;">
+                <button class="sort-btn ${sortOrder === 'desc' ? 'active' : ''}" data-sort="desc" style="padding: 8px 16px; border: none; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                  Highest First
+                </button>
+                <button class="sort-btn ${sortOrder === 'asc' ? 'active' : ''}" data-sort="asc" style="padding: 8px 16px; border: none; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                  Lowest First
+                </button>
+              </div>
+            </div>
+          </div>
           <div style="display: flex; gap: var(--spacing-16); flex-wrap: wrap; margin-bottom: var(--spacing-12);">
             <span style="background: var(--color-primary-10); color: var(--color-primary-70); padding: 4px 12px; border-radius: var(--radius-medium); font-size: 0.875rem; font-weight: 600;">
               Market: ${search_criteria.market.toUpperCase()}
@@ -763,9 +810,8 @@ document.addEventListener('DOMContentLoaded', function() {
             ${search_criteria.keyword ? `<span style="background: var(--color-secondary-10); color: var(--color-secondary-70); padding: 4px 12px; border-radius: var(--radius-medium); font-size: 0.875rem; font-weight: 600;">Keyword: "${search_criteria.keyword}"</span>` : ''}
           </div>
           <p style="font-size: 1rem; font-weight: 600; color: var(--color-neutral-90); margin: 0;">
-            Found ${count} result${count !== 1 ? 's' : ''} • Sorted by Daily Sales (highest first)
-          </p>
-        </div>
+            Found ${count} result${count !== 1 ? 's' : ''} • Sorted by Daily Sales (${sortOrder === 'desc' ? 'highest' : 'lowest'} first)
+          </div>
       `;
 
       if (count === 0) {
@@ -778,7 +824,7 @@ document.addEventListener('DOMContentLoaded', function() {
       } else {
         html += '<div style="display: grid; gap: var(--spacing-16);">';
         
-        results.forEach((category, index) => {
+        sortedResults.forEach((category, index) => {
           const amazonUrl = amazonBestsellerUrls[search_criteria.market] + (category.category_id || '');
           const dailySales = Math.round(category.copies_per_day || 0);
           const bsr = category.bsr || 'N/A';
@@ -840,6 +886,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
       categoriesResultsContainer.innerHTML = html;
       categoriesResultsContainer.style.display = 'block';
+
+      // Add event listeners for sort buttons
+      const sortButtons = document.querySelectorAll('.sort-btn');
+      sortButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const sortOrder = this.getAttribute('data-sort');
+          renderCategoriesResults(data, sortOrder);
+        });
+      });
 
       // Scroll to results
       document.getElementById('categories-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1037,7 +1092,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const fullStars = Math.floor(rating);
       const hasHalfStar = rating % 1 >= 0.5;
       let starsHtml = '';
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i <5; i++) {
         if (i < fullStars) {
           starsHtml += '<span style="color: #FFA500; font-size: 1.125rem;">★</span>';
         } else if (i === fullStars && hasHalfStar) {
