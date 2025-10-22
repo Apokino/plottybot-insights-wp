@@ -158,34 +158,78 @@ $currencies = [
 <!-- Categories Service -->
 <div id="service-categories" class="service-section" style="display: none;">
   <div class="section plottybot-homepage aligncenter" style="padding: var(--spacing-48) var(--spacing-16);">
-    <div style="max-width: 900px; margin: 0 auto; background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40); text-align: center;">
-      <div style="margin-bottom: var(--spacing-32);">
+    <div class="categories-container" style="max-width: 900px; margin: 0 auto; background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40);">
+      
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: var(--spacing-40);">
         <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">📊 Categories Analysis</h1>
-        <p class="text--body-lg" style="color: var(--color-neutral-70); margin-bottom: var(--spacing-32);">Advanced category insights and trend analysis coming soon.</p>
+        <p class="text--body-lg" style="color: var(--color-neutral-70);">Discover trending categories and analyze market performance across different regions.</p>
       </div>
-      
-      <div style="padding: var(--spacing-48); background: var(--color-neutral-10); border-radius: var(--radius-large); margin-bottom: var(--spacing-32);">
-        <div style="font-size: 4rem; margin-bottom: var(--spacing-24);">🚧</div>
-        <h2 class="text--heading-md" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">Under Development</h2>
-        <p class="text--body-md" style="color: var(--color-neutral-60); max-width: 500px; margin: 0 auto;">
-          We're working on powerful category analysis tools that will help you discover trending categories, analyze competition, and identify profitable niches.
-        </p>
+
+      <!-- Search Form -->
+      <div class="categories-form" style="margin-bottom: var(--spacing-40);">
+        <div class="filter-row" style="display: flex; gap: var(--spacing-24); margin-bottom: var(--spacing-24); flex-wrap: wrap;">
+          
+          <!-- Market Selector -->
+          <div class="filter-group" style="flex: 1 1 300px; min-width: 250px; position: relative;">
+            <label for="categories-market-selector" class="text--label" style="display: block; margin-bottom: var(--spacing-12); color: var(--color-neutral-90); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Market</label>
+            <div id="categories-market-dropdown" class="dropdown" style="width: 100%;">
+              <a href="#" id="categories-market-selected" class="dropdown-toggle" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 40px 16px 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); background: var(--color-neutral-00); color: var(--color-neutral-90); font-size: 1rem; font-weight: 500; min-height: 48px; line-height: 1.5; box-sizing: border-box; cursor: pointer; text-decoration: none;">
+                <span class="navigation-text" id="categories-market-selected-label">🇺🇸 United States</span>
+                <span style="margin-left: 12px; display: flex; align-items: center;"><svg width="12" height="8" viewBox="0 0 12 8"><path fill="#666" d="M1 1l5 5 5-5"/></svg></span>
+              </a>
+              <ul class="dropdown-menu" id="categories-market-options" style="display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 10; background: var(--color-neutral-00); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); margin: 0; padding: 0; list-style: none; box-shadow: 0 8px 32px rgba(0,0,0,0.06);">
+                <!-- Market options will be populated by JavaScript -->
+              </ul>
+              <input type="hidden" id="categories-market-selector" name="categories_market" value="US">
+            </div>
+          </div>
+
+          <!-- Macro Category Selector -->
+          <div class="filter-group" style="flex: 1 1 300px; min-width: 250px; position: relative;">
+            <label for="categories-macro-category-selector" class="text--label" style="display: block; margin-bottom: var(--spacing-12); color: var(--color-neutral-90); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Macro Category</label>
+            <div id="categories-macro-category-dropdown" class="dropdown" style="width: 100%;">
+              <a href="#" id="categories-macro-category-selected" class="dropdown-toggle" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 40px 16px 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); background: var(--color-neutral-00); color: var(--color-neutral-90); font-size: 1rem; font-weight: 500; min-height: 48px; line-height: 1.5; box-sizing: border-box; cursor: pointer; text-decoration: none;">
+                <span class="navigation-text" id="categories-macro-category-selected-label">Select a category...</span>
+                <span style="margin-left: 12px; display: flex; align-items: center;"><svg width="12" height="8" viewBox="0 0 12 8"><path fill="#666" d="M1 1l5 5 5-5"/></svg></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-scrollable" id="categories-macro-category-options" style="display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 10; background: var(--color-neutral-00); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); margin: 0; padding: 0; list-style: none; box-shadow: 0 8px 32px rgba(0,0,0,0.06); max-height: 300px; overflow-y: auto;">
+                <!-- Macro category options will be populated by JavaScript -->
+              </ul>
+              <input type="hidden" id="categories-macro-category-selector" name="categories_macro_category" value="">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Keyword Search (Optional) -->
+        <div class="filter-row" style="margin-bottom: var(--spacing-32);">
+          <div class="filter-group" style="width: 100%;">
+            <label for="categories-keyword-search" class="text--label" style="display: block; margin-bottom: var(--spacing-12); color: var(--color-neutral-90); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Keyword Search <span style="color: var(--color-neutral-60); font-weight: 400; text-transform: none;">(Optional)</span></label>
+            <input type="text" id="categories-keyword-search" name="categories_keyword" placeholder="Enter keywords to filter categories..." style="width: 100%; padding: 16px 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); background: var(--color-neutral-00); color: var(--color-neutral-90); font-size: 1rem; line-height: 1.5; box-sizing: border-box;">
+          </div>
+        </div>
+
+        <!-- Search Button -->
+        <div style="text-align: center;">
+          <button id="categories-search-btn" class="text--buttons" style="padding: var(--spacing-20) var(--spacing-48); background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: var(--color-neutral-00); border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1.125rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">
+            🔍 Search Categories
+          </button>
+        </div>
       </div>
-      
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-24); text-align: left;">
-        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
-          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">📈 Trend Analysis</h3>
-          <p class="text--body-sm" style="color: var(--color-neutral-70);">Track category performance and identify emerging trends in real-time.</p>
+
+      <!-- Results Section -->
+      <div id="categories-results" style="margin-top: var(--spacing-40);">
+        <div id="categories-loading-indicator" style="display: none; text-align: center; padding: var(--spacing-40); color: var(--color-neutral-60);">
+          <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+          <p style="margin-top: var(--spacing-16); font-size: 1.125rem; font-weight: 600;">Searching categories...</p>
         </div>
-        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
-          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">🎯 Niche Discovery</h3>
-          <p class="text--body-sm" style="color: var(--color-neutral-70);">Find profitable sub-categories with low competition and high demand.</p>
-        </div>
-        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
-          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">📊 Market Insights</h3>
-          <p class="text--body-sm" style="color: var(--color-neutral-70);">Get detailed analytics on category performance across different markets.</p>
+        
+        <div id="categories-results-container" style="display: none;">
+          <!-- Results will be populated here -->
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -253,6 +297,42 @@ $currencies = [
 
 .service-section:not(.active) {
   display: none !important;
+}
+
+/* Scrollable dropdown menu */
+.dropdown-menu-scrollable {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-menu-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown-menu-scrollable::-webkit-scrollbar-track {
+  background: var(--color-neutral-10);
+  border-radius: var(--radius-small);
+}
+
+.dropdown-menu-scrollable::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-40);
+  border-radius: var(--radius-small);
+}
+
+.dropdown-menu-scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-50);
+}
+
+/* Button hover effects for categories search */
+#categories-search-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, var(--color-primary-70), var(--color-primary-80));
+}
+
+#categories-search-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
 /* Remove slider styles since we use dropdowns now */
@@ -396,6 +476,382 @@ document.addEventListener('DOMContentLoaded', function() {
       switchService(service);
     });
   });
+
+  // Available markets and macro categories data for Categories service
+  const availableMarkets = [
+    { code: 'US', name: 'United States', flag: '🇺🇸' },
+    { code: 'UK', name: 'United Kingdom', flag: '🇬🇧' },
+    { code: 'DE', name: 'Germany', flag: '🇩🇪' },
+    { code: 'FR', name: 'France', flag: '🇫🇷' },
+    { code: 'ES', name: 'Spain', flag: '🇪🇸' }
+  ];
+
+  const macroCategoriesData = {
+    ES: [
+      'Literatura y ficción', 'Arte, cine y fotografía', 'Biografías, diarios y hechos reales',
+      'Libros universitarios y de estudios superiores', 'Cómics, manga y novelas gráficas',
+      'Juvenil', 'Infantil', 'Religión', 'Libros en idiomas extranjeros', 'Humor',
+      'Deportes y aire libre', 'Ciencias, tecnología y medicina', 'Erótica',
+      'Guías de estudio y repaso', 'Salud, familia y desarrollo personal',
+      'Hogar, manualidades y estilos de vida', 'Romántica', 'Libros LGBTQ+',
+      'Sociedad y ciencias sociales', 'Economía y empresa', 'Ficción histórica',
+      'Lengua, lingüística y redacción', 'Libros en inglés', 'Fantasía, terror y ciencia ficción',
+      'Historia', 'Policíaca, negra y suspense', 'Informática, internet y medios digitales',
+      'Consulta', 'Libros escolares', 'Cocina, bebida y hospitalidad', 'Viajes',
+      'Educación y consulta', 'Calendarios', 'Política', 'Derecho', 'Libros en español',
+      'Acción y aventura', 'Libros infantiles', 'Tecnología y medicina',
+      'Fantadía, terror y ciencia ficción', 'Libros en catalán', 'Libros en gallego',
+      'Libros en euskera', 'Fantástico, terror y ciencia ficción'
+    ],
+    UK: [
+      'Young Adult', 'Crime, Thrillers & Mystery', 'Science & Nature', 'Home & Garden',
+      'Romance', 'Biography', 'Sports, Hobbies & Games', 'Erotica', 'Fiction',
+      'Society, Politics & Philosophy', 'Children\'s Books', 'Humour', 'Comics & Graphic Novels',
+      'Art, Architecture & Photography', 'Religion & Spirituality', 'Health, Family & Lifestyle',
+      'Reference', 'Business, Finance & Law', 'School Books', 'Scientific, Technical & Medical',
+      'Science Fiction & Fantasy', 'Computers & Internet', 'Medical', 'Mind, Body & Spirit',
+      'Poetry, Drama & Criticism', 'Education Studies & Teaching', 'Languages', 'Food & Drink',
+      'History', 'Horror', 'Biology', 'Travel & Holiday', 'Calendars, Diaries, Annuals & More',
+      'Poetry', 'Computer & Internet', 'Games', 'Language'
+    ],
+    US: [
+      'Biographies & Memoirs', 'Children\'s Books', 'Engineering & Transportation',
+      'New, Used & Rental Textbooks', 'Teens', 'Education & Teaching', 'Cookbooks, Food & Wine',
+      'Science & Math', 'Comics & Graphic Novels', 'Parenting & Relationships',
+      'Computers & Technology', 'Humor & Entertainment', 'Biologies & Memoirs', 'Medical Books',
+      'Politics & Social Sciences', 'Business & Money', 'Reference', 'Travel',
+      'Arts & Photography', 'Sports & Outdoors', 'Religion & Spirituality',
+      'Christian Books & Bibles', 'Literature & Fiction', 'Health, Fitness & Dieting',
+      'History', 'Mystery, Thriller & Suspense', 'Self-Help', 'Crafts, Hobbies & Home',
+      'Cooking, Food & Wine', 'Law', 'Test Preparation', 'Science Fiction & Fantasy',
+      'Romance', 'Lesbian, Gay, Bisexual & Transgender Books', 'Libros en español',
+      'Cooking & Food', 'Young Adult Fiction', 'Teen & Young Adult', 'Teen\'s Books',
+      'Pets & Animal Care', 'Medicine & Health Sciences', 'Calendars', 'Books on CD', 'Cooking'
+    ],
+    DE: [
+      'Screen, Art & Culture', 'Children\'s Books', 'Reference', 'Biographies & Memoirs',
+      'Business & Careers', 'Erotic', 'Guidebooks', 'Comics & Manga', 'Home & Garden',
+      'Fiction', 'Natural Science & Technical', 'Arts & Photography', 'Mystery & Thrillers',
+      'Medical & Health Sciences', 'Romance', 'Religion', 'Sports', 'Music',
+      'Politics & History', 'Computers & Internet', 'Gift Books', 'Self-help',
+      'Cooking, Food & Wine', 'Science', 'Teens', 'Music & Arts', 'Foreign Language Books',
+      'Travel', 'Calendars', 'Science Fiction & Fantasy', 'Esoteric', 'Health & Medicine',
+      'Scores, Songbooks & Lyrics', 'Music & Scores', 'Health & Wellness',
+      'Art & Photography', 'Comic & Manga', 'Health Sciences & Medicine',
+      'Biologies & Memoirs', 'Rest of the World (En)', 'Fitness & Strength Training',
+      'Health & Fitness', 'Music & Singing', 'Art & Culture', 'Audio Books',
+      'Political Science & International Relations', 'Medicine & Health Sciences',
+      'Science & Engineering', 'Teen Fiction', 'Calendar & Books', 'Postgott', 'Arts & Culture'
+    ],
+    FR: [
+      'Dictionnaires, langues et encyclopédies', 'Livres pour enfants', 'Adolescents',
+      'Art, Musique et Cinéma', 'Sciences humaines', 'Famille, Santé et Bien-être',
+      'Santé, Forme et Diététique', 'Actu, Politique et Société', 'Policier et Suspense',
+      'Littérature', 'Sciences, Techniques et Médecine', 'Loisirs créatifs, décoration et passions',
+      'Religions et Spiritualités', 'Romance et littérature sentimentale',
+      'Livres anglais et étrangers', 'Informatique et Internet', 'Histoire',
+      'Ésotérisme et Paranormal', 'Science-Fiction', 'Fantasy et Terreur', 'Sports',
+      'Droit', 'Scolaire et Parascolaire', 'Cuisine et Vins', 'Etudes supérieures',
+      'Manga', 'Tourisme et Voyages', 'Entreprise et Bourse', 'Erotisme',
+      'Bandes dessinées', 'Nature et animaux', 'Humour', 'Arts, Musique et Cinéma',
+      'Calendriers et Agendas', 'Beaux livres', 'Fantasy et Terreurs', 'Musique',
+      'Entreprises et Bourse'
+    ]
+  };
+
+  // Categories Service Functionality
+  function initializeCategoriesService() {
+    const categoriesMarketDropdown = document.getElementById('categories-market-dropdown');
+    const categoriesMarketSelected = document.getElementById('categories-market-selected');
+    const categoriesMarketOptions = document.getElementById('categories-market-options');
+    const categoriesMarketSelector = document.getElementById('categories-market-selector');
+    const categoriesMarketSelectedLabel = document.getElementById('categories-market-selected-label');
+
+    const categoriesMacroCategoryDropdown = document.getElementById('categories-macro-category-dropdown');
+    const categoriesMacroCategorySelected = document.getElementById('categories-macro-category-selected');
+    const categoriesMacroCategoryOptions = document.getElementById('categories-macro-category-options');
+    const categoriesMacroCategorySelector = document.getElementById('categories-macro-category-selector');
+    const categoriesMacroCategorySelectedLabel = document.getElementById('categories-macro-category-selected-label');
+
+    const categoriesKeywordSearch = document.getElementById('categories-keyword-search');
+    const categoriesSearchBtn = document.getElementById('categories-search-btn');
+    const categoriesLoadingIndicator = document.getElementById('categories-loading-indicator');
+    const categoriesResultsContainer = document.getElementById('categories-results-container');
+
+    // Populate market options
+    function populateMarketOptions() {
+      categoriesMarketOptions.innerHTML = '';
+      availableMarkets.forEach(market => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = '#';
+        a.setAttribute('data-value', market.code);
+        a.className = 'dropdown-item';
+        a.style = 'display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;';
+        a.innerHTML = `<span class="navigation-text">${market.flag} ${market.name}</span>`;
+        li.appendChild(a);
+        categoriesMarketOptions.appendChild(li);
+      });
+    }
+
+    // Populate macro category options based on selected market
+    function populateMacroCategoryOptions(marketCode) {
+      categoriesMacroCategoryOptions.innerHTML = '';
+      const categories = macroCategoriesData[marketCode] || [];
+      
+      if (categories.length === 0) {
+        const li = document.createElement('li');
+        li.innerHTML = '<span style="padding: 12px; color: var(--color-neutral-60);">No categories available</span>';
+        categoriesMacroCategoryOptions.appendChild(li);
+        return;
+      }
+
+      categories.forEach(category => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = '#';
+        a.setAttribute('data-value', category);
+        a.className = 'dropdown-item';
+        a.style = 'display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;';
+        a.innerHTML = `<span class="navigation-text">${category}</span>`;
+        li.appendChild(a);
+        categoriesMacroCategoryOptions.appendChild(li);
+      });
+    }
+
+    // Market dropdown functionality
+    categoriesMarketSelected.addEventListener('click', function(e) {
+      e.preventDefault();
+      categoriesMarketOptions.style.display = categoriesMarketOptions.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Macro category dropdown functionality
+    categoriesMacroCategorySelected.addEventListener('click', function(e) {
+      e.preventDefault();
+      categoriesMacroCategoryOptions.style.display = categoriesMacroCategoryOptions.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!categoriesMarketDropdown.contains(e.target)) {
+        categoriesMarketOptions.style.display = 'none';
+      }
+      if (!categoriesMacroCategoryDropdown.contains(e.target)) {
+        categoriesMacroCategoryOptions.style.display = 'none';
+      }
+    });
+
+    // Market selection handler
+    categoriesMarketOptions.addEventListener('click', function(e) {
+      if (e.target.closest('.dropdown-item')) {
+        e.preventDefault();
+        const item = e.target.closest('.dropdown-item');
+        const value = item.getAttribute('data-value');
+        categoriesMarketSelector.value = value;
+        categoriesMarketSelectedLabel.innerHTML = item.querySelector('.navigation-text').innerHTML;
+        categoriesMarketOptions.style.display = 'none';
+        
+        // Update macro categories for selected market
+        populateMacroCategoryOptions(value);
+        // Reset macro category selection
+        categoriesMacroCategorySelector.value = '';
+        categoriesMacroCategorySelectedLabel.textContent = 'Select a category...';
+      }
+    });
+
+    // Macro category selection handler
+    categoriesMacroCategoryOptions.addEventListener('click', function(e) {
+      if (e.target.closest('.dropdown-item')) {
+        e.preventDefault();
+        const item = e.target.closest('.dropdown-item');
+        const value = item.getAttribute('data-value');
+        categoriesMacroCategorySelector.value = value;
+        categoriesMacroCategorySelectedLabel.textContent = item.querySelector('.navigation-text').textContent;
+        categoriesMacroCategoryOptions.style.display = 'none';
+      }
+    });
+
+    // Search button functionality
+    categoriesSearchBtn.addEventListener('click', async function() {
+      const market = categoriesMarketSelector.value.toLowerCase();
+      const macroCategory = categoriesMacroCategorySelector.value;
+      const keyword = categoriesKeywordSearch.value.trim();
+
+      if (!macroCategory) {
+        alert('Please select a macro category before searching.');
+        return;
+      }
+
+      // Show loading indicator
+      categoriesLoadingIndicator.style.display = 'block';
+      categoriesResultsContainer.style.display = 'none';
+      categoriesSearchBtn.disabled = true;
+
+      try {
+        const payload = {
+          market: market,
+          macro_category: macroCategory,
+          keyword: keyword || undefined
+        };
+
+        // Remove undefined values
+        Object.keys(payload).forEach(key => {
+          if (payload[key] === undefined) delete payload[key];
+        });
+
+        console.log('Categories API Request Payload:', payload);
+
+        const response = await fetch('https://api-frontend-q66rh5ei3a-uc.a.run.app/categories/search', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Categories API Response:', data);
+
+        // Hide loading indicator
+        categoriesLoadingIndicator.style.display = 'none';
+        categoriesSearchBtn.disabled = false;
+
+        // Render results
+        renderCategoriesResults(data);
+
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        categoriesLoadingIndicator.style.display = 'none';
+        categoriesSearchBtn.disabled = false;
+        categoriesResultsContainer.innerHTML = `
+          <div style="text-align: center; padding: var(--spacing-40); color: var(--color-danger-60);">
+            <p style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-12);">Error loading categories</p>
+            <p style="color: var(--color-neutral-60);">${error.message}</p>
+          </div>
+        `;
+        categoriesResultsContainer.style.display = 'block';
+      }
+    });
+
+    // Function to render categories results
+    function renderCategoriesResults(data) {
+      const { count, results, search_criteria } = data;
+      
+      // Amazon bestseller base URLs by market
+      const amazonBestsellerUrls = {
+        'us': 'https://www.amazon.com/Best-Sellers-Books/zgbs/books/',
+        'uk': 'https://www.amazon.co.uk/Best-Sellers-Books/zgbs/books/',
+        'de': 'https://www.amazon.de/gp/bestsellers/books/',
+        'fr': 'https://www.amazon.fr/gp/bestsellers/books/',
+        'es': 'https://www.amazon.es/gp/bestsellers/books/'
+      };
+      
+      let html = `
+        <div style="margin-bottom: var(--spacing-24); padding: var(--spacing-24); background: var(--color-neutral-10); border-radius: var(--radius-medium);">
+          <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 var(--spacing-12) 0; color: var(--color-neutral-90);">
+            Search Results for "${search_criteria.macro_category}"
+          </h3>
+          <div style="display: flex; gap: var(--spacing-16); flex-wrap: wrap; margin-bottom: var(--spacing-12);">
+            <span style="background: var(--color-primary-10); color: var(--color-primary-70); padding: 4px 12px; border-radius: var(--radius-medium); font-size: 0.875rem; font-weight: 600;">
+              Market: ${search_criteria.market.toUpperCase()}
+            </span>
+            ${search_criteria.keyword ? `<span style="background: var(--color-secondary-10); color: var(--color-secondary-70); padding: 4px 12px; border-radius: var(--radius-medium); font-size: 0.875rem; font-weight: 600;">Keyword: "${search_criteria.keyword}"</span>` : ''}
+          </div>
+          <p style="font-size: 1rem; font-weight: 600; color: var(--color-neutral-90); margin: 0;">
+            Found ${count} result${count !== 1 ? 's' : ''} • Sorted by Daily Sales (highest first)
+          </p>
+        </div>
+      `;
+
+      if (count === 0) {
+        html += `
+          <div style="text-align: center; padding: var(--spacing-40); color: var(--color-neutral-60);">
+            <p style="font-size: 1.125rem; font-weight: 600;">No categories found</p>
+            <p>Try adjusting your search criteria or selecting a different macro category.</p>
+          </div>
+        `;
+      } else {
+        html += '<div style="display: grid; gap: var(--spacing-16);">';
+        
+        results.forEach((category, index) => {
+          const amazonUrl = amazonBestsellerUrls[search_criteria.market] + (category.category_id || '');
+          const dailySales = Math.round(category.copies_per_day || 0);
+          const bsr = category.bsr || 'N/A';
+          
+          html += `
+            <div style="padding: var(--spacing-24); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.3s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
+              
+              <!-- Category Path (Clickable) -->
+              <div style="margin-bottom: var(--spacing-16);">
+                <a href="${amazonUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary-60); text-decoration: none; font-size: 1.125rem; font-weight: 600; line-height: 1.4; transition: color 0.2s;" onmouseover="this.style.color='var(--color-primary-70)'" onmouseout="this.style.color='var(--color-primary-60)'">
+                  ${category.category_path || category.name || `Category ${index + 1}`}
+                </a>
+              </div>
+
+              <!-- Metrics Row -->
+              <div style="display: flex; gap: var(--spacing-32); flex-wrap: wrap; align-items: center;">
+                
+                <!-- Daily Sales -->
+                <div style="flex: 1; min-width: 140px;">
+                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Daily Sales</p>
+                  <p style="font-size: 1.25rem; font-weight: 700; color: var(--color-success-60); margin: 0;">
+                    ${dailySales.toLocaleString()} <span style="font-size: 0.875rem; color: var(--color-neutral-70);">copies/day</span>
+                  </p>
+                </div>
+
+                <!-- BSR -->
+                <div style="flex: 1; min-width: 100px;">
+                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">BSR Rank</p>
+                  <p style="font-size: 1.125rem; font-weight: 700; color: var(--color-primary-60); margin: 0;">
+                    #${typeof bsr === 'number' ? bsr.toLocaleString() : bsr}
+                  </p>
+                </div>
+
+                <!-- Macro Category -->
+                <div style="flex: 1; min-width: 120px;">
+                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Macro Category</p>
+                  <span style="background: var(--color-secondary-10); color: var(--color-secondary-70); padding: 4px 12px; border-radius: var(--radius-medium); font-size: 0.875rem; font-weight: 600;">
+                    ${category.macro_category || search_criteria.macro_category || 'Unknown'}
+                  </span>
+                </div>
+
+                <!-- View on Amazon Button -->
+                <div style="margin-left: auto;">
+                  <a href="${amazonUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: var(--spacing-8); padding: 12px 20px; background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: var(--color-neutral-00); text-decoration: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(99, 102, 241, 0.3)'">
+                    View on Amazon
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                    </svg>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+          `;
+        });
+        
+        html += '</div>';
+      }
+
+      categoriesResultsContainer.innerHTML = html;
+      categoriesResultsContainer.style.display = 'block';
+
+      // Scroll to results
+      document.getElementById('categories-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Initialize the dropdowns
+    populateMarketOptions();
+    populateMacroCategoryOptions('US'); // Default to US
+  }
+
+  // Initialize Categories service when the page loads
+  initializeCategoriesService();
 
   // Currency mapping
   const currencies = <?php echo json_encode($currencies); ?>;
