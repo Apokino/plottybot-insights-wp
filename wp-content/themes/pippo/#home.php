@@ -842,26 +842,18 @@ document.addEventListener('DOMContentLoaded', function() {
               <!-- Metrics Row -->
               <div style="display: flex; gap: var(--spacing-32); flex-wrap: wrap; align-items: center;">
                 
-                <!-- Daily Sales -->
+                <!-- Daily Sales to #1 -->
                 <div style="flex: 1; min-width: 140px;">
-                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Daily Sales</p>
+                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Daily Sales to #1</p>
                   <p style="font-size: 1.25rem; font-weight: 700; color: var(--color-success-60); margin: 0;">
                     ${dailySales.toLocaleString()} <span style="font-size: 0.875rem; color: var(--color-neutral-70);">copies/day</span>
-                  </p>
-                </div>
-
-                <!-- BSR -->
-                <div style="flex: 1; min-width: 100px;">
-                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">BSR Rank</p>
-                  <p style="font-size: 1.125rem; font-weight: 700; color: var(--color-primary-60); margin: 0;">
-                    #${typeof bsr === 'number' ? bsr.toLocaleString() : bsr}
                   </p>
                 </div>
 
                 <!-- Macro Category -->
                 <div style="flex: 1; min-width: 120px;">
                   <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Macro Category</p>
-                  <span style="background: var(--color-secondary-10); color: var(--color-secondary-70); padding: 4px 12px; border-radius: var(--radius-medium); font-size: 0.875rem; font-weight: 600;">
+                  <span style="background: var(--color-secondary-10); color: var(--color-secondary-70); padding: 4px 12px; border-radius: var(--radius-medium); font-size: 0.875rem; font-weight: 600; word-break: break-word; display: inline-block; max-width: 100%;">
                     ${category.macro_category || search_criteria.macro_category || 'Unknown'}
                   </span>
                 </div>
