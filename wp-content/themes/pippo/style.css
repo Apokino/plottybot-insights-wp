@@ -835,10 +835,11 @@ textarea {
 }
 
 .main-navigation ul {
-	display: none;
+	display: flex; /* Changed from none to flex */
 	list-style: none;
 	margin: 0;
 	padding-left: 0;
+	align-items: center; /* Align items vertically */
 }
 
 
@@ -860,7 +861,7 @@ textarea {
 
 .main-navigation li {
 	position: relative;
-	margin: auto;
+	margin: 0; /* Changed from auto to 0 */
 	margin-right: 16px;
 	padding: 2px 4px;
 	font-weight: 700;

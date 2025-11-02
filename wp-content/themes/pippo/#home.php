@@ -2,6 +2,12 @@
 /* Template Name: Home */
 get_header();
 
+// Check if user is logged in, if not redirect to login page
+if (!is_user_logged_in()) {
+    wp_redirect('https://plottybot.com/login');
+    exit;
+}
+
 // Currency mapping based on market
 $currencies = [
     'US' => '$',
@@ -16,22 +22,69 @@ $currencies = [
 <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/style-rtl.css">
 <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/pb-style.php">
 
-<!-- Navigation Menu -->
-<div class="services-navigation" style="background: var(--color-neutral-00); border-bottom: 1px solid var(--color-neutral-30); box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: var(--spacing-48);">
-  <div style="max-width: 1200px; margin: 0 auto; padding: 0 var(--spacing-16);">
-    <nav style="display: flex; gap: 0;">
-      <button id="nav-book-search" class="service-nav-btn active" data-service="book-search" style="padding: var(--spacing-20) var(--spacing-32); background: none; border: none; border-bottom: 3px solid var(--color-primary-60); color: var(--color-neutral-90); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s; position: relative;">
-        📚 Book Search
+<!-- Main Container with Sidebar and Content -->
+<div style="display: flex; min-height: calc(100vh - 120px); position: relative; margin-top: 0;">
+
+  <!-- Left Sidebar Navigation -->
+  <aside id="sidebar" class="sidebar" style="position: relative; width: 280px; background: #F5F5F5; border-right: 1px solid #E0E0E0; box-shadow: 2px 0 8px rgba(0,0,0,0.05); transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; flex-shrink: 0;">
+
+    <!-- Navigation Menu -->
+    <nav style="padding: var(--spacing-24) 0;">
+      <button id="nav-book-search" class="service-nav-btn active" data-service="book-search" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: var(--color-primary-10); border: none; border-left: 4px solid var(--color-primary-60); color: var(--color-neutral-90); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
+        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--color-primary-50); border-radius: var(--radius-small);">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path>
+            <path d="M18 3h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+        </span>
+        <span>Book Search</span>
       </button>
-      <button id="nav-categories" class="service-nav-btn" data-service="categories" style="padding: var(--spacing-20) var(--spacing-32); background: none; border: none; border-bottom: 3px solid transparent; color: var(--color-neutral-60); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s; position: relative;">
-        📊 Categories
+      <button id="nav-categories" class="service-nav-btn" data-service="categories" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-70); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
+        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-70)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </span>
+        <span>Categories</span>
       </button>
-      <button id="nav-ad-campaign" class="service-nav-btn" data-service="ad-campaign" style="padding: var(--spacing-20) var(--spacing-32); background: none; border: none; border-bottom: 3px solid transparent; color: var(--color-neutral-60); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s; position: relative;">
-        🎯 Ad Campaign Assistant
+      <button id="nav-ad-campaign" class="service-nav-btn" data-service="ad-campaign" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-70); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
+        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-70)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </span>
+        <span>Royalties Calculator</span>
+      </button>
+      <button id="nav-chrome-extension" class="service-nav-btn" data-service="chrome-extension" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-70); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
+        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-70)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="4"></circle>
+            <line x1="21.17" y1="8" x2="12" y2="8"></line>
+            <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
+            <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
+          </svg>
+        </span>
+        <span>Chrome Extension</span>
       </button>
     </nav>
-  </div>
-</div>
+
+
+  </aside>
+
+  <!-- Toggle Button -->
+  <button id="sidebar-toggle" class="sidebar-toggle" style="position: absolute; left: 280px; top: 20px; z-index: 100; width: 40px; height: 40px; background: white; border: 1px solid #E0E0E0; border-radius: var(--radius-medium); color: var(--color-neutral-70); cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+
+  <!-- Main Content Area -->
+  <div id="main-content" class="main-content" style="flex: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: var(--color-neutral-05);">
 
 <!-- Book Search Service -->
 <div id="service-book-search" class="service-section active" style="display: block;">
@@ -159,7 +212,7 @@ $currencies = [
 <div id="service-categories" class="service-section" style="display: none;">
   <div class="section plottybot-homepage aligncenter" style="padding: var(--spacing-48) var(--spacing-16);">
     <div class="categories-container" style="max-width: 900px; margin: 0 auto; background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40);">
-      
+
       <!-- Header -->
       <div style="text-align: center; margin-bottom: var(--spacing-40);">
         <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">📊 Categories Analysis</h1>
@@ -169,7 +222,7 @@ $currencies = [
       <!-- Search Form -->
       <div class="categories-form" style="margin-bottom: var(--spacing-40);">
         <div class="filter-row" style="display: flex; gap: var(--spacing-24); margin-bottom: var(--spacing-24); flex-wrap: wrap;">
-          
+
           <!-- Market Selector -->
           <div class="filter-group" style="flex: 1 1 300px; min-width: 250px; position: relative;">
             <label for="categories-market-selector" class="text--label" style="display: block; margin-bottom: var(--spacing-12); color: var(--color-neutral-90); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Market</label>
@@ -224,7 +277,7 @@ $currencies = [
           <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div>
           <p style="margin-top: var(--spacing-16); font-size: 1.125rem; font-weight: 600;">Searching categories...</p>
         </div>
-        
+
         <div id="categories-results-container" style="display: none;">
           <!-- Results will be populated here -->
         </div>
@@ -234,61 +287,401 @@ $currencies = [
   </div>
 </div>
 
-<!-- Ad Campaign Assistant Service -->
+<!-- Royalties Calculator Service -->
 <div id="service-ad-campaign" class="service-section" style="display: none;">
   <div class="section plottybot-homepage aligncenter" style="padding: var(--spacing-48) var(--spacing-16);">
-    <div style="max-width: 900px; margin: 0 auto; background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40); text-align: center;">
-      <div style="margin-bottom: var(--spacing-32);">
-        <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">🎯 Ad Campaign Assistant</h1>
-        <p class="text--body-lg" style="color: var(--color-neutral-70); margin-bottom: var(--spacing-32);">AI-powered advertising optimization and campaign management tools.</p>
+    <div style="max-width: 900px; margin: 0 auto; background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40);">
+
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: var(--spacing-40);">
+        <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">💰 Royalties Calculator</h1>
+        <p class="text--body-lg" style="color: var(--color-neutral-70);">Calculate your Amazon KDP royalties based on book specifications and pricing.</p>
       </div>
-      
-      <div style="padding: var(--spacing-48); background: var(--color-neutral-10); border-radius: var(--radius-large); margin-bottom: var(--spacing-32);">
-        <div style="font-size: 4rem; margin-bottom: var(--spacing-24);">🤖</div>
-        <h2 class="text--heading-md" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">Coming Soon</h2>
-        <p class="text--body-md" style="color: var(--color-neutral-60); max-width: 500px; margin: 0 auto;">
-          Our AI-powered advertising assistant will help you create, optimize, and manage your Amazon advertising campaigns for maximum ROI.
-        </p>
+
+      <!-- Calculator Form -->
+      <div class="royalties-form">
+
+        <!-- Row 1: Market and Unit -->
+        <div class="filter-row" style="display: flex; gap: var(--spacing-24); margin-bottom: var(--spacing-24); flex-wrap: wrap;">
+
+          <!-- Market Selector -->
+          <div class="filter-group" style="flex: 1 1 300px; min-width: 250px; position: relative;">
+            <label for="royalties-market-selector" class="text--label" style="display: block; margin-bottom: var(--spacing-12); color: var(--color-neutral-90); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Market</label>
+            <div id="royalties-market-dropdown" class="dropdown" style="width: 100%;">
+              <a href="#" id="royalties-market-selected" class="dropdown-toggle" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 40px 16px 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); background: var(--color-neutral-00); color: var(--color-neutral-90); font-size: 1rem; font-weight: 500; min-height: 48px; line-height: 1.5; box-sizing: border-box; cursor: pointer; text-decoration: none;">
+                <span class="navigation-text" id="royalties-market-selected-label">🇺🇸 United States</span>
+                <span style="margin-left: 12px; display: flex; align-items: center;"><svg width="12" height="8" viewBox="0 0 12 8"><path fill="#666" d="M1 1l5 5 5-5"/></svg></span>
+              </a>
+              <ul class="dropdown-menu" id="royalties-market-options" style="display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 10; background: var(--color-neutral-00); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); margin: 0; padding: 0; list-style: none; box-shadow: 0 8px 32px rgba(0,0,0,0.06);">
+                <li><a href="#" data-value="US" data-currency="$" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">🇺🇸 United States</span></a></li>
+                <li><a href="#" data-value="UK" data-currency="£" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">🇬🇧 United Kingdom</span></a></li>
+                <li><a href="#" data-value="IT" data-currency="€" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">🇮🇹 Italy</span></a></li>
+                <li><a href="#" data-value="DE" data-currency="€" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">🇩🇪 Germany</span></a></li>
+                <li><a href="#" data-value="FR" data-currency="€" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">🇫🇷 France</span></a></li>
+                <li><a href="#" data-value="ES" data-currency="€" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">🇪🇸 Spain</span></a></li>
+                <li><a href="#" data-value="CA" data-currency="CA$" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">🇨🇦 Canada</span></a></li>
+              </ul>
+              <input type="hidden" id="royalties-market-selector" name="royalties_market" value="US">
+            </div>
+          </div>
+
+          <!-- Unit Selector -->
+          <div class="filter-group" style="flex: 1 1 300px; min-width: 250px; position: relative;">
+            <label for="royalties-unit-selector" class="text--label" style="display: block; margin-bottom: var(--spacing-12); color: var(--color-neutral-90); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Unit</label>
+            <div id="royalties-unit-dropdown" class="dropdown" style="width: 100%;">
+              <a href="#" id="royalties-unit-selected" class="dropdown-toggle" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 40px 16px 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); background: var(--color-neutral-00); color: var(--color-neutral-90); font-size: 1rem; font-weight: 500; min-height: 48px; line-height: 1.5; box-sizing: border-box; cursor: pointer; text-decoration: none;">
+                <span class="navigation-text" id="royalties-unit-selected-label">Inches (in)</span>
+                <span style="margin-left: 12px; display: flex; align-items: center;"><svg width="12" height="8" viewBox="0 0 12 8"><path fill="#666" d="M1 1l5 5 5-5"/></svg></span>
+              </a>
+              <ul class="dropdown-menu" id="royalties-unit-options" style="display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 10; background: var(--color-neutral-00); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); margin: 0; padding: 0; list-style: none; box-shadow: 0 8px 32px rgba(0,0,0,0.06);">
+                <li><a href="#" data-value="in" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">Inches (in)</span></a></li>
+                <li><a href="#" data-value="mm" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">Millimeters (mm)</span></a></li>
+              </ul>
+              <input type="hidden" id="royalties-unit-selector" name="royalties_unit" value="in">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Row 2: Trim Size -->
+        <div class="filter-row" style="display: flex; gap: var(--spacing-24); margin-bottom: var(--spacing-24); flex-wrap: wrap;">
+
+          <!-- Trim Size Selector -->
+          <div class="filter-group" style="flex: 1 1 100%; position: relative;">
+            <label for="royalties-trim-size-selector" class="text--label" style="display: block; margin-bottom: var(--spacing-12); color: var(--color-neutral-90); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Trim Size</label>
+            <div id="royalties-trim-size-dropdown" class="dropdown" style="width: 100%;">
+              <a href="#" id="royalties-trim-size-selected" class="dropdown-toggle" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 40px 16px 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); background: var(--color-neutral-00); color: var(--color-neutral-90); font-size: 1rem; font-weight: 500; min-height: 48px; line-height: 1.5; box-sizing: border-box; cursor: pointer; text-decoration: none;">
+                <span class="navigation-text" id="royalties-trim-size-selected-label">6 x 9 in</span>
+                <span style="margin-left: 12px; display: flex; align-items: center;"><svg width="12" height="8" viewBox="0 0 12 8"><path fill="#666" d="M1 1l5 5 5-5"/></svg></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-scrollable" id="royalties-trim-size-options" style="display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 10; background: var(--color-neutral-00); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); margin: 0; padding: 0; list-style: none; box-shadow: 0 8px 32px rgba(0,0,0,0.06); max-height: 300px; overflow-y: auto;">
+                <!-- Options will be populated by JavaScript -->
+              </ul>
+              <input type="hidden" id="royalties-width" name="royalties_width" value="6">
+              <input type="hidden" id="royalties-height" name="royalties_height" value="9">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Row 3: Pages, Price, Ink Type -->
+        <div class="filter-row" style="display: flex; gap: var(--spacing-24); margin-bottom: var(--spacing-24); flex-wrap: wrap;">
+
+          <!-- Number of Pages -->
+          <div class="filter-group" style="flex: 1 1 200px; min-width: 150px;">
+            <label for="royalties-pages" class="text--label" style="display: block; margin-bottom: var(--spacing-12); color: var(--color-neutral-90); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Number of Pages</label>
+            <input type="number" id="royalties-pages" name="royalties_pages" value="200" min="24" max="828" placeholder="200" style="width: 100%; padding: 16px 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); background: var(--color-neutral-00); color: var(--color-neutral-90); font-size: 1rem; line-height: 1.5; box-sizing: border-box;">
+          </div>
+
+          <!-- List Price -->
+          <div class="filter-group" style="flex: 1 1 200px; min-width: 150px;">
+            <label for="royalties-price" class="text--label" style="display: block; margin-bottom: var(--spacing-12); color: var(--color-neutral-90); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">List Price <span id="royalties-currency-symbol" style="color: var(--color-primary-60);">($)</span></label>
+            <input type="number" id="royalties-price" name="royalties_price" value="9.99" min="0" step="0.01" placeholder="9.99" style="width: 100%; padding: 16px 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); background: var(--color-neutral-00); color: var(--color-neutral-90); font-size: 1rem; line-height: 1.5; box-sizing: border-box;">
+          </div>
+
+          <!-- Ink Type -->
+          <div class="filter-group" style="flex: 1 1 250px; min-width: 200px; position: relative;">
+            <label for="royalties-ink-type-selector" class="text--label" style="display: block; margin-bottom: var(--spacing-12); color: var(--color-neutral-90); font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Ink Type</label>
+            <div id="royalties-ink-type-dropdown" class="dropdown" style="width: 100%;">
+              <a href="#" id="royalties-ink-type-selected" class="dropdown-toggle" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 40px 16px 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); background: var(--color-neutral-00); color: var(--color-neutral-90); font-size: 1rem; font-weight: 500; min-height: 48px; line-height: 1.5; box-sizing: border-box; cursor: pointer; text-decoration: none;">
+                <span class="navigation-text" id="royalties-ink-type-selected-label">Black & White</span>
+                <span style="margin-left: 12px; display: flex; align-items: center;"><svg width="12" height="8" viewBox="0 0 12 8"><path fill="#666" d="M1 1l5 5 5-5"/></svg></span>
+              </a>
+              <ul class="dropdown-menu" id="royalties-ink-type-options" style="display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 10; background: var(--color-neutral-00); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); margin: 0; padding: 0; list-style: none; box-shadow: 0 8px 32px rgba(0,0,0,0.06);">
+                <li><a href="#" data-value="black" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">Black & White</span></a></li>
+                <li><a href="#" data-value="standard_color" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">Standard Color</span></a></li>
+                <li><a href="#" data-value="premium_color" class="dropdown-item" style="display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;"><span class="navigation-text">Premium Color</span></a></li>
+              </ul>
+              <input type="hidden" id="royalties-ink-type-selector" name="royalties_ink_type" value="black">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Calculate Button -->
+        <div style="text-align: center; margin-top: var(--spacing-32);">
+          <button id="royalties-calculate-btn" class="text--buttons" style="width: 100%; padding: var(--spacing-20); background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: var(--color-neutral-00); border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1.125rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">
+            💰 Calculate Royalties
+          </button>
+        </div>
+
       </div>
-      
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-24); text-align: left;">
-        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
-          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">🎯 Keyword Optimization</h3>
-          <p class="text--body-sm" style="color: var(--color-neutral-70);">AI-suggested keywords and bid optimization for better campaign performance.</p>
-        </div>
-        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
-          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">📊 Performance Analytics</h3>
-          <p class="text--body-sm" style="color: var(--color-neutral-70);">Deep insights into campaign performance with actionable recommendations.</p>
-        </div>
-        <div style="padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
-          <h3 class="text--heading-sm" style="color: var(--color-primary-60); margin-bottom: var(--spacing-12);">🚀 Auto-Optimization</h3>
-          <p class="text--body-sm" style="color: var(--color-neutral-70);">Automated campaign adjustments based on real-time performance data.</p>
+
+      <!-- Results Section -->
+      <div id="royalties-results" style="margin-top: var(--spacing-40); display: none;">
+        <div style="padding: var(--spacing-32); background: var(--color-neutral-10); border-radius: var(--radius-large);">
+          <h2 class="text--heading-md" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-24); text-align: center;">Your Royalty Breakdown</h2>
+
+          <div style="display: grid; gap: var(--spacing-16);">
+            <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 1rem; color: var(--color-neutral-70); font-weight: 600;">List Price:</span>
+              <span id="result-list-price" style="font-size: 1.25rem; color: var(--color-neutral-90); font-weight: 700;">$9.99</span>
+            </div>
+
+            <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 1rem; color: var(--color-neutral-70); font-weight: 600;">Printing Cost:</span>
+              <span id="result-printing-cost" style="font-size: 1.25rem; color: var(--color-danger-60); font-weight: 700;">$3.65</span>
+            </div>
+
+            <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 1rem; color: var(--color-neutral-70); font-weight: 600;">Amazon Fee (40%):</span>
+              <span id="result-amazon-fee" style="font-size: 1.25rem; color: var(--color-danger-60); font-weight: 700;">$4.00</span>
+            </div>
+
+            <div style="padding: var(--spacing-24); background: linear-gradient(135deg, var(--color-success-50), var(--color-success-60)); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center; margin-top: var(--spacing-16);">
+              <span style="font-size: 1.25rem; color: var(--color-neutral-00); font-weight: 700;">Your Royalty:</span>
+              <span id="result-royalty" style="font-size: 2rem; color: var(--color-neutral-00); font-weight: 700;">$2.34</span>
+            </div>
+          </div>
+
+          <div style="margin-top: var(--spacing-24); padding: var(--spacing-16); background: var(--color-neutral-00); border-radius: var(--radius-medium); text-align: center;">
+            <p style="font-size: 0.875rem; color: var(--color-neutral-60); margin: 0;">
+              📝 Note: This is an estimate. Actual royalties may vary based on Amazon's policies and market-specific fees.
+            </p>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
+
+<!-- Chrome Extension Service -->
+<div id="service-chrome-extension" class="service-section" style="display: none;">
+  <div class="section plottybot-homepage aligncenter" style="padding: var(--spacing-48) var(--spacing-16);">
+    <div style="max-width: 900px; margin: 0 auto; background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40);">
+
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: var(--spacing-40);">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: linear-gradient(135deg, var(--color-primary-50), var(--color-primary-60)); border-radius: var(--radius-large); margin-bottom: var(--spacing-24); box-shadow: 0 8px 24px rgba(0, 194, 168, 0.3);">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="4"></circle>
+            <line x1="21.17" y1="8" x2="12" y2="8"></line>
+            <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
+            <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
+          </svg>
+        </div>
+        <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16); font-size: 2rem;">Plottybot Insights Chrome Extension</h1>
+        <p class="text--body-lg" style="color: var(--color-neutral-70); max-width: 650px; margin: 0 auto; line-height: 1.6;">Browse Amazon books, keywords, and categories while getting instant data on demand, profit margins, and niche profitability - all the insights you need to identify winning opportunities on Amazon KDP.</p>
+      </div>
+
+      <!-- Features List -->
+      <div style="margin-bottom: var(--spacing-40);">
+        <div style="display: grid; gap: var(--spacing-24); margin-bottom: var(--spacing-40);">
+
+          <div style="display: flex; gap: var(--spacing-16); align-items: start; padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium); border-left: 4px solid var(--color-primary-50);">
+            <div style="width: 40px; height: 40px; background: var(--color-primary-10); border-radius: var(--radius-medium); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
+            </div>
+            <div>
+              <h3 style="color: var(--color-neutral-90); font-size: 1.125rem; font-weight: 700; margin: 0 0 var(--spacing-8) 0;">Analyze Demand Instantly</h3>
+              <p style="color: var(--color-neutral-70); margin: 0; line-height: 1.6;">While browsing Amazon books, keywords, and categories, instantly see demand metrics, sales estimates, and market trends to identify what's actually selling.</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: var(--spacing-16); align-items: start; padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium); border-left: 4px solid var(--color-primary-50);">
+            <div style="width: 40px; height: 40px; background: var(--color-primary-10); border-radius: var(--radius-medium); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 style="color: var(--color-neutral-90); font-size: 1.125rem; font-weight: 700; margin: 0 0 var(--spacing-8) 0;">Calculate Profit Margins</h3>
+              <p style="color: var(--color-neutral-70); margin: 0; line-height: 1.6;">Get real-time calculations of potential profit margins, printing costs, and royalties as you browse Amazon, so you know exactly what you'll earn before you publish.</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: var(--spacing-16); align-items: start; padding: var(--spacing-24); background: var(--color-neutral-05); border-radius: var(--radius-medium); border-left: 4px solid var(--color-primary-50);">
+            <div style="width: 40px; height: 40px; background: var(--color-primary-10); border-radius: var(--radius-medium); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                <path d="M12 18V6"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 style="color: var(--color-neutral-90); font-size: 1.125rem; font-weight: 700; margin: 0 0 var(--spacing-8) 0;">Discover Profitable Niches</h3>
+              <p style="color: var(--color-neutral-70); margin: 0; line-height: 1.6;">Access comprehensive data on demand, competition, and profitability directly while browsing Amazon categories and keywords - everything you need to identify winning niches without switching tabs.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Download Button -->
+      <div style="text-align: center;">
+        <a href="https://chromewebstore.google.com/detail/plottybot-insights/blhgbobhipddmlpmgdjdcjagfokpbhad?authuser=1&hl=it" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: var(--spacing-12); padding: var(--spacing-24) var(--spacing-40); background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: var(--color-neutral-00); text-decoration: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1.125rem; transition: all 0.3s; box-shadow: 0 8px 24px rgba(0, 194, 168, 0.3); text-transform: uppercase; letter-spacing: 0.5px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 32px rgba(0, 194, 168, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(0, 194, 168, 0.3)'">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="4"></circle>
+            <line x1="21.17" y1="8" x2="12" y2="8"></line>
+            <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
+            <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
+          </svg>
+          <span>Download Chrome Extension</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 17L17 7M17 7H7M17 7V17"/>
+          </svg>
+        </a>
+        <p style="margin-top: var(--spacing-16); color: var(--color-neutral-60); font-size: 0.875rem;">
+          Free for all Plottybot users • Compatible with Chrome & Edge
+        </p>
+      </div>
+
+      <!-- Additional Info -->
+      <div style="margin-top: var(--spacing-40); padding: var(--spacing-24); background: var(--color-primary-05); border-radius: var(--radius-medium); border: 1px solid var(--color-primary-20);">
+        <div style="display: flex; gap: var(--spacing-12); align-items: start;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <div>
+            <h4 style="color: var(--color-neutral-90); font-size: 1rem; font-weight: 700; margin: 0 0 var(--spacing-8) 0;">Installation Instructions</h4>
+            <p style="color: var(--color-neutral-70); margin: 0; line-height: 1.6; font-size: 0.875rem;">
+              Click the download button above to visit the Chrome Web Store. Then click "Add to Chrome" to install the extension. Once installed, log in with your Plottybot account credentials to start using all the features.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  </div> <!-- End Main Content -->
+</div> <!-- End Main Container -->
 
 <style>
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
+  }
+}
+
+/* Sidebar Styles */
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: #C0C0C0 transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #C0C0C0;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #A0A0A0;
+}
+
+.sidebar.collapsed {
+  width: 0 !important;
+  margin-left: -280px;
+  overflow: hidden;
+}
+
+.sidebar-toggle.collapsed {
+  left: 0 !important;
+}
+
+.main-content.expanded {
+  margin-left: 0 !important;
+}
+
 /* Navigation Styles */
 .service-nav-btn {
   position: relative;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .service-nav-btn:hover {
-  color: var(--color-primary-60) !important;
-  background: var(--color-neutral-05) !important;
+  background: var(--color-primary-05) !important;
+  border-left-color: var(--color-primary-40) !important;
+  color: var(--color-neutral-90) !important;
+}
+
+.service-nav-btn:hover span:first-of-type {
+  background: var(--color-primary-40) !important;
+}
+
+.service-nav-btn:hover span:first-of-type svg {
+  stroke: white !important;
 }
 
 .service-nav-btn.active {
+  background: var(--color-primary-10) !important;
+  border-left-color: var(--color-primary-60) !important;
   color: var(--color-neutral-90) !important;
-  border-bottom-color: var(--color-primary-60) !important;
-  background: var(--color-neutral-05) !important;
+}
+
+.service-nav-btn.active span:first-of-type {
+  background: var(--color-primary-50) !important;
+}
+
+.service-nav-btn.active span:first-of-type svg {
+  stroke: white !important;
+}
+
+.sidebar-toggle {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-toggle:hover {
+  background: var(--color-primary-50) !important;
+  border-color: var(--color-primary-60) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: scale(1.05);
+}
+
+.sidebar-toggle:hover svg {
+  stroke: white !important;
+}
+
+.sidebar-toggle:active {
+  transform: scale(0.95);
+}
+
+.sidebar-toggle svg {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-toggle.collapsed svg {
+  transform: rotate(180deg);
 }
 
 .service-section {
@@ -426,12 +819,6 @@ select option {
   margin: 0;
 }
 
-.category-checkbox-label input {
-  margin: 0;
-  width: 16px;
-  height: 16px;
-}
-
 /* Sort Buttons Styles */
 .sort-buttons {
   display: flex;
@@ -455,47 +842,118 @@ select option {
   background: var(--color-primary-60);
   color: var(--color-neutral-00);
 }
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 0 !important;
+    margin-left: -280px;
+  }
+
+  .sidebar-toggle {
+    left: 0 !important;
+  }
+
+  .sidebar:not(.collapsed) {
+    width: 280px !important;
+    margin-left: 0;
+  }
+
+  .sidebar-toggle:not(.collapsed) {
+    left: 280px !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 240px;
+  }
+
+  .sidebar.collapsed {
+    width: 0 !important;
+    margin-left: -240px;
+  }
+
+  .sidebar-toggle {
+    left: 240px;
+  }
+}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Sidebar Toggle Functionality
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const mainContent = document.getElementById('main-content');
+
+  if (sidebarToggle && sidebar && mainContent) {
+    sidebarToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      sidebar.classList.toggle('collapsed');
+      sidebarToggle.classList.toggle('collapsed');
+      mainContent.classList.toggle('expanded');
+    });
+  }
+
   // Service Navigation Functionality
   const navButtons = document.querySelectorAll('.service-nav-btn');
   const serviceSections = document.querySelectorAll('.service-section');
-  
+
   function switchService(targetService) {
     // Update navigation buttons
     navButtons.forEach(btn => {
       btn.classList.remove('active');
-      btn.style.borderBottomColor = 'transparent';
-      btn.style.color = 'var(--color-neutral-60)';
-      btn.style.background = 'none';
+      btn.style.borderLeftColor = 'transparent';
+      btn.style.color = 'var(--color-neutral-70)';
+      btn.style.background = 'transparent';
+
+      // Reset icon background
+      const iconSpan = btn.querySelector('span:first-of-type');
+      if (iconSpan) {
+        iconSpan.style.background = '#E0E0E0';
+        const svg = iconSpan.querySelector('svg');
+        if (svg) {
+          svg.style.stroke = 'var(--color-neutral-70)';
+        }
+      }
     });
-    
+
     // Update sections
     serviceSections.forEach(section => {
       section.classList.remove('active');
       section.style.display = 'none';
     });
-    
+
     // Activate selected service
     const activeBtn = document.querySelector(`[data-service="${targetService}"]`);
     const activeSection = document.getElementById(`service-${targetService}`);
-    
+
     if (activeBtn && activeSection) {
       activeBtn.classList.add('active');
-      activeBtn.style.borderBottomColor = 'var(--color-primary-60)';
+      activeBtn.style.borderLeftColor = 'var(--color-primary-60)';
       activeBtn.style.color = 'var(--color-neutral-90)';
-      activeBtn.style.background = 'var(--color-neutral-05)';
-      
+      activeBtn.style.background = 'var(--color-primary-10)';
+
+      // Update active icon
+      const iconSpan = activeBtn.querySelector('span:first-of-type');
+      if (iconSpan) {
+        iconSpan.style.background = 'var(--color-primary-50)';
+        const svg = iconSpan.querySelector('svg');
+        if (svg) {
+          svg.style.stroke = 'white';
+        }
+      }
+
       activeSection.classList.add('active');
       activeSection.style.display = 'block';
     }
   }
-  
+
   // Add click event listeners to navigation buttons
   navButtons.forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
       const service = this.getAttribute('data-service');
       switchService(service);
     });
@@ -621,7 +1079,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function populateMacroCategoryOptions(marketCode) {
       categoriesMacroCategoryOptions.innerHTML = '';
       const categories = macroCategoriesData[marketCode] || [];
-      
+
       if (categories.length === 0) {
         const li = document.createElement('li');
         li.innerHTML = '<span style="padding: 12px; color: var(--color-neutral-60);">No categories available</span>';
@@ -673,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', function() {
         categoriesMarketSelector.value = value;
         categoriesMarketSelectedLabel.innerHTML = item.querySelector('.navigation-text').innerHTML;
         categoriesMarketOptions.style.display = 'none';
-        
+
         // Update macro categories for selected market
         populateMacroCategoryOptions(value);
         // Reset macro category selection
@@ -748,6 +1206,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCategoriesResults(data);
 
       } catch (error) {
+
         console.error('Error fetching categories:', error);
         categoriesLoadingIndicator.style.display = 'none';
         categoriesSearchBtn.disabled = false;
@@ -764,7 +1223,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to render categories results
     function renderCategoriesResults(data, sortOrder = 'desc') {
       const { count, results, search_criteria } = data;
-      
+
       // Sort results based on sortOrder
       const sortedResults = [...results].sort((a, b) => {
         const aSales = a.copies_per_day || 0;
@@ -784,7 +1243,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'fr': 'https://www.amazon.fr/gp/bestsellers/books/',
         'es': 'https://www.amazon.es/gp/bestsellers/books/'
       };
-      
+
       let html = `
         <div style="margin-bottom: var(--spacing-24); padding: var(--spacing-24); background: var(--color-neutral-10); border-radius: var(--radius-medium);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-12);">
@@ -823,15 +1282,15 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
       } else {
         html += '<div style="display: grid; gap: var(--spacing-16);">';
-        
+
         sortedResults.forEach((category, index) => {
           const amazonUrl = amazonBestsellerUrls[search_criteria.market] + (category.category_id || '');
           const dailySales = Math.round(category.copies_per_day || 0);
           const bsr = category.bsr || 'N/A';
-          
+
           html += `
             <div style="padding: var(--spacing-24); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.3s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
-              
+
               <!-- Category Path (Clickable) -->
               <div style="margin-bottom: var(--spacing-16);">
                 <a href="${amazonUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--color-primary-60); text-decoration: none; font-size: 1.125rem; font-weight: 600; line-height: 1.4; transition: color 0.2s;" onmouseover="this.style.color='var(--color-primary-70)'" onmouseout="this.style.color='var(--color-primary-60)'">
@@ -841,10 +1300,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
               <!-- Metrics Row -->
               <div style="display: flex; gap: var(--spacing-32); flex-wrap: wrap; align-items: center;">
-                
+
                 <!-- Daily Sales to #1 -->
                 <div style="flex: 1; min-width: 140px;">
-                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Daily Sales to #1</p>
+                  <p style="font-size: 0.75rem; text-transform: uppercase, letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Daily Sales to #1</p>
                   <p style="font-size: 1.25rem; font-weight: 700; color: var(--color-success-60); margin: 0;">
                     ${dailySales.toLocaleString()} <span style="font-size: 0.875rem; color: var(--color-neutral-70);">copies/day</span>
                   </p>
@@ -872,7 +1331,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
           `;
         });
-        
+
         html += '</div>';
       }
 
@@ -1295,6 +1754,267 @@ document.addEventListener('DOMContentLoaded', function() {
       currentCountry = country;
       fetchCategories(country);
     }
+  });
+
+  // ===== ROYALTIES CALCULATOR FUNCTIONALITY =====
+
+  // Trim sizes data
+  const trimSizesInches = [
+    { width: 5, height: 8, label: '5 x 8 in' },
+    { width: 5.25, height: 8, label: '5.25 x 8 in' },
+    { width: 5.5, height: 8.5, label: '5.5 x 8.5 in' },
+    { width: 6, height: 9, label: '6 x 9 in' },
+    { width: 5.06, height: 7.81, label: '5.06 x 7.81 in' },
+    { width: 6.14, height: 9.21, label: '6.14 x 9.21 in' },
+    { width: 6.69, height: 9.61, label: '6.69 x 9.61 in' },
+    { width: 7, height: 10, label: '7 x 10 in' },
+    { width: 7.44, height: 9.69, label: '7.44 x 9.69 in' },
+    { width: 7.5, height: 9.25, label: '7.5 x 9.25 in' },
+    { width: 8, height: 10, label: '8 x 10 in' },
+    { width: 8.5, height: 11, label: '8.5 x 11 in' },
+    { width: 8.27, height: 11.69, label: '8.27 x 11.69 in' },
+    { width: 8.25, height: 6, label: '8.25 x 6 in' },
+    { width: 8.25, height: 8.25, label: '8.25 x 8.25 in' },
+    { width: 8.5, height: 8.5, label: '8.5 x 8.5 in' }
+  ];
+
+  const trimSizesMm = [
+    { width: 127, height: 203.2, label: '127 x 203.2 mm' },
+    { width: 133.3, height: 203.2, label: '133.3 x 203.2 mm' },
+    { width: 139.7, height: 215.9, label: '139.7 x 215.9 mm' },
+    { width: 152.4, height: 228.6, label: '152.4 x 228.6 mm' },
+    { width: 128.5, height: 198.4, label: '128.5 x 198.4 mm' },
+    { width: 156, height: 233.9, label: '156 x 233.9 mm' },
+    { width: 169.9, height: 244.1, label: '169.9 x 244.1 mm' },
+    { width: 177.8, height: 254, label: '177.8 x 254 mm' },
+    { width: 189, height: 246.1, label: '189 x 246.1 mm' },
+    { width: 190.5, height: 234.9, label: '190.5 x 234.9 mm' },
+    { width: 203.2, height: 254, label: '203.2 x 254 mm' },
+    { width: 215.9, height: 279.4, label: '215.9 x 279.4 mm' },
+    { width: 210, height: 297, label: '210 x 297 mm' },
+    { width: 209.5, height: 152.4, label: '209.5 x 152.4 mm' },
+    { width: 209.5, height: 209.5, label: '209.5 x 209.5 mm' },
+    { width: 215.9, height: 215.9, label: '215.9 x 215.9 mm' }
+  ];
+
+  // Currency symbols for royalties
+  const royaltiesCurrencies = {
+    'US': '$',
+    'UK': '£',
+    'IT': '€',
+    'DE': '€',
+    'FR': '€',
+    'ES': '€',
+    'CA': 'CA$'
+  };
+
+  // Royalties Calculator Elements
+  const royaltiesMarketDropdown = document.getElementById('royalties-market-dropdown');
+  const royaltiesMarketSelected = document.getElementById('royalties-market-selected');
+  const royaltiesMarketOptions = document.getElementById('royalties-market-options');
+  const royaltiesMarketSelector = document.getElementById('royalties-market-selector');
+  const royaltiesMarketSelectedLabel = document.getElementById('royalties-market-selected-label');
+  const royaltiesCurrencySymbol = document.getElementById('royalties-currency-symbol');
+
+  const royaltiesUnitDropdown = document.getElementById('royalties-unit-dropdown');
+  const royaltiesUnitSelected = document.getElementById('royalties-unit-selected');
+  const royaltiesUnitOptions = document.getElementById('royalties-unit-options');
+  const royaltiesUnitSelector = document.getElementById('royalties-unit-selector');
+  const royaltiesUnitSelectedLabel = document.getElementById('royalties-unit-selected-label');
+
+  const royaltiesTrimSizeDropdown = document.getElementById('royalties-trim-size-dropdown');
+  const royaltiesTrimSizeSelected = document.getElementById('royalties-trim-size-selected');
+  const royaltiesTrimSizeOptions = document.getElementById('royalties-trim-size-options');
+  const royaltiesWidth = document.getElementById('royalties-width');
+  const royaltiesHeight = document.getElementById('royalties-height');
+  const royaltiesTrimSizeSelectedLabel = document.getElementById('royalties-trim-size-selected-label');
+
+  const royaltiesInkTypeDropdown = document.getElementById('royalties-ink-type-dropdown');
+  const royaltiesInkTypeSelected = document.getElementById('royalties-ink-type-selected');
+  const royaltiesInkTypeOptions = document.getElementById('royalties-ink-type-options');
+  const royaltiesInkTypeSelector = document.getElementById('royalties-ink-type-selector');
+  const royaltiesInkTypeSelectedLabel = document.getElementById('royalties-ink-type-selected-label');
+
+  const royaltiesPages = document.getElementById('royalties-pages');
+  const royaltiesPrice = document.getElementById('royalties-price');
+  const royaltiesCalculateBtn = document.getElementById('royalties-calculate-btn');
+  const royaltiesResults = document.getElementById('royalties-results');
+
+  // Function to populate trim size options based on unit
+  function populateTrimSizes(unit) {
+    const sizes = unit === 'in' ? trimSizesInches : trimSizesMm;
+    royaltiesTrimSizeOptions.innerHTML = '';
+
+    sizes.forEach(size => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '#';
+      a.setAttribute('data-width', size.width);
+      a.setAttribute('data-height', size.height);
+      a.className = 'dropdown-item';
+      a.style = 'display: flex; align-items: center; padding: 12px; color: var(--color-neutral-90); text-decoration: none;';
+      a.innerHTML = `<span class="navigation-text">${size.label}</span>`;
+      li.appendChild(a);
+      royaltiesTrimSizeOptions.appendChild(li);
+    });
+
+    // Set default to first size or 6x9 inches / 152.4x228.6 mm
+    if (unit === 'in') {
+      royaltiesWidth.value = 6;
+      royaltiesHeight.value = 9;
+      royaltiesTrimSizeSelectedLabel.textContent = '6 x 9 in';
+    } else {
+      royaltiesWidth.value = 152.4;
+      royaltiesHeight.value = 228.6;
+      royaltiesTrimSizeSelectedLabel.textContent = '152.4 x 228.6 mm';
+    }
+  }
+
+  // Market dropdown
+  royaltiesMarketSelected.addEventListener('click', function(e) {
+    e.preventDefault();
+    royaltiesMarketOptions.style.display = royaltiesMarketOptions.style.display === 'block' ? 'none' : 'block';
+  });
+
+  royaltiesMarketOptions.addEventListener('click', function(e) {
+    if (e.target.closest('.dropdown-item')) {
+      e.preventDefault();
+      const item = e.target.closest('.dropdown-item');
+      const value = item.getAttribute('data-value');
+      const currency = item.getAttribute('data-currency');
+      royaltiesMarketSelector.value = value;
+      royaltiesMarketSelectedLabel.innerHTML = item.querySelector('.navigation-text').innerHTML;
+      royaltiesCurrencySymbol.textContent = `(${currency})`;
+      royaltiesMarketOptions.style.display = 'none';
+    }
+  });
+
+  // Unit dropdown
+  royaltiesUnitSelected.addEventListener('click', function(e) {
+    e.preventDefault();
+    royaltiesUnitOptions.style.display = royaltiesUnitOptions.style.display === 'block' ? 'none' : 'block';
+  });
+
+  royaltiesUnitOptions.addEventListener('click', function(e) {
+    if (e.target.closest('.dropdown-item')) {
+      e.preventDefault();
+      const item = e.target.closest('.dropdown-item');
+      const value = item.getAttribute('data-value');
+      royaltiesUnitSelector.value = value;
+      royaltiesUnitSelectedLabel.textContent = item.querySelector('.navigation-text').textContent;
+      royaltiesUnitOptions.style.display = 'none';
+
+      // Update trim sizes based on selected unit
+      populateTrimSizes(value);
+    }
+  });
+
+  // Trim size dropdown
+  royaltiesTrimSizeSelected.addEventListener('click', function(e) {
+    e.preventDefault();
+    royaltiesTrimSizeOptions.style.display = royaltiesTrimSizeOptions.style.display === 'block' ? 'none' : 'block';
+  });
+
+  royaltiesTrimSizeOptions.addEventListener('click', function(e) {
+    if (e.target.closest('.dropdown-item')) {
+      e.preventDefault();
+      const item = e.target.closest('.dropdown-item');
+      const width = item.getAttribute('data-width');
+      const height = item.getAttribute('data-height');
+      royaltiesWidth.value = width;
+      royaltiesHeight.value = height;
+      royaltiesTrimSizeSelectedLabel.textContent = item.querySelector('.navigation-text').textContent;
+      royaltiesTrimSizeOptions.style.display = 'none';
+    }
+  });
+
+  // Ink type dropdown
+  royaltiesInkTypeSelected.addEventListener('click', function(e) {
+    e.preventDefault();
+    royaltiesInkTypeOptions.style.display = royaltiesInkTypeOptions.style.display === 'block' ? 'none' : 'block';
+  });
+
+  royaltiesInkTypeOptions.addEventListener('click', function(e) {
+    if (e.target.closest('.dropdown-item')) {
+      e.preventDefault();
+      const item = e.target.closest('.dropdown-item');
+      const value = item.getAttribute('data-value');
+      royaltiesInkTypeSelector.value = value;
+      royaltiesInkTypeSelectedLabel.textContent = item.querySelector('.navigation-text').textContent;
+      royaltiesInkTypeOptions.style.display = 'none';
+    }
+  });
+
+  // Close royalties dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    if (royaltiesMarketDropdown && !royaltiesMarketDropdown.contains(e.target)) {
+      royaltiesMarketOptions.style.display = 'none';
+    }
+    if (royaltiesUnitDropdown && !royaltiesUnitDropdown.contains(e.target)) {
+      royaltiesUnitOptions.style.display = 'none';
+    }
+    if (royaltiesTrimSizeDropdown && !royaltiesTrimSizeDropdown.contains(e.target)) {
+      royaltiesTrimSizeOptions.style.display = 'none';
+    }
+    if (royaltiesInkTypeDropdown && !royaltiesInkTypeDropdown.contains(e.target)) {
+      royaltiesInkTypeOptions.style.display = 'none';
+    }
+  });
+
+  // Initialize trim sizes with default unit (inches)
+  populateTrimSizes('in');
+
+  // Calculate button
+  royaltiesCalculateBtn.addEventListener('click', function() {
+    const market = royaltiesMarketSelector.value;
+    const currency = royaltiesCurrencies[market] || '$';
+    const unit = royaltiesUnitSelector.value;
+    const width = parseFloat(royaltiesWidth.value);
+    const height = parseFloat(royaltiesHeight.value);
+    const pages = parseInt(royaltiesPages.value);
+    const listPrice = parseFloat(royaltiesPrice.value);
+    const inkType = royaltiesInkTypeSelector.value;
+
+    // Validate inputs
+    if (!pages || pages < 24 || pages > 828) {
+      alert('Please enter a valid number of pages (24-828).');
+      return;
+    }
+    if (!listPrice || listPrice <= 0) {
+      alert('Please enter a valid list price.');
+      return;
+    }
+
+    // Simple printing cost calculation (estimated)
+    // This is a simplified formula - actual Amazon KDP costs vary
+    let baseCost = 0.85; // Fixed cost
+    let perPageCost = 0.012; // Cost per page for black & white
+
+    if (inkType === 'premium_color') {
+      perPageCost = 0.06;
+    } else if (inkType === 'standard_color') {
+      perPageCost = 0.032;
+    }
+
+    const printingCost = baseCost + (pages * perPageCost);
+
+    // Amazon takes 40% (60% royalty rate)
+    const amazonFee = listPrice * 0.40;
+
+    // Calculate royalty
+    const royalty = listPrice - printingCost - amazonFee;
+
+    // Display results
+    document.getElementById('result-list-price').textContent = `${currency}${listPrice.toFixed(2)}`;
+    document.getElementById('result-printing-cost').textContent = `${currency}${printingCost.toFixed(2)}`;
+    document.getElementById('result-amazon-fee').textContent = `${currency}${amazonFee.toFixed(2)}`;
+    document.getElementById('result-royalty').textContent = `${currency}${Math.max(0, royalty).toFixed(2)}`;
+
+    // Show results
+    royaltiesResults.style.display = 'block';
+
+    // Scroll to results
+    royaltiesResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
 </script>
