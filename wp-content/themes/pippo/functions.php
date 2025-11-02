@@ -971,5 +971,186 @@ add_filter('body_class', 'pb_add_no_css_class');
 
 
 // ************
+// Last updated: 2025-11-02 14:30 UTC - Server-side AJAX handlers
+
+/**
+ * Plottybot API Proxy - Server-side API calls to hide API key
+ */
+if (!defined('PLOTTYBOT_API_KEY')) {
+    define('PLOTTYBOT_API_KEY', 'fF7LkPzDP9Qm8dOP8Zg6ROlY');
+}
+
+// Log that our AJAX handlers are being registered
+error_log('Plottybot: Registering AJAX handlers - ' . date('Y-m-d H:i:s'));
+
+// Test endpoint to verify AJAX is working
+add_action('wp_ajax_plottybot_test', 'plottybot_test_handler');
+add_action('wp_ajax_nopriv_plottybot_test', 'plottybot_test_handler');
+error_log('Plottybot: Test handler registered');
+
+if (!function_exists('plottybot_test_handler')) {
+    function plottybot_test_handler() {
+        error_log('Plottybot: Test handler called');
+        wp_send_json_success([
+            'message' => 'AJAX is working!',
+            'user_logged_in' => is_user_logged_in(),
+            'user_id' => get_current_user_id()
+        ]);
+    }
+}
+
+// AJAX handler for books search
+add_action('wp_ajax_plottybot_search_books', 'plottybot_search_books_handler');
+add_action('wp_ajax_nopriv_plottybot_search_books', 'plottybot_search_books_handler');
+
+if (!function_exists('plottybot_search_books_handler')) {
+    function plottybot_search_books_handler() {
+        error_log('Plottybot: Books search handler called');
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+    // Get POST data
+    $payload = json_decode(file_get_contents('php://input'), true);
+
+    if (!$payload) {
+        wp_send_json_error(['message' => 'Invalid payload'], 400);
+        wp_die();
+    }
+
+    // Make API call
+    $response = wp_remote_post('https://api-frontend-1044931876531.us-central1.run.app/api/v2/books/search_books', [
+        'headers' => [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY
+        ],
+        'body' => json_encode($payload),
+        'timeout' => 30
+    ]);
+
+    if (is_wp_error($response)) {
+        wp_send_json_error(['message' => $response->get_error_message()], 500);
+        wp_die();
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    $status_code = wp_remote_retrieve_response_code($response);
+
+    // Send the successful response
+    status_header($status_code);
+    header('Content-Type: application/json');
+    echo $body;
+    wp_die();
+    }
+}
+
+// AJAX handler for categories search
+add_action('wp_ajax_plottybot_search_categories', 'plottybot_search_categories_handler');
+add_action('wp_ajax_nopriv_plottybot_search_categories', 'plottybot_search_categories_handler');
+
+if (!function_exists('plottybot_search_categories_handler')) {
+    function plottybot_search_categories_handler() {
+        error_log('Plottybot: Categories search handler called');
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+        wp_die();
+    }
+
+    // Get POST data
+    $payload = json_decode(file_get_contents('php://input'), true);
+
+    if (!$payload) {
+        wp_send_json_error(['message' => 'Invalid payload'], 400);
+        wp_die();
+    }
+
+    // Make API call
+    $response = wp_remote_post('https://api-frontend-q66rh5ei3a-uc.a.run.app/categories/search', [
+        'headers' => [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY
+        ],
+        'body' => json_encode($payload),
+        'timeout' => 30
+    ]);
+
+    if (is_wp_error($response)) {
+        wp_send_json_error(['message' => $response->get_error_message()], 500);
+        wp_die();
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    $status_code = wp_remote_retrieve_response_code($response);
+
+    // Send the successful response
+    status_header($status_code);
+    header('Content-Type: application/json');
+    echo $body;
+    wp_die();
+    }
+}
+
+// AJAX handler for fetching categories
+add_action('wp_ajax_plottybot_fetch_categories', 'plottybot_fetch_categories_handler');
+add_action('wp_ajax_nopriv_plottybot_fetch_categories', 'plottybot_fetch_categories_handler');
+
+if (!function_exists('plottybot_fetch_categories_handler')) {
+    function plottybot_fetch_categories_handler() {
+        // Log the request for debugging
+        error_log('Plottybot fetch categories called - User logged in: ' . (is_user_logged_in() ? 'yes' : 'no'));
+
+    // Verify user is logged in
+    if (!is_user_logged_in()) {
+        error_log('Plottybot fetch categories: User not logged in');
+        wp_send_json_error(['message' => 'Unauthorized'], 401);
+        wp_die();
+    }
+
+    // Get country parameter and convert to uppercase
+    $country = isset($_GET['country']) ? strtoupper(sanitize_text_field($_GET['country'])) : 'US';
+    error_log('Plottybot fetch categories: Country = ' . $country);
+
+    // Make API call
+    $api_url = 'https://api-frontend-1044931876531.us-central1.run.app/categories?country=' . $country;
+    error_log('Plottybot fetch categories: API URL = ' . $api_url);
+
+    $response = wp_remote_get($api_url, [
+        'headers' => [
+            'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY
+        ],
+        'timeout' => 30
+    ]);
+
+    if (is_wp_error($response)) {
+        error_log('Plottybot fetch categories: WP Error - ' . $response->get_error_message());
+        wp_send_json_error(['message' => $response->get_error_message()], 500);
+        wp_die();
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    $status_code = wp_remote_retrieve_response_code($response);
+    error_log('Plottybot fetch categories: API Status = ' . $status_code);
+
+    // Check if the API returned an error status
+    if ($status_code >= 400) {
+        error_log('Plottybot fetch categories: API returned error ' . $status_code);
+        status_header($status_code);
+        header('Content-Type: application/json');
+        echo $body;
+        wp_die();
+    }
+
+    // Send the successful response
+    status_header(200);
+    header('Content-Type: application/json');
+    echo $body;
+    wp_die();
+    }
+}
 
 ?>

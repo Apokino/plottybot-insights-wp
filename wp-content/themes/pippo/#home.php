@@ -881,6 +881,7 @@ select option {
 </style>
 
 <script>
+
 document.addEventListener('DOMContentLoaded', function() {
   // Sidebar Toggle Functionality
   const sidebar = document.getElementById('sidebar');
@@ -1182,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         console.log('Categories API Request Payload:', payload);
 
-        const response = await fetch('https://api-frontend-q66rh5ei3a-uc.a.run.app/categories/search', {
+        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=plottybot_search_categories', {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -1456,7 +1457,7 @@ document.addEventListener('DOMContentLoaded', function() {
     applyButton.disabled = true;
 
     try {
-      const response = await fetch('https://api-frontend-1044931876531.us-central1.run.app/api/v2/books/search_books', {
+      const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=plottybot_search_books', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -1727,9 +1728,13 @@ document.addEventListener('DOMContentLoaded', function() {
     categoriesList.innerHTML = '<span style="color: var(--color-neutral-60);">Loading categories...</span>';
     try {
       console.log('Fetching categories for country:', country);
-      const url = `https://api-frontend-1044931876531.us-central1.run.app/categories?country=${country}`;
+      const url = '<?php echo admin_url('admin-ajax.php'); ?>?action=plottybot_fetch_categories&country=' + country;
       console.log('API URL:', url);
-      const resp = await fetch(url);
+      const resp = await fetch(url, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
       console.log('API response status:', resp.status);
       if (!resp.ok) throw new Error('API error: ' + resp.status);
       const data = await resp.json();
