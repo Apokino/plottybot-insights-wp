@@ -1005,45 +1005,77 @@ add_action('wp_ajax_nopriv_plottybot_search_books', 'plottybot_search_books_hand
 
 if (!function_exists('plottybot_search_books_handler')) {
     function plottybot_search_books_handler() {
-        error_log('Plottybot: Books search handler called');
+        error_log('Plottybot Books: Handler called');
+        error_log('Plottybot Books: User logged in = ' . (is_user_logged_in() ? 'yes' : 'no'));
+
         // Verify user is logged in
         if (!is_user_logged_in()) {
+            error_log('Plottybot Books: Auth failed - not logged in');
             wp_send_json_error(['message' => 'Unauthorized'], 401);
             wp_die();
         }
 
-    // Get POST data
-    $payload = json_decode(file_get_contents('php://input'), true);
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+        error_log('Plottybot Books: Payload = ' . json_encode($payload));
 
-    if (!$payload) {
-        wp_send_json_error(['message' => 'Invalid payload'], 400);
+        if (!$payload) {
+            error_log('Plottybot Books: Invalid payload');
+            wp_send_json_error(['message' => 'Invalid payload'], 400);
+            wp_die();
+        }
+
+        // Make API call with explicit server IP
+        // Use the actual external IP of the WordPress server
+        $server_external_ip = '95.110.231.49';
+        error_log('Plottybot Books: Using external IP = ' . $server_external_ip);
+        error_log('Plottybot Books: API Key = ' . substr(PLOTTYBOT_API_KEY, 0, 8) . '...');
+
+        $api_url = 'https://api-frontend-1044931876531.us-central1.run.app/books/search';
+        error_log('Plottybot Books: API URL = ' . $api_url);
+
+        $request_args = [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY,
+                'X-Forwarded-For' => $server_external_ip,
+                'X-Real-IP' => $server_external_ip,
+                'X-Forwarded-Proto' => 'https',
+                'X-Forwarded-Host' => 'insights.plottybot.com'
+            ],
+            'body' => json_encode($payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ];
+
+        error_log('Plottybot Books: Request headers being sent = ' . json_encode($request_args['headers']));
+
+        $response = wp_remote_post($api_url, $request_args);
+
+        error_log('Plottybot Books: Request sent to API');
+
+        if (is_wp_error($response)) {
+            error_log('Plottybot Books: WP Error - ' . $response->get_error_message());
+            wp_send_json_error(['message' => $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $status_code = wp_remote_retrieve_response_code($response);
+        $response_headers = wp_remote_retrieve_headers($response);
+
+        error_log('Plottybot Books: API response status = ' . $status_code);
+        error_log('Plottybot Books: API response body length = ' . strlen($body));
+        if ($status_code >= 400) {
+            error_log('Plottybot Books: Error response body = ' . $body);
+        }
+
+        // Send the successful response
+        status_header($status_code);
+        header('Content-Type: application/json');
+        echo $body;
         wp_die();
-    }
-
-    // Make API call
-    $response = wp_remote_post('https://api-frontend-1044931876531.us-central1.run.app/api/v2/books/search_books', [
-        'headers' => [
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY
-        ],
-        'body' => json_encode($payload),
-        'timeout' => 30
-    ]);
-
-    if (is_wp_error($response)) {
-        wp_send_json_error(['message' => $response->get_error_message()], 500);
-        wp_die();
-    }
-
-    $body = wp_remote_retrieve_body($response);
-    $status_code = wp_remote_retrieve_response_code($response);
-
-    // Send the successful response
-    status_header($status_code);
-    header('Content-Type: application/json');
-    echo $body;
-    wp_die();
     }
 }
 
@@ -1057,41 +1089,47 @@ if (!function_exists('plottybot_search_categories_handler')) {
         // Verify user is logged in
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload) {
+            wp_send_json_error(['message' => 'Invalid payload'], 400);
+            wp_die();
+        }
+
+        // Make API call with explicit server IP
+        // Use the actual external IP of the WordPress server
+        $server_external_ip = '95.110.231.49';
+
+        $response = wp_remote_post('https://api-frontend-q66rh5ei3a-uc.a.run.app/categories/search', [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY,
+                'X-Forwarded-For' => $server_external_ip,
+                'X-Real-IP' => $server_external_ip
+            ],
+            'body' => json_encode($payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $status_code = wp_remote_retrieve_response_code($response);
+
+        // Send the successful response
+        status_header($status_code);
+        header('Content-Type: application/json');
+        echo $body;
         wp_die();
-    }
-
-    // Get POST data
-    $payload = json_decode(file_get_contents('php://input'), true);
-
-    if (!$payload) {
-        wp_send_json_error(['message' => 'Invalid payload'], 400);
-        wp_die();
-    }
-
-    // Make API call
-    $response = wp_remote_post('https://api-frontend-q66rh5ei3a-uc.a.run.app/categories/search', [
-        'headers' => [
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY
-        ],
-        'body' => json_encode($payload),
-        'timeout' => 30
-    ]);
-
-    if (is_wp_error($response)) {
-        wp_send_json_error(['message' => $response->get_error_message()], 500);
-        wp_die();
-    }
-
-    $body = wp_remote_retrieve_body($response);
-    $status_code = wp_remote_retrieve_response_code($response);
-
-    // Send the successful response
-    status_header($status_code);
-    header('Content-Type: application/json');
-    echo $body;
-    wp_die();
     }
 }
 
@@ -1104,52 +1142,59 @@ if (!function_exists('plottybot_fetch_categories_handler')) {
         // Log the request for debugging
         error_log('Plottybot fetch categories called - User logged in: ' . (is_user_logged_in() ? 'yes' : 'no'));
 
-    // Verify user is logged in
-    if (!is_user_logged_in()) {
-        error_log('Plottybot fetch categories: User not logged in');
-        wp_send_json_error(['message' => 'Unauthorized'], 401);
-        wp_die();
-    }
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            error_log('Plottybot fetch categories: User not logged in');
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
 
-    // Get country parameter and convert to uppercase
-    $country = isset($_GET['country']) ? strtoupper(sanitize_text_field($_GET['country'])) : 'US';
-    error_log('Plottybot fetch categories: Country = ' . $country);
+        // Get country parameter and convert to uppercase
+        $country = isset($_GET['country']) ? strtoupper(sanitize_text_field($_GET['country'])) : 'US';
+        error_log('Plottybot fetch categories: Country = ' . $country);
 
-    // Make API call
-    $api_url = 'https://api-frontend-1044931876531.us-central1.run.app/categories?country=' . $country;
-    error_log('Plottybot fetch categories: API URL = ' . $api_url);
+        // Make API call
+        $api_url = 'https://api-frontend-1044931876531.us-central1.run.app/categories?country=' . $country;
+        error_log('Plottybot fetch categories: API URL = ' . $api_url);
 
-    $response = wp_remote_get($api_url, [
-        'headers' => [
-            'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY
-        ],
-        'timeout' => 30
-    ]);
+        // Use the actual external IP of the WordPress server
+        $server_external_ip = '95.110.231.49';
+        error_log('Plottybot fetch categories: Using external server IP = ' . $server_external_ip);
 
-    if (is_wp_error($response)) {
-        error_log('Plottybot fetch categories: WP Error - ' . $response->get_error_message());
-        wp_send_json_error(['message' => $response->get_error_message()], 500);
-        wp_die();
-    }
+        $response = wp_remote_get($api_url, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY,
+                'X-Forwarded-For' => $server_external_ip,
+                'X-Real-IP' => $server_external_ip
+            ],
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
 
-    $body = wp_remote_retrieve_body($response);
-    $status_code = wp_remote_retrieve_response_code($response);
-    error_log('Plottybot fetch categories: API Status = ' . $status_code);
+        if (is_wp_error($response)) {
+            error_log('Plottybot fetch categories: WP Error - ' . $response->get_error_message());
+            wp_send_json_error(['message' => $response->get_error_message()], 500);
+            wp_die();
+        }
 
-    // Check if the API returned an error status
-    if ($status_code >= 400) {
-        error_log('Plottybot fetch categories: API returned error ' . $status_code);
-        status_header($status_code);
+        $body = wp_remote_retrieve_body($response);
+        $status_code = wp_remote_retrieve_response_code($response);
+        error_log('Plottybot fetch categories: API Status = ' . $status_code);
+
+        // Check if the API returned an error status
+        if ($status_code >= 400) {
+            error_log('Plottybot fetch categories: API returned error ' . $status_code);
+            status_header($status_code);
+            header('Content-Type: application/json');
+            echo $body;
+            wp_die();
+        }
+
+        // Send the successful response
+        status_header(200);
         header('Content-Type: application/json');
         echo $body;
         wp_die();
-    }
-
-    // Send the successful response
-    status_header(200);
-    header('Content-Type: application/json');
-    echo $body;
-    wp_die();
     }
 }
 
