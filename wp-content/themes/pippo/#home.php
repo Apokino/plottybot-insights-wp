@@ -1556,6 +1556,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       html += `
         <div style="display: flex; gap: var(--spacing-24); padding: var(--spacing-24); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.3s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
+
           <!-- Book Cover -->
           <div style="flex-shrink: 0;">
             <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: none;">
@@ -1970,7 +1971,7 @@ document.addEventListener('DOMContentLoaded', function() {
   populateTrimSizes('in');
 
   // Calculate button
-  royaltiesCalculateBtn.addEventListener('click', function() {
+  royaltiesCalculateBtn.addEventListener('click', async function() {
     const market = royaltiesMarketSelector.value;
     const currency = royaltiesCurrencies[market] || '$';
     const unit = royaltiesUnitSelector.value;
@@ -1990,36 +1991,61 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // Simple printing cost calculation (estimated)
-    // This is a simplified formula - actual Amazon KDP costs vary
-    let baseCost = 0.85; // Fixed cost
-    let perPageCost = 0.012; // Cost per page for black & white
+    // Prepare API payload
+    const payload = [
+      {
+        asin: '101010', // fake id as required
+        dimensions: {
+          width: width,
+          height: height,
+          unit: unit
+        },
+        market: market,
+        number_of_pages: pages,
+        list_price: listPrice
+      }
+    ];
 
-    if (inkType === 'premium_color') {
-      perPageCost = 0.06;
-    } else if (inkType === 'standard_color') {
-      perPageCost = 0.032;
+    // Show loading state
+    royaltiesCalculateBtn.disabled = true;
+    royaltiesCalculateBtn.textContent = 'Calculating...';
+
+    try {
+      const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=plottybot_calculate_royalties', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        throw new Error('API error: ' + response.status);
+      }
+      const data = await response.json();
+      // Find the correct ink type in the response
+      const royaltiesData = data.royalties_per_copy && data.royalties_per_copy[0];
+      if (!royaltiesData) throw new Error('No royalty data returned');
+      const inkTypeData = royaltiesData.by_ink_type.find(i => i.ink_type === inkType);
+      if (!inkTypeData) throw new Error('No data for selected ink type');
+
+      // Display results
+      document.getElementById('result-list-price').textContent = `${inkTypeData.currency}${royaltiesData.list_price.toFixed(2)}`;
+      document.getElementById('result-printing-cost').textContent = `${inkTypeData.currency}${inkTypeData.print_cost.toFixed(2)}`;
+      // Amazon fee is not returned by API, so estimate as 40% of list price
+      const amazonFee = royaltiesData.list_price * 0.40;
+      document.getElementById('result-amazon-fee').textContent = `${inkTypeData.currency}${amazonFee.toFixed(2)}`;
+      document.getElementById('result-royalty').textContent = `${inkTypeData.currency}${inkTypeData.royalties_per_copy.toFixed(2)}`;
+
+      // Show results
+      royaltiesResults.style.display = 'block';
+      royaltiesResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (error) {
+      alert('Error calculating royalties: ' + error.message);
+    } finally {
+      royaltiesCalculateBtn.disabled = false;
+      royaltiesCalculateBtn.textContent = '💰 Calculate Royalties';
     }
-
-    const printingCost = baseCost + (pages * perPageCost);
-
-    // Amazon takes 40% (60% royalty rate)
-    const amazonFee = listPrice * 0.40;
-
-    // Calculate royalty
-    const royalty = listPrice - printingCost - amazonFee;
-
-    // Display results
-    document.getElementById('result-list-price').textContent = `${currency}${listPrice.toFixed(2)}`;
-    document.getElementById('result-printing-cost').textContent = `${currency}${printingCost.toFixed(2)}`;
-    document.getElementById('result-amazon-fee').textContent = `${currency}${amazonFee.toFixed(2)}`;
-    document.getElementById('result-royalty').textContent = `${currency}${Math.max(0, royalty).toFixed(2)}`;
-
-    // Show results
-    royaltiesResults.style.display = 'block';
-
-    // Scroll to results
-    royaltiesResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
 </script>

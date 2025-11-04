@@ -1198,4 +1198,79 @@ if (!function_exists('plottybot_fetch_categories_handler')) {
     }
 }
 
+// AJAX handler for royalties calculation
+add_action('wp_ajax_plottybot_calculate_royalties', 'plottybot_calculate_royalties_handler');
+add_action('wp_ajax_nopriv_plottybot_calculate_royalties', 'plottybot_calculate_royalties_handler');
+
+if (!function_exists('plottybot_calculate_royalties_handler')) {
+    function plottybot_calculate_royalties_handler() {
+        error_log('Plottybot Royalties: Handler called');
+
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            error_log('Plottybot Royalties: Auth failed - not logged in');
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+        error_log('Plottybot Royalties: Payload = ' . json_encode($payload));
+
+        if (!$payload) {
+            error_log('Plottybot Royalties: Invalid payload');
+            wp_send_json_error(['message' => 'Invalid payload'], 400);
+            wp_die();
+        }
+
+        // Use the actual external IP of the WordPress server
+        $server_external_ip = '95.110.231.49';
+        error_log('Plottybot Royalties: Using external IP = ' . $server_external_ip);
+
+        $api_url = 'https://api-frontend-1044931876531.us-central1.run.app/books/royalties_per_copy';
+        error_log('Plottybot Royalties: API URL = ' . $api_url);
+
+        $request_args = [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY,
+                'X-Forwarded-For' => $server_external_ip,
+                'X-Real-IP' => $server_external_ip,
+                'X-Forwarded-Proto' => 'https',
+                'X-Forwarded-Host' => 'insights.plottybot.com'
+            ],
+            'body' => json_encode($payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ];
+
+        error_log('Plottybot Royalties: Request sent to API');
+
+        $response = wp_remote_post($api_url, $request_args);
+
+        if (is_wp_error($response)) {
+            error_log('Plottybot Royalties: WP Error - ' . $response->get_error_message());
+            wp_send_json_error(['message' => $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $status_code = wp_remote_retrieve_response_code($response);
+
+        error_log('Plottybot Royalties: API response status = ' . $status_code);
+        error_log('Plottybot Royalties: API response body length = ' . strlen($body));
+
+        if ($status_code >= 400) {
+            error_log('Plottybot Royalties: Error response body = ' . $body);
+        }
+
+        // Send the successful response
+        status_header($status_code);
+        header('Content-Type: application/json');
+        echo $body;
+        wp_die();
+    }
+}
+
 ?>
