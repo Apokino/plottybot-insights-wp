@@ -412,25 +412,87 @@ $currencies = [
         <div style="padding: var(--spacing-32); background: var(--color-neutral-10); border-radius: var(--radius-large);">
           <h2 class="text--heading-md" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-24); text-align: center;">Your Royalty Breakdown</h2>
 
-          <div style="display: grid; gap: var(--spacing-16);">
-            <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 1rem; color: var(--color-neutral-70); font-weight: 600;">List Price:</span>
-              <span id="result-list-price" style="font-size: 1.25rem; color: var(--color-neutral-90); font-weight: 700;">$9.99</span>
+          <div style="display: grid; gap: var(--spacing-12);">
+            <div style="padding: var(--spacing-16); background: var(--color-neutral-00); border-radius: var(--radius-medium); border-left: 4px solid var(--color-primary-60);">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">List Price</p>
+                  <p style="font-size: 0.875rem; color: var(--color-neutral-70); margin: 0;">Your book's selling price</p>
+                </div>
+                <span id="result-list-price" style="font-size: 1.5rem; color: var(--color-primary-60); font-weight: 700;">$9.99</span>
+              </div>
             </div>
 
-            <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 1rem; color: var(--color-neutral-70); font-weight: 600;">Printing Cost:</span>
-              <span id="result-printing-cost" style="font-size: 1.25rem; color: var(--color-danger-60); font-weight: 700;">$3.65</span>
+            <div style="padding: var(--spacing-16); background: var(--color-neutral-00); border-radius: var(--radius-medium); border-left: 4px solid #FF6B6B;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Printing Cost</p>
+                  <p style="font-size: 0.875rem; color: var(--color-neutral-70); margin: 0;">Cost to print your book</p>
+                </div>
+                <span id="result-printing-cost" style="font-size: 1.5rem; color: #FF6B6B; font-weight: 700;">$3.65</span>
+              </div>
             </div>
 
-            <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 1rem; color: var(--color-neutral-70); font-weight: 600;">Amazon Fee (40%):</span>
-              <span id="result-amazon-fee" style="font-size: 1.25rem; color: var(--color-danger-60); font-weight: 700;">$4.00</span>
+            <div style="padding: var(--spacing-16); background: var(--color-neutral-00); border-radius: var(--radius-medium); border-left: 4px solid #FF6B6B;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Amazon Fee (40%)</p>
+                  <p style="font-size: 0.875rem; color: var(--color-neutral-70); margin: 0;">Amazon's commission per sale</p>
+                </div>
+                <span id="result-amazon-fee" style="font-size: 1.5rem; color: #FF6B6B; font-weight: 700;">$4.00</span>
+              </div>
             </div>
 
-            <div style="padding: var(--spacing-24); background: linear-gradient(135deg, var(--color-success-50), var(--color-success-60)); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center; margin-top: var(--spacing-16);">
-              <span style="font-size: 1.25rem; color: var(--color-neutral-00); font-weight: 700;">Your Royalty:</span>
-              <span id="result-royalty" style="font-size: 2rem; color: var(--color-neutral-00); font-weight: 700;">$2.34</span>
+            <div style="padding: var(--spacing-20); background: linear-gradient(135deg, #E6FAF7, #D1F5EF); border-radius: var(--radius-medium); border-left: 4px solid #00C2A8; margin-top: var(--spacing-8);">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <p style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px; color: #00C2A8; margin: 0 0 4px 0; font-weight: 700;">Your Royalty Per Copy</p>
+                  <p style="font-size: 0.875rem; color: var(--color-neutral-70); margin: 0;">Your profit after all costs</p>
+                </div>
+                <span id="result-royalty" style="font-size: 2rem; color: #00C2A8; font-weight: 700;">$2.34</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACOS Metrics Section -->
+          <div id="acos-metrics-section" style="display: none; margin-top: var(--spacing-32);">
+            <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90); margin-bottom: var(--spacing-16); display: flex; align-items: center; gap: var(--spacing-8);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+              ACOS Metrics for Amazon Ads
+            </h3>
+            <div style="display: grid; gap: var(--spacing-12);">
+              <div style="padding: var(--spacing-16); background: var(--color-neutral-00); border-radius: var(--radius-medium); border-left: 4px solid #FFA500;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Breakeven ACOS</p>
+                    <p style="font-size: 0.875rem; color: var(--color-neutral-70); margin: 0;">The maximum ACOS to avoid losses</p>
+                  </div>
+                  <span id="result-breakeven-acos" style="font-size: 1.5rem; color: #FF8C00; font-weight: 700;">27.51%</span>
+                </div>
+              </div>
+
+              <div style="padding: var(--spacing-16); background: var(--color-neutral-00); border-radius: var(--radius-medium); border-left: 4px solid #00C2A8;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Target ACOS</p>
+                    <p style="font-size: 0.875rem; color: var(--color-neutral-70); margin: 0;">Recommended ACOS for profitability</p>
+                  </div>
+                  <span id="result-target-acos" style="font-size: 1.5rem; color: #00C2A8; font-weight: 700;">18.34%</span>
+                </div>
+              </div>
+
+              <div style="padding: var(--spacing-16); background: var(--color-neutral-00); border-radius: var(--radius-medium); border-left: 4px solid var(--color-primary-60);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Target Ad Spend per Sale</p>
+                    <p style="font-size: 0.875rem; color: var(--color-neutral-70); margin: 0;">Maximum amount you can afford to spend on advertising to make a profitable sale</p>
+                  </div>
+                  <span id="result-max-ad-spend" style="font-size: 1.5rem; color: var(--color-primary-60); font-weight: 700;">$3.67</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1555,56 +1617,76 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       html += `
-        <div style="display: flex; gap: var(--spacing-24); padding: var(--spacing-24); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.3s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
+        <div class="book-card" data-asin="${asin}" style="padding: var(--spacing-24); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.3s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
 
-          <!-- Book Cover -->
-          <div style="flex-shrink: 0;">
-            <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: none;">
-              ${cover ? `<img src="${cover}" alt="${title}" style="width: 120px; height: auto; border-radius: var(--radius-medium); box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">` : `<div style="width: 120px; height: 180px; background: var(--color-neutral-20); border-radius: var(--radius-medium); display: flex; align-items: center; justify-content: center; color: var(--color-neutral-60);">No Image</div>`}
-            </a>
-          </div>
-
-          <!-- Book Details -->
-          <div style="flex: 1; min-width: 0;">
-            <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 var(--spacing-8) 0; line-height: 1.4;">
-              <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="color: var(--color-neutral-90); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--color-primary-60)'" onmouseout="this.style.color='var(--color-neutral-90)'">
-                ${title}
+          <div style="display: flex; gap: var(--spacing-24);">
+            <!-- Book Cover -->
+            <div style="flex-shrink: 0;">
+              <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="display: block; text-decoration: none;">
+                ${cover ? `<img src="${cover}" alt="${title}" style="width: 120px; height: auto; border-radius: var(--radius-medium); box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">` : `<div style="width: 120px; height: 180px; background: var(--color-neutral-20); border-radius: var(--radius-medium); display: flex; align-items: center; justify-content: center; color: var(--color-neutral-60);">No Image</div>`}
               </a>
-            </h3>
-
-            <p style="font-size: 0.95rem; color: var(--color-neutral-70); margin: 0 0 var(--spacing-12) 0;">
-              by ${authors}
-            </p>
-
-            <div style="display: flex; align-items: center; gap: var(--spacing-8); margin-bottom: var(--spacing-12);">
-              <div style="display: flex; align-items: center;">
-                ${starsHtml}
-              </div>
-              <span style="font-size: 1rem; font-weight: 600; color: var(--color-neutral-90);">${rating.toFixed(1)}</span>
-              <span style="font-size: 0.875rem; color: var(--color-neutral-60);">(${reviewsCount.toLocaleString()} ratings)</span>
             </div>
 
-            <div style="display: flex; gap: var(--spacing-24); flex-wrap: wrap; margin-top: var(--spacing-16);">
-              <div>
-                <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">BSR</p>
-                <p style="font-size: 1rem; font-weight: 700; color: var(--color-primary-60); margin: 0;">#${typeof bsr === 'number' ? bsr.toLocaleString() : bsr}</p>
-              </div>
-
-              <div>
-                <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Price</p>
-                <p style="font-size: 1rem; font-weight: 700; color: var(--color-neutral-90); margin: 0;">${currencies[marketSelector.value] || '$'}${price}</p>
-              </div>
-
-              <div>
-                <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">ASIN</p>
-                <p style="font-size: 1rem; font-weight: 700; color: var(--color-neutral-90); margin: 0; font-family: monospace;">${asin}</p>
-              </div>
-
-              <div style="margin-left: auto;">
-                <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: var(--color-neutral-00); text-decoration: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(99, 102, 241, 0.3)'">
-                  View on Amazon →
+            <!-- Book Details -->
+            <div style="flex: 1; min-width: 0;">
+              <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 var(--spacing-8) 0; line-height: 1.4;">
+                <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="color: var(--color-neutral-90); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--color-primary-60)'" onmouseout="this.style.color='var(--color-neutral-90)'">
+                  ${title}
                 </a>
+              </h3>
+
+              <p style="font-size: 0.95rem; color: var(--color-neutral-70); margin: 0 0 var(--spacing-12) 0;">
+                by ${authors}
+              </p>
+
+              <div style="display: flex; align-items: center; gap: var(--spacing-8); margin-bottom: var(--spacing-12);">
+                <div style="display: flex; align-items: center;">
+                  ${starsHtml}
+                </div>
+                <span style="font-size: 1rem; font-weight: 600; color: var(--color-neutral-90);">${rating.toFixed(1)}</span>
+                <span style="font-size: 0.875rem; color: var(--color-neutral-60);">(${reviewsCount.toLocaleString()} ratings)</span>
               </div>
+
+              <div style="display: flex; gap: var(--spacing-24); flex-wrap: wrap; margin-top: var(--spacing-16); align-items: flex-end;">
+                <div>
+                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">BSR</p>
+                  <p style="font-size: 1rem; font-weight: 700; color: var(--color-primary-60); margin: 0;">#${typeof bsr === 'number' ? bsr.toLocaleString() : bsr}</p>
+                </div>
+
+                <div>
+                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Price</p>
+                  <p style="font-size: 1rem; font-weight: 700; color: var(--color-neutral-90); margin: 0;">${currencies[marketSelector.value] || '$'}${price}</p>
+                </div>
+
+                <div>
+                  <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">ASIN</p>
+                  <p style="font-size: 1rem; font-weight: 700; color: var(--color-neutral-90); margin: 0; font-family: monospace;">${asin}</p>
+                </div>
+
+                <div style="margin-left: auto; display: flex; gap: var(--spacing-12);">
+                  <button class="expand-details-btn" data-asin="${asin}" style="display: inline-flex; align-items: center; gap: var(--spacing-8); padding: 10px 20px; background: linear-gradient(135deg, #00C2A8, #00A890); color: var(--color-neutral-00); border: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0, 194, 168, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0, 194, 168, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 194, 168, 0.3)'">
+                    <svg class="book-analysis-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <span>Book Analysis</span>
+                  </button>
+                  <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: var(--color-neutral-00); text-decoration: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(99, 102, 241, 0.3)'">
+                    View on Amazon →
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expandable Details Section -->
+          <div class="book-details-expanded" style="display: none; margin-top: var(--spacing-24); padding-top: var(--spacing-24); border-top: 1px solid var(--color-neutral-30);">
+            <div class="details-loading" style="text-align: center; padding: var(--spacing-32); color: var(--color-neutral-60);">
+              <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--color-neutral-20); border-top-color: #00C2A8; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+              <p style="margin-top: var(--spacing-16); font-size: 1rem; font-weight: 600;">Loading additional details...</p>
+            </div>
+            <div class="details-content" style="display: none;">
+              <!-- Additional data will be inserted here via API call -->
             </div>
           </div>
         </div>
@@ -1613,6 +1695,168 @@ document.addEventListener('DOMContentLoaded', function() {
 
     html += '</div>';
     booksContainer.innerHTML = html;
+
+    // Global flag to track if an analysis is running
+    let isAnalysisRunning = false;
+
+    // Add event listeners to expand buttons
+    const expandButtons = document.querySelectorAll('.expand-details-btn');
+    expandButtons.forEach(btn => {
+      btn.addEventListener('click', async function() {
+        // Check if another analysis is already running
+        if (isAnalysisRunning) {
+          alert('Please wait for the current book analysis to complete before analyzing another book.');
+          return;
+        }
+
+        const asin = this.getAttribute('data-asin');
+        const bookCard = this.closest('.book-card');
+        const expandedSection = bookCard.querySelector('.book-details-expanded');
+        const loadingDiv = expandedSection.querySelector('.details-loading');
+        const contentDiv = expandedSection.querySelector('.details-content');
+
+        // Set global lock and disable all analysis buttons
+        isAnalysisRunning = true;
+        const allAnalysisButtons = document.querySelectorAll('.expand-details-btn');
+        allAnalysisButtons.forEach(button => {
+          button.disabled = true;
+          button.style.opacity = '0.6';
+          button.style.cursor = 'not-allowed';
+        });
+
+        // Expand section for this book
+        expandedSection.style.display = 'block';
+
+        // Show loading
+        loadingDiv.style.display = 'block';
+        contentDiv.style.display = 'none';
+
+        try {
+          // Get the current market from the search
+          const currentMarket = marketSelector.value.toLowerCase();
+
+          // Make API call to analyze book
+          const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=plottybot_analyze_book', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              asin: asin,
+              market: currentMarket
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('API error: ' + response.status);
+          }
+
+          const data = await response.json();
+          console.log('Book analysis data:', data);
+
+          // Hide loading and show content
+          loadingDiv.style.display = 'none';
+          contentDiv.style.display = 'block';
+
+          // Extract data from response
+          const summary = data.analysis_summary || {};
+          const hasKnownAuthors = summary.has_known_authors || false;
+          const hasReputablePublisher = summary.has_reputable_publisher || false;
+          const isCopyTitle = summary.is_copy_title || false;
+          const keywords = summary.keywords || [];
+
+          // Format keywords for display
+          const keywordsHtml = keywords.length > 0
+            ? keywords.map(keyword => `
+                <span style="display: inline-block; padding: 6px 12px; background: var(--color-primary-10); color: var(--color-primary-70); border-radius: var(--radius-medium); font-size: 0.875rem; font-weight: 600; margin: 4px 4px 4px 0;">
+                  ${keyword}
+                </span>
+              `).join('')
+            : '<p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60); font-style: italic;">No keywords identified</p>';
+
+          // Render analysis results
+          contentDiv.innerHTML = `
+            <div style="padding: var(--spacing-20); background: var(--color-neutral-05); border-radius: var(--radius-medium);">
+              <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-16) 0; display: flex; align-items: center; gap: var(--spacing-8);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                Analysis Results
+              </h4>
+
+              <!-- Compact Grid Layout for Quick Facts -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-12); margin-bottom: var(--spacing-16);">
+                <div style="padding: 12px; background: var(--color-neutral-00); border-radius: var(--radius-medium); border-left: 3px solid ${hasKnownAuthors ? '#FF6B6B' : '#00C2A8'};">
+                  <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Has Known Authors?</p>
+                  <p style="margin: 0; font-size: 0.95rem; font-weight: 700; color: ${hasKnownAuthors ? '#FF6B6B' : '#00C2A8'};">
+                    ${hasKnownAuthors ? 'Yes ✗' : 'No ✓'}
+                  </p>
+                </div>
+
+                <div style="padding: 12px; background: var(--color-neutral-00); border-radius: var(--radius-medium); border-left: 3px solid ${hasReputablePublisher ? '#FF6B6B' : '#00C2A8'};">
+                  <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Reputable Publisher?</p>
+                  <p style="margin: 0; font-size: 0.95rem; font-weight: 700; color: ${hasReputablePublisher ? '#FF6B6B' : '#00C2A8'};">
+                    ${hasReputablePublisher ? 'Yes ✗' : 'No ✓'}
+                  </p>
+                </div>
+
+                <div style="padding: 12px; background: var(--color-neutral-00); border-radius: var(--radius-medium); border-left: 3px solid ${isCopyTitle ? '#FF6B6B' : '#00C2A8'};">
+                  <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 4px 0; font-weight: 600;">Is Title in Copy?</p>
+                  <p style="margin: 0; font-size: 0.95rem; font-weight: 700; color: ${isCopyTitle ? '#FF6B6B' : '#00C2A8'};">
+                    ${isCopyTitle ? 'Yes ✗' : 'No ✓'}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Keywords -->
+              <div>
+                <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 8px 0; font-weight: 600;">Identified Keywords</p>
+                <div style="padding: 12px; background: var(--color-neutral-00); border-radius: var(--radius-medium); border: 2px solid var(--color-primary-20); display: flex; flex-wrap: wrap; align-items: center; min-height: 44px;">
+                  ${keywordsHtml}
+                </div>
+              </div>
+            </div>
+          `;
+
+          // Release global lock and re-enable all other buttons (keep this one disabled)
+          isAnalysisRunning = false;
+          const allAnalysisButtons = document.querySelectorAll('.expand-details-btn');
+          allAnalysisButtons.forEach(button => {
+            if (button !== this) {
+              button.disabled = false;
+              button.style.opacity = '1';
+              button.style.cursor = 'pointer';
+            }
+          });
+
+        } catch (error) {
+          console.error('Error analyzing book:', error);
+          loadingDiv.style.display = 'none';
+          contentDiv.style.display = 'block';
+          contentDiv.innerHTML = `
+            <div style="padding: var(--spacing-24); text-align: center; color: var(--color-danger-60);">
+              <p style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-12);">Error loading analysis</p>
+              <p style="color: var(--color-neutral-60); margin-bottom: var(--spacing-16);">${error.message}</p>
+              <p style="font-size: 0.875rem; color: var(--color-neutral-70);">You can try clicking the button again to retry.</p>
+            </div>
+          `;
+
+          // Release global lock and re-enable all buttons on error
+          isAnalysisRunning = false;
+          const allAnalysisButtons = document.querySelectorAll('.expand-details-btn');
+          allAnalysisButtons.forEach(button => {
+            button.disabled = false;
+            button.style.opacity = '1';
+            button.style.cursor = 'pointer';
+          });
+
+          // Collapse the section
+          expandedSection.style.display = 'none';
+        }
+      });
+    });
 
     // Scroll to results
     document.getElementById('books-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2029,6 +2273,9 @@ document.addEventListener('DOMContentLoaded', function() {
       const inkTypeData = royaltiesData.by_ink_type.find(i => i.ink_type === inkType);
       if (!inkTypeData) throw new Error('No data for selected ink type');
 
+      // Get ACOS metrics
+      const acosData = data.acos_metrics && data.acos_metrics[0];
+
       // Display results
       document.getElementById('result-list-price').textContent = `${inkTypeData.currency}${royaltiesData.list_price.toFixed(2)}`;
       document.getElementById('result-printing-cost').textContent = `${inkTypeData.currency}${inkTypeData.print_cost.toFixed(2)}`;
@@ -2036,6 +2283,17 @@ document.addEventListener('DOMContentLoaded', function() {
       const amazonFee = royaltiesData.list_price * 0.40;
       document.getElementById('result-amazon-fee').textContent = `${inkTypeData.currency}${amazonFee.toFixed(2)}`;
       document.getElementById('result-royalty').textContent = `${inkTypeData.currency}${inkTypeData.royalties_per_copy.toFixed(2)}`;
+
+      // Display ACOS metrics if available
+      const acosSection = document.getElementById('acos-metrics-section');
+      if (acosData && acosSection) {
+        document.getElementById('result-breakeven-acos').textContent = `${acosData.breakeven_acos.toFixed(2)}%`;
+        document.getElementById('result-target-acos').textContent = `${acosData.target_acos.toFixed(2)}%`;
+        document.getElementById('result-max-ad-spend').textContent = `${inkTypeData.currency}${acosData.max_ad_spend_per_sale.toFixed(2)}`;
+        acosSection.style.display = 'block';
+      } else if (acosSection) {
+        acosSection.style.display = 'none';
+      }
 
       // Show results
       royaltiesResults.style.display = 'block';

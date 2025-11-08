@@ -1263,6 +1263,171 @@ if (!function_exists('plottybot_calculate_royalties_handler')) {
 
         if ($status_code >= 400) {
             error_log('Plottybot Royalties: Error response body = ' . $body);
+            status_header($status_code);
+            header('Content-Type: application/json');
+            echo $body;
+            wp_die();
+        }
+
+        // Parse royalties response
+        $royalties_data = json_decode($body, true);
+
+        if (!$royalties_data || !isset($royalties_data['royalties_per_copy'][0])) {
+            error_log('Plottybot Royalties: Invalid royalties response');
+            wp_send_json_error(['message' => 'Invalid royalties response'], 500);
+            wp_die();
+        }
+
+        // Extract book price and royalty per copy from the first item
+        $first_book = $royalties_data['royalties_per_copy'][0];
+        $book_price = $first_book['list_price'];
+
+        // Get the royalty for the requested ink type (from original payload)
+        $requested_ink_type = 'black'; // default
+        if (isset($payload[0]['ink_type'])) {
+            $requested_ink_type = $payload[0]['ink_type'];
+        }
+
+        // Find the matching ink type or use first one
+        $royalty_per_copy = null;
+        foreach ($first_book['by_ink_type'] as $ink_data) {
+            if ($ink_data['ink_type'] === $requested_ink_type) {
+                $royalty_per_copy = $ink_data['royalties_per_copy'];
+                break;
+            }
+        }
+
+        // If not found, use first available
+        if ($royalty_per_copy === null && !empty($first_book['by_ink_type'])) {
+            $royalty_per_copy = $first_book['by_ink_type'][0]['royalties_per_copy'];
+        }
+
+        error_log('Plottybot Royalties: Book price = ' . $book_price . ', Royalty per copy = ' . $royalty_per_copy);
+
+        // Now call ACOS metrics API
+        $acos_url = 'https://api-frontend-1044931876531.us-central1.run.app/books/acos_metrics';
+        error_log('Plottybot Royalties: Calling ACOS API URL = ' . $acos_url);
+
+        $acos_payload = [
+            'book_price' => $book_price,
+            'royalty_per_copy' => $royalty_per_copy
+        ];
+
+        $acos_request_args = [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY,
+                'X-Forwarded-For' => $server_external_ip,
+                'X-Real-IP' => $server_external_ip,
+                'X-Forwarded-Proto' => 'https',
+                'X-Forwarded-Host' => 'insights.plottybot.com'
+            ],
+            'body' => json_encode($acos_payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ];
+
+        $acos_response = wp_remote_post($acos_url, $acos_request_args);
+
+        if (is_wp_error($acos_response)) {
+            error_log('Plottybot Royalties: ACOS API WP Error - ' . $acos_response->get_error_message());
+            // Continue without ACOS data
+            $acos_data = null;
+        } else {
+            $acos_body = wp_remote_retrieve_body($acos_response);
+            $acos_status = wp_remote_retrieve_response_code($acos_response);
+            error_log('Plottybot Royalties: ACOS API response status = ' . $acos_status);
+
+            if ($acos_status >= 400) {
+                error_log('Plottybot Royalties: ACOS API error response = ' . $acos_body);
+                $acos_data = null;
+            } else {
+                $acos_data = json_decode($acos_body, true);
+            }
+        }
+
+        // Combine both responses
+        $combined_response = [
+            'royalties_per_copy' => $royalties_data['royalties_per_copy'],
+            'acos_metrics' => $acos_data ? $acos_data['acos_metrics'] : null
+        ];
+
+        error_log('Plottybot Royalties: Sending combined response');
+
+        // Send the combined response
+        status_header(200);
+        header('Content-Type: application/json');
+        echo json_encode($combined_response);
+        wp_die();
+    }
+}
+
+// AJAX handler for book analysis
+add_action('wp_ajax_plottybot_analyze_book', 'plottybot_analyze_book_handler');
+add_action('wp_ajax_nopriv_plottybot_analyze_book', 'plottybot_analyze_book_handler');
+
+if (!function_exists('plottybot_analyze_book_handler')) {
+    function plottybot_analyze_book_handler() {
+        error_log('Plottybot Book Analysis: Handler called');
+
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            error_log('Plottybot Book Analysis: Auth failed - not logged in');
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+        error_log('Plottybot Book Analysis: Payload = ' . json_encode($payload));
+
+        if (!$payload || !isset($payload['asin']) || !isset($payload['market'])) {
+            error_log('Plottybot Book Analysis: Invalid payload');
+            wp_send_json_error(['message' => 'Invalid payload - asin and market required'], 400);
+            wp_die();
+        }
+
+        // Use the actual external IP of the WordPress server
+        $server_external_ip = '95.110.231.49';
+        error_log('Plottybot Book Analysis: Using external IP = ' . $server_external_ip);
+
+        $api_url = 'https://api-frontend-1044931876531.us-central1.run.app/books/analyze';
+        error_log('Plottybot Book Analysis: API URL = ' . $api_url);
+
+        $request_args = [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY,
+                'X-Forwarded-For' => $server_external_ip,
+                'X-Real-IP' => $server_external_ip,
+                'X-Forwarded-Proto' => 'https',
+                'X-Forwarded-Host' => 'insights.plottybot.com'
+            ],
+            'body' => json_encode($payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ];
+
+        error_log('Plottybot Book Analysis: Request sent to API');
+
+        $response = wp_remote_post($api_url, $request_args);
+
+        if (is_wp_error($response)) {
+            error_log('Plottybot Book Analysis: WP Error - ' . $response->get_error_message());
+            wp_send_json_error(['message' => $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $status_code = wp_remote_retrieve_response_code($response);
+
+        error_log('Plottybot Book Analysis: API response status = ' . $status_code);
+        error_log('Plottybot Book Analysis: API response body length = ' . strlen($body));
+
+        if ($status_code >= 400) {
+            error_log('Plottybot Book Analysis: Error response body = ' . $body);
         }
 
         // Send the successful response
