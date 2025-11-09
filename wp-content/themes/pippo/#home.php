@@ -2,11 +2,29 @@
 /* Template Name: Home */
 get_header();
 
-// Check if user is logged in, if not redirect to login page
-if (!is_user_logged_in()) {
-    wp_redirect('https://plottybot.com/login');
-    exit;
-}
+// External variable to control user access level
+// Set this variable based on your requirements:
+// 'full' = logged in user with full access
+// 'limited' = non-logged in user with faded features
+// 'demo' = demo mode with sample data
+$user_access_level = is_user_logged_in() ? 'full' : 'limited';
+
+// You can override this variable for testing or different scenarios:
+// $user_access_level = 'limited'; // Force limited mode
+// $user_access_level = 'demo';    // Force demo mode
+
+// Book Analysis button visibility control
+// Set this variable to control whether the Book Analysis button appears in search results:
+// true = Book Analysis button is shown
+// false = Book Analysis button is hidden
+$show_book_analysis = true;
+
+// You can override this variable for testing or different scenarios:
+// $show_book_analysis = false;  // Hide Book Analysis button
+
+// Determine UI state based on access level
+$show_full_features = ($user_access_level === 'full');
+$is_demo_mode = ($user_access_level === 'demo');
 
 // Currency mapping based on market
 $currencies = [
@@ -16,6 +34,25 @@ $currencies = [
     'FR' => '€',
     'ES' => '€'
 ];
+
+// Add CSS classes based on user access level
+$container_class = '';
+$overlay_message = '';
+
+switch ($user_access_level) {
+    case 'limited':
+        $container_class = 'features-limited';
+        $overlay_message = 'Login to access all features';
+        break;
+    case 'demo':
+        $container_class = 'features-demo';
+        $overlay_message = 'Demo Mode - Sample Data Only';
+        break;
+    case 'full':
+    default:
+        $container_class = 'features-full';
+        break;
+}
 ?>
 
 <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/style.css">
@@ -23,7 +60,28 @@ $currencies = [
 <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/pb-style.php">
 
 <!-- Main Container with Sidebar and Content -->
-<div style="display: flex; min-height: calc(100vh - 120px); position: relative; margin-top: 0;">
+<div class="main-dashboard-container <?php echo esc_attr($container_class); ?>" style="display: flex; min-height: calc(100vh - 120px); position: relative; margin-top: 0;">
+
+  <?php if (!$show_full_features): ?>
+  <!-- Access Level Overlay for Limited/Demo Users (Chrome Extension section excluded) -->
+  <div class="access-level-overlay" id="access-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.1); z-index: 999; pointer-events: none; display: flex; align-items: flex-start; justify-content: center; padding-top: 100px;">
+    <div class="access-message" style="background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: white; padding: var(--spacing-16) var(--spacing-24); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.3); font-weight: 700; font-size: 1.125rem; text-align: center; max-width: 400px; animation: pulseGlow 2s infinite;">
+      <?php echo esc_html($overlay_message); ?>
+      <?php if ($user_access_level === 'limited'): ?>
+      <div style="margin-top: var(--spacing-12);">
+        <a href="https://plottybot.com/login" style="color: white; text-decoration: underline; font-weight: 600; display: inline-flex; align-items: center; gap: var(--spacing-8);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10,17 15,12 10,7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+          Login Now
+        </a>
+      </div>
+      <?php endif; ?>
+    </div>
+  </div>
+  <?php endif; ?>
 
   <!-- Left Sidebar Navigation -->
   <aside id="sidebar" class="sidebar" style="position: relative; width: 280px; background: #F5F5F5; border-right: 1px solid #E0E0E0; box-shadow: 2px 0 8px rgba(0,0,0,0.05); transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; flex-shrink: 0;">
@@ -625,6 +683,140 @@ $currencies = [
   to { transform: rotate(360deg); }
 }
 
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+}
+
+/* User Access Level Styles */
+.features-limited {
+  opacity: 0.6;
+  pointer-events: none;
+  user-select: none;
+}
+
+.features-limited * {
+  cursor: not-allowed !important;
+}
+
+/* Keep sidebar functional for navigation in limited mode */
+.features-limited #sidebar,
+.features-limited #sidebar *,
+.features-limited .sidebar-toggle,
+.features-limited .service-nav-btn,
+.features-limited .service-nav-btn * {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  user-select: auto !important;
+}
+
+.features-limited .service-nav-btn:hover {
+  background: var(--color-primary-05) !important;
+  border-left-color: var(--color-primary-40) !important;
+  color: var(--color-neutral-90) !important;
+}
+
+/* Chrome Extension section always accessible - no restrictions */
+.features-limited #service-chrome-extension,
+.features-limited #service-chrome-extension *,
+.features-demo #service-chrome-extension,
+.features-demo #service-chrome-extension * {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: auto !important;
+  user-select: auto !important;
+}
+
+.features-limited #service-chrome-extension a,
+.features-demo #service-chrome-extension a {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.features-demo {
+  opacity: 0.8;
+  position: relative;
+}
+
+.features-demo::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 20px,
+    rgba(255, 193, 7, 0.1) 20px,
+    rgba(255, 193, 7, 0.1) 40px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.features-full {
+  opacity: 1;
+}
+
+/* Enhanced disabled state for form elements in limited mode */
+.features-limited input,
+.features-limited button,
+.features-limited select,
+.features-limited textarea {
+  background-color: #f5f5f5 !important;
+  color: #999 !important;
+  border-color: #ddd !important;
+  cursor: not-allowed !important;
+}
+
+.features-limited button {
+  background: #e0e0e0 !important;
+  color: #999 !important;
+  box-shadow: none !important;
+}
+
+.features-limited .dropdown-toggle {
+  background: #f5f5f5 !important;
+  color: #999 !important;
+  cursor: not-allowed !important;
+}
+
+/* Access level overlay animations */
+.access-level-overlay {
+  animation: fadeInOverlay 0.5s ease-out;
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.access-message {
+  animation: slideInMessage 0.6s ease-out;
+}
+
+@keyframes slideInMessage {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -943,8 +1135,39 @@ select option {
 </style>
 
 <script>
+// Global access level configuration
+const USER_ACCESS_LEVEL = '<?php echo esc_js($user_access_level); ?>';
+const SHOW_FULL_FEATURES = <?php echo $show_full_features ? 'true' : 'false'; ?>;
+const IS_DEMO_MODE = <?php echo $is_demo_mode ? 'true' : 'false'; ?>;
+const SHOW_BOOK_ANALYSIS = <?php echo $show_book_analysis ? 'true' : 'false'; ?>;
+
+// Demo data for limited users
+const DEMO_DATA = {
+  sampleBooks: [
+    {
+      title: "Sample Book Title",
+      authors: ["Demo Author"],
+      asin: "DEMO001",
+      bsr: 1500,
+      paperback_price: 9.99,
+      average_rating: 4.5,
+      reviews_count: 150,
+      cover: ""
+    }
+  ],
+  sampleCategories: [
+    {
+      category_path: "Demo Category > Subcategory",
+      copies_per_day: 25,
+      category_id: "demo123"
+    }
+  ]
+};
 
 document.addEventListener('DOMContentLoaded', function() {
+  
+  // Initialize access level restrictions
+  initializeAccessLevelRestrictions();
   // Sidebar Toggle Functionality
   const sidebar = document.getElementById('sidebar');
   const sidebarToggle = document.getElementById('sidebar-toggle');
@@ -1019,6 +1242,35 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       const service = this.getAttribute('data-service');
       switchService(service);
+      
+      // Manage visual restrictions and overlay based on active service
+      const overlay = document.getElementById('access-overlay');
+      const mainContainer = document.querySelector('.main-dashboard-container');
+      
+      if (!SHOW_FULL_FEATURES) {
+        if (service === 'chrome-extension') {
+          // Chrome Extension section: Remove ALL visual restrictions (both limited and demo)
+          if (overlay) overlay.style.display = 'none';
+          if (mainContainer) {
+            mainContainer.classList.remove('features-limited', 'features-demo');
+            mainContainer.classList.add('features-full');
+          }
+        } else {
+          // Other sections: Apply appropriate restrictions for limited/demo users
+          if (overlay) overlay.style.display = 'flex';
+          if (mainContainer) {
+            mainContainer.classList.remove('features-full');
+            // Restore original access level class
+            if (USER_ACCESS_LEVEL === 'limited') {
+              mainContainer.classList.add('features-limited');
+              mainContainer.classList.remove('features-demo');
+            } else if (USER_ACCESS_LEVEL === 'demo') {
+              mainContainer.classList.add('features-demo');
+              mainContainer.classList.remove('features-limited');
+            }
+          }
+        }
+      }
     });
   });
 
@@ -1217,6 +1469,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Search button functionality
     categoriesSearchBtn.addEventListener('click', async function() {
+      // Check access level before processing
+      if (!SHOW_FULL_FEATURES) {
+        handleRestrictedAccess('categories analysis');
+        return;
+      }
       const market = categoriesMarketSelector.value.toLowerCase();
       const macroCategory = categoriesMacroCategorySelector.value;
       const keyword = categoriesKeywordSearch.value.trim();
@@ -1474,6 +1731,11 @@ document.addEventListener('DOMContentLoaded', function() {
   const booksContainer = document.getElementById('books-container');
 
   applyButton.addEventListener('click', async function() {
+    // Check access level before processing
+    if (!SHOW_FULL_FEATURES) {
+      handleRestrictedAccess('book search');
+      return;
+    }
     // Parse range values
     const bsrRange = document.getElementById('bsr-range').value;
     const priceRange = document.getElementById('price-range').value;
@@ -1664,6 +1926,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
 
                 <div style="margin-left: auto; display: flex; gap: var(--spacing-12);">
+                  ${SHOW_BOOK_ANALYSIS ? `
                   <button class="expand-details-btn" data-asin="${asin}" style="display: inline-flex; align-items: center; gap: var(--spacing-8); padding: 10px 20px; background: linear-gradient(135deg, #00C2A8, #00A890); color: var(--color-neutral-00); border: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0, 194, 168, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0, 194, 168, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 194, 168, 0.3)'">
                     <svg class="book-analysis-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="11" cy="11" r="8"></circle>
@@ -1671,6 +1934,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </svg>
                     <span>Book Analysis</span>
                   </button>
+                  ` : ''}
                   <a href="${amazonLink}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: var(--color-neutral-00); text-decoration: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(99, 102, 241, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(99, 102, 241, 0.3)'">
                     View on Amazon →
                   </a>
@@ -1699,9 +1963,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Global flag to track if an analysis is running
     let isAnalysisRunning = false;
 
-    // Add event listeners to expand buttons
-    const expandButtons = document.querySelectorAll('.expand-details-btn');
-    expandButtons.forEach(btn => {
+    // Add event listeners to expand buttons (only if Book Analysis is enabled)
+    if (SHOW_BOOK_ANALYSIS) {
+      const expandButtons = document.querySelectorAll('.expand-details-btn');
+      expandButtons.forEach(btn => {
       btn.addEventListener('click', async function() {
         // Check if another analysis is already running
         if (isAnalysisRunning) {
@@ -1855,8 +2120,9 @@ document.addEventListener('DOMContentLoaded', function() {
           // Collapse the section
           expandedSection.style.display = 'none';
         }
+        });
       });
-    });
+    }
 
     // Scroll to results
     document.getElementById('books-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2216,6 +2482,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Calculate button
   royaltiesCalculateBtn.addEventListener('click', async function() {
+    // Check access level before processing
+    if (!SHOW_FULL_FEATURES) {
+      handleRestrictedAccess('royalties calculator');
+      return;
+    }
     const market = royaltiesMarketSelector.value;
     const currency = royaltiesCurrencies[market] || '$';
     const unit = royaltiesUnitSelector.value;
@@ -2305,6 +2576,123 @@ document.addEventListener('DOMContentLoaded', function() {
       royaltiesCalculateBtn.textContent = '💰 Calculate Royalties';
     }
   });
+
+  // Access level restriction functions
+  function initializeAccessLevelRestrictions() {
+    console.log('Initializing access level:', USER_ACCESS_LEVEL);
+    
+    if (!SHOW_FULL_FEATURES) {
+      // Disable all form interactions
+      disableFormInteractions();
+      
+      // Show demo data if in demo mode
+      if (IS_DEMO_MODE) {
+        showDemoData();
+      }
+      
+      // Add click interceptors for restricted features
+      addClickInterceptors();
+    }
+  }
+
+  function disableFormInteractions() {
+    // Disable all inputs, buttons, and dropdowns EXCEPT sidebar elements and Chrome Extension
+    const interactiveElements = document.querySelectorAll('input, button, select, textarea, .dropdown-toggle, .dropdown-item');
+    interactiveElements.forEach(element => {
+      // Skip sidebar elements and Chrome Extension section
+      if (element.closest('#sidebar') ||
+          element.classList.contains('sidebar-toggle') ||
+          element.classList.contains('service-nav-btn') ||
+          element.closest('#service-chrome-extension')) {
+        return;
+      }
+      element.setAttribute('disabled', 'disabled');
+      element.style.pointerEvents = 'none';
+    });
+
+    // Disable dropdown functionality EXCEPT in sidebar and Chrome Extension
+    const dropdowns = document.querySelectorAll('.dropdown');
+    dropdowns.forEach(dropdown => {
+      // Skip sidebar dropdowns and Chrome Extension
+      if (dropdown.closest('#sidebar') || dropdown.closest('#service-chrome-extension')) {
+        return;
+      }
+      dropdown.style.pointerEvents = 'none';
+    });
+  }
+
+  function addClickInterceptors() {
+    // Add event listeners to capture clicks on disabled elements
+    document.addEventListener('click', function(e) {
+      // Allow sidebar navigation to work normally
+      if (e.target.closest('#sidebar') || e.target.closest('.sidebar-toggle')) {
+        return; // Let sidebar clicks through
+      }
+      
+      // Allow Chrome Extension section to work normally (it's promotional content)
+      if (e.target.closest('#service-chrome-extension')) {
+        return; // Let Chrome Extension clicks through
+      }
+      
+      if (!SHOW_FULL_FEATURES && e.target.closest('button, input, .dropdown')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Determine which feature was attempted
+        let featureName = 'this feature';
+        if (e.target.closest('#service-book-search')) featureName = 'book search';
+        else if (e.target.closest('#service-categories')) featureName = 'categories analysis';
+        else if (e.target.closest('#service-ad-campaign')) featureName = 'royalties calculator';
+        
+        handleRestrictedAccess(featureName);
+        return false;
+      }
+    }, true); // Use capturing phase to intercept early
+  }
+
+  function handleRestrictedAccess(featureName) {
+    if (USER_ACCESS_LEVEL === 'limited') {
+      showUpgradePrompt(featureName);
+    } else if (USER_ACCESS_LEVEL === 'demo') {
+      showDemoNotification(featureName);
+    }
+  }
+
+  function showUpgradePrompt(featureName) {
+    const message = `Access to ${featureName} requires login. Would you like to sign in now?`;
+    if (confirm(message)) {
+      window.location.href = 'https://plottybot.com/login';
+    }
+  }
+
+  function showDemoNotification(featureName) {
+    alert(`Demo Mode: ${featureName} is showing sample data only. Login for real-time data.`);
+  }
+
+  function showDemoData() {
+    // Show sample data in demo mode
+    setTimeout(() => {
+      if (IS_DEMO_MODE) {
+        // Populate book search with demo data
+        if (document.getElementById('books-container')) {
+          renderBooks(DEMO_DATA.sampleBooks, 1);
+        }
+        
+        // Populate categories with demo data if visible
+        if (document.getElementById('categories-results-container')) {
+          renderCategoriesResults({
+            count: 1,
+            results: DEMO_DATA.sampleCategories,
+            search_criteria: {
+              market: 'us',
+              macro_category: 'Demo Category'
+            }
+          });
+        }
+      }
+    }, 1000);
+  }
+
 });
 </script>
 
