@@ -1,17 +1,57 @@
 <?php
 /* Template Name: Home */
+
+// External variable to control page access
+// Set this variable based on your requirements:
+// true = user can access the page
+// false = redirect to login page
+$user_logged = is_user_logged_in();
+
+// You can override this variable for testing or different scenarios:
+// $user_logged = false; // Force redirect to login
+
+// If user is not logged in, show redirect page
+if (!$user_logged) {
+    ?>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Redirecting...</title>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+            .redirect-container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+            .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #6366f1; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        </style>
+        <script>
+            // Immediate redirect
+            window.location.href = 'https://plottybot.com/login';
+        </script>
+    </head>
+    <body>
+        <div class="redirect-container">
+            <div class="spinner"></div>
+            <h2>Redirecting to Login...</h2>
+            <p>Please wait while we redirect you to the login page.</p>
+            <p><a href="https://plottybot.com/login">Click here if you are not redirected automatically</a></p>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 get_header();
 
 // External variable to control user access level
 // Set this variable based on your requirements:
 // 'full' = logged in user with full access
-// 'limited' = non-logged in user with faded features
-// 'demo' = demo mode with sample data
-$user_access_level = is_user_logged_in() ? 'full' : 'limited';
+// 'limited' = non-logged in user with restricted access
+$user_plottyinsights_access_level = is_user_logged_in() ? 'full' : 'limited';
 
 // You can override this variable for testing or different scenarios:
-// $user_access_level = 'limited'; // Force limited mode
-// $user_access_level = 'demo';    // Force demo mode
+// $user_plottyinsights_access_level = 'limited'; // Force limited mode
 
 // Book Analysis button visibility control
 // Set this variable to control whether the Book Analysis button appears in search results:
@@ -23,8 +63,7 @@ $show_book_analysis = true;
 // $show_book_analysis = false;  // Hide Book Analysis button
 
 // Determine UI state based on access level
-$show_full_features = ($user_access_level === 'full');
-$is_demo_mode = ($user_access_level === 'demo');
+$show_full_features = ($user_plottyinsights_access_level === 'full');
 
 // Currency mapping based on market
 $currencies = [
@@ -37,16 +76,10 @@ $currencies = [
 
 // Add CSS classes based on user access level
 $container_class = '';
-$overlay_message = '';
 
-switch ($user_access_level) {
+switch ($user_plottyinsights_access_level) {
     case 'limited':
         $container_class = 'features-limited';
-        $overlay_message = 'Login to access all features';
-        break;
-    case 'demo':
-        $container_class = 'features-demo';
-        $overlay_message = 'Demo Mode - Sample Data Only';
         break;
     case 'full':
     default:
@@ -62,73 +95,120 @@ switch ($user_access_level) {
 <!-- Main Container with Sidebar and Content -->
 <div class="main-dashboard-container <?php echo esc_attr($container_class); ?>" style="display: flex; min-height: calc(100vh - 120px); position: relative; margin-top: 0;">
 
-  <?php if (!$show_full_features): ?>
-  <!-- Access Level Overlay for Limited/Demo Users (Chrome Extension section excluded) -->
-  <div class="access-level-overlay" id="access-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.1); z-index: 999; pointer-events: none; display: flex; align-items: flex-start; justify-content: center; padding-top: 100px;">
-    <div class="access-message" style="background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: white; padding: var(--spacing-16) var(--spacing-24); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.3); font-weight: 700; font-size: 1.125rem; text-align: center; max-width: 400px; animation: pulseGlow 2s infinite;">
-      <?php echo esc_html($overlay_message); ?>
-      <?php if ($user_access_level === 'limited'): ?>
-      <div style="margin-top: var(--spacing-12);">
-        <a href="https://plottybot.com/login" style="color: white; text-decoration: underline; font-weight: 600; display: inline-flex; align-items: center; gap: var(--spacing-8);">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-            <polyline points="10,17 15,12 10,7"></polyline>
-            <line x1="15" y1="12" x2="3" y2="12"></line>
-          </svg>
-          Login Now
-        </a>
-      </div>
-      <?php endif; ?>
-    </div>
-  </div>
-  <?php endif; ?>
 
   <!-- Left Sidebar Navigation -->
   <aside id="sidebar" class="sidebar" style="position: relative; width: 280px; background: #F5F5F5; border-right: 1px solid #E0E0E0; box-shadow: 2px 0 8px rgba(0,0,0,0.05); transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; flex-shrink: 0;">
 
     <!-- Navigation Menu -->
     <nav style="padding: var(--spacing-24) 0;">
-      <button id="nav-book-search" class="service-nav-btn active" data-service="book-search" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: var(--color-primary-10); border: none; border-left: 4px solid var(--color-primary-60); color: var(--color-neutral-90); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
-        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--color-primary-50); border-radius: var(--radius-small);">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 3h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path>
-            <path d="M18 3h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path>
-          </svg>
-        </span>
-        <span>Book Search</span>
-      </button>
-      <button id="nav-categories" class="service-nav-btn" data-service="categories" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-70); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
-        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-70)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
-        </span>
-        <span>Categories</span>
-      </button>
-      <button id="nav-ad-campaign" class="service-nav-btn" data-service="ad-campaign" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-70); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
-        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-70)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="1" x2="12" y2="23"></line>
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-          </svg>
-        </span>
-        <span>Royalties Calculator</span>
-      </button>
-      <button id="nav-chrome-extension" class="service-nav-btn" data-service="chrome-extension" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-70); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
-        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-70)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="12" cy="12" r="4"></circle>
-            <line x1="21.17" y1="8" x2="12" y2="8"></line>
-            <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
-            <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
-          </svg>
-        </span>
-        <span>Chrome Extension</span>
-      </button>
+      <?php if ($show_full_features): ?>
+        <!-- Full Access Navigation -->
+        <button id="nav-book-search" class="service-nav-btn active" data-service="book-search" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: var(--color-primary-10); border: none; border-left: 4px solid var(--color-primary-60); color: var(--color-neutral-90); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
+          <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--color-primary-50); border-radius: var(--radius-small);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path>
+              <path d="M18 3h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+          </span>
+          <span>Book Search</span>
+        </button>
+        <button id="nav-categories" class="service-nav-btn" data-service="categories" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-70); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
+          <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-70)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </span>
+          <span>Categories</span>
+        </button>
+        <button id="nav-ad-campaign" class="service-nav-btn" data-service="ad-campaign" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-70); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
+          <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-70)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </span>
+          <span>Royalties Calculator</span>
+        </button>
+        <button id="nav-chrome-extension" class="service-nav-btn" data-service="chrome-extension" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-70); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
+          <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-70)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="4"></circle>
+              <line x1="21.17" y1="8" x2="12" y2="8"></line>
+              <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
+              <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
+            </svg>
+          </span>
+          <span>Chrome Extension</span>
+        </button>
+      <?php else: ?>
+        <!-- Limited Access Navigation -->
+        <button class="service-nav-btn locked" data-service="book-search" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-40); font-weight: 600; font-size: 1rem; cursor: not-allowed; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4); opacity: 0.5;">
+          <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #F0F0F0; border-radius: var(--radius-small);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-40)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path>
+              <path d="M18 3h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+          </span>
+          <span style="flex: 1;">Book Search</span>
+          <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(255, 107, 107, 0.1); border-radius: var(--radius-small); border: 1px solid rgba(255, 107, 107, 0.3);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <circle cx="12" cy="16" r="1"></circle>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+        </button>
+        <button class="service-nav-btn locked" data-service="categories" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-40); font-weight: 600; font-size: 1rem; cursor: not-allowed; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4); opacity: 0.5;">
+          <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #F0F0F0; border-radius: var(--radius-small);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-40)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </span>
+          <span style="flex: 1;">Categories</span>
+          <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(255, 107, 107, 0.1); border-radius: var(--radius-small); border: 1px solid rgba(255, 107, 107, 0.3);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <circle cx="12" cy="16" r="1"></circle>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+        </button>
+        <button class="service-nav-btn locked" data-service="ad-campaign" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-40); font-weight: 600; font-size: 1rem; cursor: not-allowed; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4); opacity: 0.5;">
+          <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #F0F0F0; border-radius: var(--radius-small);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--color-neutral-40)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </span>
+          <span style="flex: 1;">Royalties Calculator</span>
+          <div style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(255, 107, 107, 0.1); border-radius: var(--radius-small); border: 1px solid rgba(255, 107, 107, 0.3);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <circle cx="12" cy="16" r="1"></circle>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+        </button>
+        <button id="nav-chrome-extension" class="service-nav-btn active" data-service="chrome-extension" style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: var(--color-primary-10); border: none; border-left: 4px solid var(--color-primary-60); color: var(--color-neutral-90); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4);">
+          <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--color-primary-50); border-radius: var(--radius-small);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="4"></circle>
+              <line x1="21.17" y1="8" x2="12" y2="8"></line>
+              <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
+              <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
+            </svg>
+          </span>
+          <span>Chrome Extension</span>
+        </button>
+      <?php endif; ?>
     </nav>
 
 
@@ -694,13 +774,7 @@ switch ($user_access_level) {
 
 /* User Access Level Styles */
 .features-limited {
-  opacity: 0.6;
-  pointer-events: none;
-  user-select: none;
-}
-
-.features-limited * {
-  cursor: not-allowed !important;
+  /* No visual restrictions - clean interface */
 }
 
 /* Keep sidebar functional for navigation in limited mode */
@@ -723,70 +797,24 @@ switch ($user_access_level) {
 
 /* Chrome Extension section always accessible - no restrictions */
 .features-limited #service-chrome-extension,
-.features-limited #service-chrome-extension *,
-.features-demo #service-chrome-extension,
-.features-demo #service-chrome-extension * {
+.features-limited #service-chrome-extension,
+.features-limited #service-chrome-extension * {
   opacity: 1 !important;
   pointer-events: auto !important;
   cursor: auto !important;
   user-select: auto !important;
 }
 
-.features-limited #service-chrome-extension a,
-.features-demo #service-chrome-extension a {
+.features-limited #service-chrome-extension a {
   cursor: pointer !important;
   pointer-events: auto !important;
-}
-
-.features-demo {
-  opacity: 0.8;
-  position: relative;
-}
-
-.features-demo::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 20px,
-    rgba(255, 193, 7, 0.1) 20px,
-    rgba(255, 193, 7, 0.1) 40px
-  );
-  pointer-events: none;
-  z-index: 1;
 }
 
 .features-full {
   opacity: 1;
 }
 
-/* Enhanced disabled state for form elements in limited mode */
-.features-limited input,
-.features-limited button,
-.features-limited select,
-.features-limited textarea {
-  background-color: #f5f5f5 !important;
-  color: #999 !important;
-  border-color: #ddd !important;
-  cursor: not-allowed !important;
-}
-
-.features-limited button {
-  background: #e0e0e0 !important;
-  color: #999 !important;
-  box-shadow: none !important;
-}
-
-.features-limited .dropdown-toggle {
-  background: #f5f5f5 !important;
-  color: #999 !important;
-  cursor: not-allowed !important;
-}
+/* No enhanced disabled state needed - using locked navigation instead */
 
 /* Access level overlay animations */
 .access-level-overlay {
@@ -1136,33 +1164,9 @@ select option {
 
 <script>
 // Global access level configuration
-const USER_ACCESS_LEVEL = '<?php echo esc_js($user_access_level); ?>';
+const USER_ACCESS_LEVEL = '<?php echo esc_js($user_plottyinsights_access_level); ?>';
 const SHOW_FULL_FEATURES = <?php echo $show_full_features ? 'true' : 'false'; ?>;
-const IS_DEMO_MODE = <?php echo $is_demo_mode ? 'true' : 'false'; ?>;
 const SHOW_BOOK_ANALYSIS = <?php echo $show_book_analysis ? 'true' : 'false'; ?>;
-
-// Demo data for limited users
-const DEMO_DATA = {
-  sampleBooks: [
-    {
-      title: "Sample Book Title",
-      authors: ["Demo Author"],
-      asin: "DEMO001",
-      bsr: 1500,
-      paperback_price: 9.99,
-      average_rating: 4.5,
-      reviews_count: 150,
-      cover: ""
-    }
-  ],
-  sampleCategories: [
-    {
-      category_path: "Demo Category > Subcategory",
-      copies_per_day: 25,
-      category_id: "demo123"
-    }
-  ]
-};
 
 document.addEventListener('DOMContentLoaded', function() {
   
@@ -1239,37 +1243,22 @@ document.addEventListener('DOMContentLoaded', function() {
   // Add click event listeners to navigation buttons
   navButtons.forEach(btn => {
     btn.addEventListener('click', function(e) {
+      // Prevent clicks on locked buttons for limited users
+      if (!SHOW_FULL_FEATURES && this.classList.contains('locked')) {
+        e.preventDefault();
+        return;
+      }
+      
       e.preventDefault();
       const service = this.getAttribute('data-service');
       switchService(service);
       
-      // Manage visual restrictions and overlay based on active service
-      const overlay = document.getElementById('access-overlay');
-      const mainContainer = document.querySelector('.main-dashboard-container');
-      
-      if (!SHOW_FULL_FEATURES) {
-        if (service === 'chrome-extension') {
-          // Chrome Extension section: Remove ALL visual restrictions (both limited and demo)
-          if (overlay) overlay.style.display = 'none';
-          if (mainContainer) {
-            mainContainer.classList.remove('features-limited', 'features-demo');
-            mainContainer.classList.add('features-full');
-          }
-        } else {
-          // Other sections: Apply appropriate restrictions for limited/demo users
-          if (overlay) overlay.style.display = 'flex';
-          if (mainContainer) {
-            mainContainer.classList.remove('features-full');
-            // Restore original access level class
-            if (USER_ACCESS_LEVEL === 'limited') {
-              mainContainer.classList.add('features-limited');
-              mainContainer.classList.remove('features-demo');
-            } else if (USER_ACCESS_LEVEL === 'demo') {
-              mainContainer.classList.add('features-demo');
-              mainContainer.classList.remove('features-limited');
-            }
-          }
-        }
+      // For limited users, only Chrome Extension is accessible
+      // Full users can access all sections
+      if (!SHOW_FULL_FEATURES && service !== 'chrome-extension') {
+        // Limited users trying to access locked sections - shouldn't happen due to UI locks
+        console.warn('Limited user attempted to access restricted service:', service);
+        return;
       }
     });
   });
@@ -2585,11 +2574,6 @@ document.addEventListener('DOMContentLoaded', function() {
       // Disable all form interactions
       disableFormInteractions();
       
-      // Show demo data if in demo mode
-      if (IS_DEMO_MODE) {
-        showDemoData();
-      }
-      
       // Add click interceptors for restricted features
       addClickInterceptors();
     }
@@ -2653,8 +2637,6 @@ document.addEventListener('DOMContentLoaded', function() {
   function handleRestrictedAccess(featureName) {
     if (USER_ACCESS_LEVEL === 'limited') {
       showUpgradePrompt(featureName);
-    } else if (USER_ACCESS_LEVEL === 'demo') {
-      showDemoNotification(featureName);
     }
   }
 
@@ -2665,33 +2647,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function showDemoNotification(featureName) {
-    alert(`Demo Mode: ${featureName} is showing sample data only. Login for real-time data.`);
-  }
-
-  function showDemoData() {
-    // Show sample data in demo mode
-    setTimeout(() => {
-      if (IS_DEMO_MODE) {
-        // Populate book search with demo data
-        if (document.getElementById('books-container')) {
-          renderBooks(DEMO_DATA.sampleBooks, 1);
-        }
-        
-        // Populate categories with demo data if visible
-        if (document.getElementById('categories-results-container')) {
-          renderCategoriesResults({
-            count: 1,
-            results: DEMO_DATA.sampleCategories,
-            search_criteria: {
-              market: 'us',
-              macro_category: 'Demo Category'
-            }
-          });
-        }
-      }
-    }, 1000);
-  }
+  // Initialize with appropriate default service based on access level
+  const defaultService = SHOW_FULL_FEATURES ? 'book-search' : 'chrome-extension';
+  switchService(defaultService);
 
 });
 </script>
