@@ -1438,4 +1438,103 @@ if (!function_exists('plottybot_analyze_book_handler')) {
     }
 }
 
-?>
+// AJAX handler for checking/creating ads optimizer user
+add_action('wp_ajax_ads_check_create_user', 'ads_check_create_user_handler');
+add_action('wp_ajax_nopriv_ads_check_create_user', 'ads_check_create_user_handler');
+
+if (!function_exists('ads_check_create_user_handler')) {
+    function ads_check_create_user_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get current user data
+        $current_user = wp_get_current_user();
+        $user_id = $current_user->ID;
+        $username = $current_user->user_login;
+        $email = $current_user->user_email;
+
+        // Check if user exists in ads optimizer
+        $check_url = "https://ads-optimizer-api-1044931876531.europe-west1.run.app/user/{$user_id}";
+
+        $check_response = wp_remote_get($check_url, [
+            'headers' => [
+                'Accept' => 'application/json'
+            ],
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($check_response)) {
+            wp_send_json_error(['message' => 'Error checking user'], 500);
+            wp_die();
+        }
+
+        $check_status = wp_remote_retrieve_response_code($check_response);
+
+        // If user exists (200), return success
+        if ($check_status === 200) {
+            $check_body = wp_remote_retrieve_body($check_response);
+            wp_send_json_success([
+                'message' => 'User already exists',
+                'user_data' => json_decode($check_body, true),
+                'created' => false
+            ]);
+            wp_die();
+        }
+
+        // If user doesn't exist (404), create them
+        if ($check_status === 404) {
+            $create_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/user';
+            $payload = [
+                'name' => (string) $username,
+                'id' => (string) $user_id,
+                'email' => (string) $email,
+                'support_email' => (string) $email
+            ];
+
+            $create_response = wp_remote_post($create_url, [
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json'
+                ],
+                'body' => json_encode($payload),
+                'timeout' => 30,
+                'sslverify' => true
+            ]);
+
+            if (is_wp_error($create_response)) {
+                wp_send_json_error(['message' => 'Error creating user'], 500);
+                wp_die();
+            }
+
+            $create_status = wp_remote_retrieve_response_code($create_response);
+            $create_body = wp_remote_retrieve_body($create_response);
+
+            if ($create_status === 200 || $create_status === 201) {
+                $response_data = json_decode($create_body, true);
+                wp_send_json_success([
+                    'message' => 'User created successfully',
+                    'user_data' => $response_data,
+                    'created' => true
+                ]);
+            } else {
+                wp_send_json_error([
+                    'message' => 'Failed to create user',
+                    'status' => $create_status
+                ], $create_status);
+            }
+            wp_die();
+        }
+
+        // Unexpected status code
+        wp_send_json_error([
+            'message' => 'Unexpected response from server',
+            'status' => $check_status
+        ], 500);
+        wp_die();
+    }
+}
+
