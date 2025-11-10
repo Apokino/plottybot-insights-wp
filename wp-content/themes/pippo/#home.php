@@ -342,6 +342,44 @@ switch ($user_plottyinsights_access_level) {
     </div>
 
     <div id="books-container"></div>
+    
+    <!-- Pagination Controls -->
+    <div id="pagination-container" style="display: none; margin-top: var(--spacing-40); padding: var(--spacing-24); background: var(--color-neutral-00); border-radius: var(--radius-large); box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-16);">
+        
+        <!-- Results Info -->
+        <div id="pagination-info" style="color: var(--color-neutral-70); font-size: 0.875rem;">
+          Showing <span id="results-start">1</span>-<span id="results-end">20</span> of <span id="total-results">0</span> books
+        </div>
+        
+        <!-- Pagination Controls -->
+        <div style="display: flex; align-items: center; gap: var(--spacing-8);">
+          
+          <!-- Previous Button -->
+          <button id="prev-page" class="pagination-btn" disabled style="display: flex; align-items: center; gap: var(--spacing-8); padding: 12px 16px; background: var(--color-neutral-00); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); color: var(--color-neutral-70); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Previous
+          </button>
+          
+          <!-- Page Numbers -->
+          <div id="page-numbers" style="display: flex; align-items: center; gap: var(--spacing-4);">
+            <!-- Page numbers will be inserted here by JavaScript -->
+          </div>
+          
+          <!-- Next Button -->
+          <button id="next-page" class="pagination-btn" style="display: flex; align-items: center; gap: var(--spacing-8); padding: 12px 16px; background: var(--color-neutral-00); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); color: var(--color-neutral-70); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+            Next
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+          
+        </div>
+      </div>
+    </div>
+    
   </div>
   </div>
 </div>
@@ -1160,6 +1198,91 @@ select option {
     left: 240px;
   }
 }
+
+/* Pagination Styles */
+.pagination-btn {
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:not(:disabled):hover {
+  background: var(--color-primary-05) !important;
+  border-color: var(--color-primary-40) !important;
+  color: var(--color-primary-70) !important;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
+.page-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 8px 12px;
+  background: var(--color-neutral-00);
+  border: 2px solid var(--color-neutral-30);
+  border-radius: var(--radius-medium);
+  color: var(--color-neutral-70);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.page-number:hover {
+  background: var(--color-primary-05);
+  border-color: var(--color-primary-40);
+  color: var(--color-primary-70);
+}
+
+.page-number.active {
+  background: var(--color-primary-60);
+  border-color: var(--color-primary-60);
+  color: var(--color-neutral-00);
+}
+
+.page-number.active:hover {
+  background: var(--color-primary-70);
+  border-color: var(--color-primary-70);
+  color: var(--color-neutral-00);
+}
+
+.page-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  color: var(--color-neutral-50);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  #pagination-container {
+    padding: var(--spacing-16) !important;
+  }
+  
+  #pagination-container > div {
+    flex-direction: column !important;
+    gap: var(--spacing-16) !important;
+  }
+  
+  .pagination-btn {
+    font-size: 0.75rem !important;
+    padding: 10px 14px !important;
+  }
+  
+  .page-number {
+    min-width: 36px !important;
+    height: 36px !important;
+    font-size: 0.75rem !important;
+  }
+}
 </style>
 
 <script>
@@ -1169,6 +1292,13 @@ const SHOW_FULL_FEATURES = <?php echo $show_full_features ? 'true' : 'false'; ?>
 const SHOW_BOOK_ANALYSIS = <?php echo $show_book_analysis ? 'true' : 'false'; ?>;
 
 document.addEventListener('DOMContentLoaded', function() {
+  
+  // Pagination state management
+  let currentPage = 1;
+  let totalPages = 1;
+  let totalResults = 0;
+  let resultsPerPage = 20;
+  let lastSearchPayload = null;
   
   // Initialize access level restrictions
   initializeAccessLevelRestrictions();
@@ -1753,8 +1883,8 @@ document.addEventListener('DOMContentLoaded', function() {
       rating_range: [4, 5], // Default rating range 4-5 stars
       categories: selectedCategories,
       publisher_type: publisherSelectorInput.value === 'self' ? 'self_publisher' : null,
-      limit: 100,
-      offset: 0
+      limit: resultsPerPage,
+      offset: 0 // Reset to first page for new search
     };
 
     // Remove null values
@@ -1764,9 +1894,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('API Request Payload:', payload);
 
+    // Store payload for pagination
+    lastSearchPayload = { ...payload };
+    
+    // Reset pagination state for new search
+    currentPage = 1;
+    
     // Show loading indicator
     loadingIndicator.style.display = 'block';
     booksContainer.innerHTML = '';
+    document.getElementById('pagination-container').style.display = 'none';
     applyButton.disabled = true;
 
     try {
@@ -1785,13 +1922,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const data = await response.json();
       console.log('API Response:', data);
+      console.log('Books array:', data.books);
+      console.log('Books count from array:', data.books ? data.books.length : 0);
 
       // Hide loading indicator
       loadingIndicator.style.display = 'none';
       applyButton.disabled = false;
 
+      // Update pagination state - try different possible field names
+      totalResults = data.total_count || data.total || data.count || (data.books ? data.books.length : 0);
+      console.log('Total results calculated:', totalResults);
+      
+      // For now, assume we have more pages if we got a full page of results
+      // This is a fallback if the API doesn't return total count
+      if (!data.total_count && !data.total && !data.count && data.books && data.books.length === resultsPerPage) {
+        // Assume there might be more pages - set to a large number
+        totalResults = Math.max(totalResults, resultsPerPage * 10);
+        console.log('Estimated total results (no API count):', totalResults);
+      }
+      
+      totalPages = Math.ceil(totalResults / resultsPerPage);
+      console.log('Total pages calculated:', totalPages);
+      
       // Render books
-      renderBooks(data.books, data.total_count);
+      renderBooks(data.books, totalResults);
 
     } catch (error) {
       console.error('Error fetching books:', error);
@@ -1815,6 +1969,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <p>Try adjusting your filters to see more results.</p>
         </div>
       `;
+      document.getElementById('pagination-container').style.display = 'none';
       return;
     }
 
@@ -2113,9 +2268,159 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
 
+    // Show and update pagination controls
+    updatePagination();
+    
     // Scroll to results
     document.getElementById('books-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+
+  // Function to update pagination controls
+  function updatePagination() {
+    if (totalResults <= resultsPerPage) {
+      document.getElementById('pagination-container').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('pagination-container').style.display = 'block';
+    
+    // Update pagination info
+    const startResult = (currentPage - 1) * resultsPerPage + 1;
+    const endResult = Math.min(currentPage * resultsPerPage, totalResults);
+    
+    document.getElementById('results-start').textContent = startResult;
+    document.getElementById('results-end').textContent = endResult;
+    document.getElementById('total-results').textContent = totalResults;
+    
+    // Update prev/next buttons
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+    
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= totalPages;
+    
+    // Generate page numbers
+    generatePageNumbers();
+  }
+
+  // Function to generate page number buttons
+  function generatePageNumbers() {
+    const pageNumbersContainer = document.getElementById('page-numbers');
+    pageNumbersContainer.innerHTML = '';
+    
+    const maxVisiblePages = 7;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust start page if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // Add first page and ellipsis if needed
+    if (startPage > 1) {
+      pageNumbersContainer.appendChild(createPageButton(1));
+      if (startPage > 2) {
+        pageNumbersContainer.appendChild(createEllipsis());
+      }
+    }
+    
+    // Add visible page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbersContainer.appendChild(createPageButton(i));
+    }
+    
+    // Add ellipsis and last page if needed
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pageNumbersContainer.appendChild(createEllipsis());
+      }
+      pageNumbersContainer.appendChild(createPageButton(totalPages));
+    }
+  }
+
+  // Function to create page button
+  function createPageButton(pageNum) {
+    const button = document.createElement('button');
+    button.className = 'page-number' + (pageNum === currentPage ? ' active' : '');
+    button.textContent = pageNum;
+    button.onclick = () => goToPage(pageNum);
+    return button;
+  }
+
+  // Function to create ellipsis
+  function createEllipsis() {
+    const span = document.createElement('span');
+    span.className = 'page-ellipsis';
+    span.textContent = '...';
+    return span;
+  }
+
+  // Function to go to specific page
+  async function goToPage(page) {
+    if (page < 1 || page > totalPages || page === currentPage || !lastSearchPayload) {
+      return;
+    }
+    
+    currentPage = page;
+    
+    // Update payload with new offset
+    const payload = {
+      ...lastSearchPayload,
+      offset: (currentPage - 1) * resultsPerPage
+    };
+    
+    // Show loading
+    loadingIndicator.style.display = 'block';
+    booksContainer.innerHTML = '';
+    document.getElementById('pagination-container').style.display = 'none';
+    
+    try {
+      const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=plottybot_search_books', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Hide loading
+      loadingIndicator.style.display = 'none';
+      
+      // Render books for current page
+      renderBooks(data.books, totalResults);
+      
+    } catch (error) {
+      console.error('Error fetching page:', error);
+      loadingIndicator.style.display = 'none';
+      booksContainer.innerHTML = `
+        <div style="text-align: center; padding: var(--spacing-40); color: var(--color-danger-60);">
+          <p style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-12);">Error loading page</p>
+          <p style="color: var(--color-neutral-60);">${error.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  // Add event listeners for pagination buttons
+  document.getElementById('prev-page').addEventListener('click', () => {
+    if (currentPage > 1) {
+      goToPage(currentPage - 1);
+    }
+  });
+
+  document.getElementById('next-page').addEventListener('click', () => {
+    if (currentPage < totalPages) {
+      goToPage(currentPage + 1);
+    }
+  });
 
   // Custom Market Dropdown Logic
   const marketDropdown = document.getElementById('market-dropdown');
