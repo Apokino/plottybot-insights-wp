@@ -714,30 +714,47 @@ document.addEventListener('DOMContentLoaded', function() {
       submitButton.style.opacity = '0.7';
 
       try {
-        // TODO: Replace with actual API call to add KDP account
-        // For now, simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Call AJAX endpoint to add KDP profile
+        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=add_kdp_profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            account_name: accountName,
+            auth_code: authCode
+          })
+        });
 
-        // Success - clear form
-        kdpForm.reset();
-        authCodeInput.style.borderColor = 'var(--color-neutral-30)';
-        accountNameInput.style.borderColor = 'var(--color-neutral-30)';
+        const data = await response.json();
 
-        // Show success message
-        const successMessage = document.createElement('div');
-        successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
-        successMessage.textContent = `✓ Account "${accountName}" added successfully!`;
-        document.body.appendChild(successMessage);
+        if (data.success) {
+          // Success - clear form
+          kdpForm.reset();
+          authCodeInput.style.borderColor = 'var(--color-neutral-30)';
+          accountNameInput.style.borderColor = 'var(--color-neutral-30)';
 
-        setTimeout(() => {
-          successMessage.remove();
-        }, 3000);
+          // Show success message
+          const successMessage = document.createElement('div');
+          successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
+          successMessage.textContent = `✓ Account "${accountName}" added successfully!`;
+          document.body.appendChild(successMessage);
 
-        // Reload accounts list
-        loadKDPAccounts();
+          setTimeout(() => {
+            successMessage.remove();
+          }, 3000);
+
+          // Reload accounts list
+          loadKDPAccounts();
+        } else {
+          // Error from API
+          authCodeError.textContent = data.data?.message || 'Failed to add account. Please try again.';
+          authCodeError.style.display = 'block';
+        }
 
       } catch (error) {
-        authCodeError.textContent = 'Failed to add account. Please try again.';
+        authCodeError.textContent = 'Failed to add account. Please check your connection and try again.';
         authCodeError.style.display = 'block';
       } finally {
         submitButton.disabled = false;

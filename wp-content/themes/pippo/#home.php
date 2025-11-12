@@ -1882,14 +1882,14 @@ document.addEventListener('DOMContentLoaded', function() {
       ratings_count_range: parseRange(ratingsRange),
       rating_range: [4, 5], // Default rating range 4-5 stars
       categories: selectedCategories,
-      publisher_type: publisherSelectorInput.value === 'self' ? 'self_publisher' : null,
+      publisher_type: publisherSelectorInput.value === 'self' ? 'self_publisher' : 'all',
       limit: resultsPerPage,
       offset: 0 // Reset to first page for new search
     };
 
-    // Remove null values
+    // Remove null/undefined values
     Object.keys(payload).forEach(key => {
-      if (payload[key] === null) delete payload[key];
+      if (payload[key] === null || payload[key] === undefined) delete payload[key];
     });
 
     console.log('API Request Payload:', payload);

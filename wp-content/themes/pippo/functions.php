@@ -1538,3 +1538,70 @@ if (!function_exists('ads_check_create_user_handler')) {
     }
 }
 
+// AJAX handler for adding KDP profile
+add_action('wp_ajax_add_kdp_profile', 'add_kdp_profile_handler');
+add_action('wp_ajax_nopriv_add_kdp_profile', 'add_kdp_profile_handler');
+
+if (!function_exists('add_kdp_profile_handler')) {
+    function add_kdp_profile_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['account_name']) || !isset($payload['auth_code'])) {
+            wp_send_json_error(['message' => 'Missing required fields'], 400);
+            wp_die();
+        }
+
+        // Get current user ID
+        $current_user = wp_get_current_user();
+        $user_id = $current_user->ID;
+
+        // Prepare API payload
+        $api_payload = [
+            'user_id' => (string) $user_id,
+            'account_name' => (string) $payload['account_name'],
+            'auth_code' => (string) $payload['auth_code']
+        ];
+
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/kdp_profile';
+
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($api_payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error adding KDP profile: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200 || $status_code === 201) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success([
+                'message' => 'KDP profile added successfully',
+                'data' => $response_data
+            ]);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to add KDP profile',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
