@@ -35,16 +35,15 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
         <span>KDP Accounts</span>
       </button>
 
-      <!-- Placeholder Nav Item 2 -->
+      <!-- Optimization Schedule Nav Item -->
       <button class="service-nav-btn" data-service="placeholder-2" <?php echo !$ads_enabled ? 'disabled' : ''; ?> style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-50); font-weight: 600; font-size: 1rem; cursor: <?php echo $ads_enabled ? 'pointer' : 'not-allowed'; ?>; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4); opacity: <?php echo $ads_enabled ? '1' : '0.5'; ?>;">
         <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
         </span>
-        <span>Placeholder Section 2</span>
+        <span>Optimization Schedule</span>
       </button>
 
       <!-- Placeholder Nav Item 3 -->
@@ -153,6 +152,25 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
 
               <form id="add-kdp-account-form">
                 <div style="display: grid; gap: var(--spacing-24); margin-bottom: var(--spacing-24);">
+                  <!-- User ID Input (Temporary) -->
+                  <div>
+                    <label for="kdp-user-id" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                      User ID <span style="color: #FF6B6B;">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="kdp-user-id"
+                      name="user_id"
+                      placeholder="Enter user ID"
+                      required
+                      style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s;"
+                    />
+                    <p id="user-id-error" style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: #FF6B6B; display: none;"></p>
+                    <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">
+                      ⚠️ Temporary field - will be auto-filled at login in the future
+                    </p>
+                  </div>
+
                   <!-- Authorization Code Input -->
                   <div>
                     <label for="kdp-auth-code" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
@@ -265,27 +283,85 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
       </div>
     </div>
 
-    <!-- Placeholder Section 2 -->
+    <!-- Optimization Schedule Section -->
     <div id="service-placeholder-2" class="service-section" style="display: none;">
       <div style="max-width: 1200px; margin: 0 auto;">
         <div style="background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40);">
 
-          <!-- Header -->
-          <div style="text-align: center; margin-bottom: var(--spacing-40);">
-            <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">
-              📈 Placeholder Section 2
-            </h1>
-            <p class="text--body-lg" style="color: var(--color-neutral-70);">
-              This is a placeholder section. Build your content here.
-            </p>
-          </div>
+          <?php if ($ads_enabled): ?>
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: var(--spacing-40);">
+              <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">
+                ⚙️ Optimization Schedule
+              </h1>
+              <p class="text--body-lg" style="color: var(--color-neutral-70);">
+                View and manage your scheduled optimizations
+              </p>
+            </div>
 
-          <!-- Content Area -->
-          <div style="padding: var(--spacing-32); background: var(--color-neutral-05); border-radius: var(--radius-medium); text-align: center;">
-            <p style="color: var(--color-neutral-60); font-size: 1rem;">
-              Content goes here...
-            </p>
-          </div>
+            <!-- User ID Input -->
+            <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-32); margin-bottom: var(--spacing-40);">
+              <label for="schedule-user-id" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                User ID <span style="color: #FF6B6B;">*</span>
+              </label>
+              <input
+                type="text"
+                id="schedule-user-id"
+                placeholder="Enter user ID to view schedules"
+                style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s;"
+              />
+              <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">
+                ⚠️ Temporary field - will be auto-filled at login in the future
+              </p>
+            </div>
+
+            <!-- Schedules List -->
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-24) 0; display: flex; align-items: center; gap: var(--spacing-8);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Scheduled Optimizations
+              </h2>
+
+              <!-- Loading State -->
+              <div id="schedules-loading" style="text-align: center; padding: var(--spacing-40); display: none;">
+                <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <p style="margin-top: var(--spacing-16); color: var(--color-neutral-60);">Loading schedules...</p>
+              </div>
+
+              <!-- Empty State -->
+              <div id="schedules-empty" style="text-align: center; padding: var(--spacing-48); background: var(--color-neutral-05); border-radius: var(--radius-medium); display: none;">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-40)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-16);">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <p style="color: var(--color-neutral-60); font-size: 1.125rem; margin: 0;">No schedules found</p>
+              </div>
+
+              <!-- Schedules List Container -->
+              <div id="schedules-list" style="display: grid; gap: var(--spacing-16);"></div>
+            </div>
+
+          <?php else: ?>
+            <!-- Access Denied Message -->
+            <div style="text-align: center; padding: var(--spacing-48);">
+              <div style="width: 80px; height: 80px; margin: 0 auto var(--spacing-24); background: linear-gradient(135deg, #FF6B6B, #FF5252); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <h1 style="font-size: 2rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-16) 0;">
+                Access Denied
+              </h1>
+              <p style="font-size: 1.125rem; color: var(--color-neutral-70); margin: 0;">
+                You don't have access to the Ads features.
+              </p>
+            </div>
+          <?php endif; ?>
 
         </div>
       </div>
@@ -632,12 +708,40 @@ document.addEventListener('DOMContentLoaded', function() {
   const kdpForm = document.getElementById('add-kdp-account-form');
   const authCodeInput = document.getElementById('kdp-auth-code');
   const accountNameInput = document.getElementById('kdp-account-name');
+  const userIdInput = document.getElementById('kdp-user-id');
   const authCodeError = document.getElementById('auth-code-error');
   const accountNameError = document.getElementById('account-name-error');
+  const userIdError = document.getElementById('user-id-error');
   const submitButton = document.getElementById('submit-kdp-account');
   const submitButtonText = document.getElementById('submit-button-text');
 
   if (kdpForm) {
+    // Real-time validation for user ID
+    userIdInput.addEventListener('input', function() {
+      const value = this.value.trim();
+
+      if (value.length > 0) {
+        this.style.borderColor = '#00C2A8';
+        userIdError.style.display = 'none';
+      } else {
+        this.style.borderColor = 'var(--color-neutral-30)';
+      }
+    });
+
+    // Load accounts when user ID changes (after user stops typing)
+    let userIdTimeout;
+    userIdInput.addEventListener('input', function() {
+      const userId = this.value.trim();
+
+      clearTimeout(userIdTimeout);
+
+      if (userId.length > 0) {
+        userIdTimeout = setTimeout(() => {
+          loadKDPAccounts(userId);
+        }, 500);
+      }
+    });
+
     // Real-time validation for authorization code
     authCodeInput.addEventListener('input', function() {
       const value = this.value;
@@ -684,6 +788,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const authCode = authCodeInput.value.trim();
       const accountName = accountNameInput.value.trim();
+      const userId = userIdInput.value.trim();
+
+      // Validate user ID
+      if (userId.length === 0) {
+        userIdError.textContent = 'User ID is required';
+        userIdError.style.display = 'block';
+        userIdInput.focus();
+        return;
+      }
 
       // Validate authorization code
       if (authCode.length !== 20) {
@@ -722,6 +835,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'Accept': 'application/json'
           },
           body: JSON.stringify({
+            user_id: userId,
             account_name: accountName,
             auth_code: authCode
           })
@@ -730,10 +844,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const data = await response.json();
 
         if (data.success) {
-          // Success - clear form
+          // Success - clear form (but keep user ID)
+          const currentUserId = userIdInput.value;
           kdpForm.reset();
+          userIdInput.value = currentUserId;
           authCodeInput.style.borderColor = 'var(--color-neutral-30)';
           accountNameInput.style.borderColor = 'var(--color-neutral-30)';
+          userIdInput.style.borderColor = '#00C2A8';
 
           // Show success message
           const successMessage = document.createElement('div');
@@ -746,7 +863,7 @@ document.addEventListener('DOMContentLoaded', function() {
           }, 3000);
 
           // Reload accounts list
-          loadKDPAccounts();
+          loadKDPAccounts(userId);
         } else {
           // Error from API
           authCodeError.textContent = data.data?.message || 'Failed to add account. Please try again.';
@@ -765,12 +882,21 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Load KDP Accounts
-  async function loadKDPAccounts() {
+  async function loadKDPAccounts(userId) {
     const loadingEl = document.getElementById('kdp-accounts-loading');
     const emptyEl = document.getElementById('kdp-accounts-empty');
     const listEl = document.getElementById('kdp-accounts-list');
 
     if (!loadingEl || !emptyEl || !listEl) return;
+
+    // If no user ID provided, show prompt to enter user ID
+    if (!userId) {
+      loadingEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+      emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">Please enter a User ID above to view KDP accounts</p>';
+      listEl.style.display = 'none';
+      return;
+    }
 
     // Show loading state
     loadingEl.style.display = 'block';
@@ -778,57 +904,69 @@ document.addEventListener('DOMContentLoaded', function() {
     listEl.style.display = 'none';
 
     try {
-      // TODO: Replace with actual API call to fetch KDP accounts
-      // For now, simulate empty state
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Fetch accounts from API
+      const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userId
+        })
+      });
 
-      const accounts = []; // This will be populated from API
+      const data = await response.json();
 
-      if (accounts.length === 0) {
-        loadingEl.style.display = 'none';
-        emptyEl.style.display = 'block';
+      if (data.success && data.data && data.data.account_names) {
+        const accounts = data.data.account_names;
+
+        if (accounts.length === 0) {
+          loadingEl.style.display = 'none';
+          emptyEl.style.display = 'block';
+          emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">No KDP accounts found for this user</p>';
+        } else {
+          loadingEl.style.display = 'none';
+          listEl.style.display = 'grid';
+
+          // Render accounts
+          listEl.innerHTML = accounts.map(accountName => `
+            <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+              <div>
+                <h3 style="margin: 0 0 var(--spacing-8) 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
+                  ${accountName}
+                </h3>
+                <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60);">
+                  User ID: ${userId}
+                </p>
+              </div>
+              <div style="display: flex; gap: var(--spacing-12);">
+                <button
+                  onclick="deleteKDPAccount('${userId}', '${accountName}')"
+                  style="padding: 10px 16px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
+                  onmouseover="this.style.background='#FFCCCC'; this.style.transform='translateY(-2px)';"
+                  onmouseout="this.style.background='#FFE6E6'; this.style.transform='translateY(0)';"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          `).join('');
+        }
       } else {
-        loadingEl.style.display = 'none';
-        listEl.style.display = 'grid';
-
-        // Render accounts
-        listEl.innerHTML = accounts.map(account => `
-          <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;">
-            <div>
-              <h3 style="margin: 0 0 var(--spacing-8) 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
-                ${account.name}
-              </h3>
-              <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                Added: ${account.added_date}
-              </p>
-            </div>
-            <div style="display: flex; gap: var(--spacing-12);">
-              <button
-                onclick="editKDPAccount('${account.id}')"
-                style="padding: 10px 16px; background: var(--color-primary-10); color: var(--color-primary-60); border: 1px solid var(--color-primary-30); border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
-              >
-                Edit
-              </button>
-              <button
-                onclick="deleteKDPAccount('${account.id}', '${account.name}')"
-                style="padding: 10px 16px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        `).join('');
+        throw new Error(data.data?.message || 'Failed to load accounts');
       }
     } catch (error) {
+      console.error('Error loading accounts:', error);
       loadingEl.style.display = 'none';
       emptyEl.style.display = 'block';
-      emptyEl.innerHTML = '<p style="color: #FF6B6B;">Failed to load accounts. Please refresh the page.</p>';
+      emptyEl.innerHTML = '<p style="color: #FF6B6B;">Failed to load accounts. Please try again.</p>';
     }
   }
 
-  // Load accounts on page load if on KDP section
+  // Show initial empty state on page load
   if (document.getElementById('kdp-accounts-list')) {
-    loadKDPAccounts();
+    loadKDPAccounts(null);
   }
 
   // Sidebar Toggle Functionality
@@ -918,17 +1056,267 @@ document.addEventListener('DOMContentLoaded', function() {
       switchService(service);
     });
   });
+
+  // ============================================
+  // OPTIMIZATION SCHEDULE SECTION
+  // ============================================
+
+  // Schedule User ID Input
+  const scheduleUserIdInput = document.getElementById('schedule-user-id');
+
+  if (scheduleUserIdInput) {
+    // Load schedules when user ID changes (after user stops typing)
+    let scheduleUserIdTimeout;
+    scheduleUserIdInput.addEventListener('input', function() {
+      const userId = this.value.trim();
+
+      clearTimeout(scheduleUserIdTimeout);
+
+      if (userId.length > 0) {
+        this.style.borderColor = '#00C2A8';
+        scheduleUserIdTimeout = setTimeout(() => {
+          loadOptimizationSchedules(userId);
+        }, 500);
+      } else {
+        this.style.borderColor = 'var(--color-neutral-30)';
+      }
+    });
+  }
+
+  // Load Optimization Schedules
+  async function loadOptimizationSchedules(userId) {
+    const loadingEl = document.getElementById('schedules-loading');
+    const emptyEl = document.getElementById('schedules-empty');
+    const listEl = document.getElementById('schedules-list');
+
+    if (!loadingEl || !emptyEl || !listEl) return;
+
+    // If no user ID provided, show prompt
+    if (!userId) {
+      loadingEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+      emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">Please enter a User ID above to view schedules</p>';
+      listEl.style.display = 'none';
+      return;
+    }
+
+    // Show loading state
+    loadingEl.style.display = 'block';
+    emptyEl.style.display = 'none';
+    listEl.style.display = 'none';
+
+    try {
+      // Fetch schedules from API
+      const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_optimization_schedules', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userId
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data && data.data.jobs) {
+        const jobs = data.data.jobs;
+
+        if (jobs.length === 0) {
+          loadingEl.style.display = 'none';
+          emptyEl.style.display = 'block';
+          emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">No scheduled optimizations found for this user</p>';
+        } else {
+          loadingEl.style.display = 'none';
+          listEl.style.display = 'grid';
+
+          // Render schedules
+          listEl.innerHTML = jobs.map((job, index) => {
+            const lastRun = job.last_run_time !== "1970-01-01T00:00:00+00:00"
+              ? new Date(job.last_run_time).toLocaleString()
+              : 'Never';
+            const nextRun = job.next_run_time !== "1970-01-01T00:00:00+00:00"
+              ? new Date(job.next_run_time).toLocaleString()
+              : 'Not scheduled';
+
+            return `
+            <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;">
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-16);">
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; gap: var(--spacing-12); margin-bottom: var(--spacing-8);">
+                    <h3 style="margin: 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
+                      ${job.account_id}
+                    </h3>
+                    <span style="padding: 4px 12px; background: ${job.active ? '#E6F7F5' : '#FFE6E6'}; color: ${job.active ? '#00C2A8' : '#FF6B6B'}; border-radius: var(--radius-small); font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                      ${job.active ? '✓ Active' : '✗ Inactive'}
+                    </span>
+                  </div>
+                  <p style="margin: 0 0 var(--spacing-4) 0; font-size: 0.875rem; color: var(--color-neutral-60);">
+                    <strong>Region:</strong> ${job.region}
+                  </p>
+                  <p style="margin: 0 0 var(--spacing-4) 0; font-size: 0.875rem; color: var(--color-neutral-60);">
+                    <strong>Job Name:</strong> ${job.job_name}
+                  </p>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); padding: var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); margin-bottom: var(--spacing-16);">
+                <div>
+                  <p style="margin: 0 0 var(--spacing-4) 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; font-weight: 600;">
+                    Last Run
+                  </p>
+                  <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-90); font-weight: 500;">
+                    ${lastRun}
+                  </p>
+                </div>
+                <div>
+                  <p style="margin: 0 0 var(--spacing-4) 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; font-weight: 600;">
+                    Next Run
+                  </p>
+                  <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-90); font-weight: 500;">
+                    ${nextRun}
+                  </p>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: var(--spacing-12);">
+                <button
+                  onclick="toggleOptimization('${userId}', '${job.job_name}', ${job.active})"
+                  style="flex: 1; padding: 10px 16px; background: ${job.active ? '#FFE6E6' : '#E6F7F5'}; color: ${job.active ? '#FF6B6B' : '#00C2A8'}; border: 1px solid ${job.active ? '#FFCCCC' : '#B3E5DB'}; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
+                  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
+                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
+                >
+                  ${job.active ? 'Disable' : 'Enable'}
+                </button>
+                <button
+                  onclick="deleteOptimization('${userId}', '${job.job_name}')"
+                  style="padding: 10px 16px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
+                  onmouseover="this.style.background='#FFCCCC'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
+                  onmouseout="this.style.background='#FFE6E6'; this.style.transform='translateY(0)'; this.style.boxShadow='none';"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          `}).join('');
+        }
+      } else {
+        throw new Error(data.data?.message || 'Failed to load schedules');
+      }
+    } catch (error) {
+      console.error('Error loading schedules:', error);
+      loadingEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+      emptyEl.innerHTML = '<p style="color: #FF6B6B;">Failed to load schedules. Please try again.</p>';
+    }
+  }
+
+  // Show initial empty state on page load for schedules
+  if (document.getElementById('schedules-list')) {
+    loadOptimizationSchedules(null);
+  }
 });
 
 // Global functions for account management
-function editKDPAccount(accountId) {
-  alert('Edit account: ' + accountId + '\n\nThis will be implemented with actual edit functionality.');
+function deleteKDPAccount(userId, accountName) {
+  if (confirm(`Are you sure you want to delete the account "${accountName}"?`)) {
+    alert('Delete account: ' + accountName + '\nUser ID: ' + userId + '\n\nThis will be implemented with actual delete functionality.');
+    // TODO: Implement actual delete API call
+  }
 }
 
-function deleteKDPAccount(accountId, accountName) {
-  if (confirm(`Are you sure you want to delete the account "${accountName}"?`)) {
-    alert('Delete account: ' + accountId + '\n\nThis will be implemented with actual delete functionality.');
-    // TODO: Implement actual delete API call
+// Global functions for optimization schedule management
+async function toggleOptimization(userId, jobName, currentlyActive) {
+  const action = currentlyActive ? 'disable' : 'enable';
+
+  if (!confirm(`Are you sure you want to ${action} the optimization "${jobName}"?`)) {
+    return;
+  }
+
+  try {
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=toggle_optimization', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        job_name: jobName,
+        active: !currentlyActive
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Show success message
+      const successMessage = document.createElement('div');
+      successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
+      successMessage.textContent = `✓ Optimization ${action}d successfully!`;
+      document.body.appendChild(successMessage);
+
+      setTimeout(() => {
+        successMessage.remove();
+      }, 3000);
+
+      // Reload schedules
+      const scheduleUserIdInput = document.getElementById('schedule-user-id');
+      if (scheduleUserIdInput && scheduleUserIdInput.value) {
+        loadOptimizationSchedules(scheduleUserIdInput.value);
+      }
+    } else {
+      alert('Failed to ' + action + ' optimization: ' + (data.data?.message || 'Unknown error'));
+    }
+  } catch (error) {
+    alert('Failed to ' + action + ' optimization. Please try again.');
+    console.error('Error toggling optimization:', error);
+  }
+}
+
+async function deleteOptimization(userId, jobName) {
+  if (!confirm(`Are you sure you want to delete the optimization "${jobName}"?\n\nThis action cannot be undone.`)) {
+    return;
+  }
+
+  try {
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=delete_optimization', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        job_name: jobName
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Show success message
+      const successMessage = document.createElement('div');
+      successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
+      successMessage.textContent = '✓ Optimization deleted successfully!';
+      document.body.appendChild(successMessage);
+
+      setTimeout(() => {
+        successMessage.remove();
+      }, 3000);
+
+      // Reload schedules
+      const scheduleUserIdInput = document.getElementById('schedule-user-id');
+      if (scheduleUserIdInput && scheduleUserIdInput.value) {
+        loadOptimizationSchedules(scheduleUserIdInput.value);
+      }
+    } else {
+      alert('Failed to delete optimization: ' + (data.data?.message || 'Unknown error'));
+    }
+  } catch (error) {
+    alert('Failed to delete optimization. Please try again.');
+    console.error('Error deleting optimization:', error);
   }
 }
 </script>

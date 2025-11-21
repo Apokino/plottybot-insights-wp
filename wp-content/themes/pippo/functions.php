@@ -1553,14 +1553,13 @@ if (!function_exists('add_kdp_profile_handler')) {
         // Get POST data
         $payload = json_decode(file_get_contents('php://input'), true);
 
-        if (!$payload || !isset($payload['account_name']) || !isset($payload['auth_code'])) {
+        if (!$payload || !isset($payload['account_name']) || !isset($payload['auth_code']) || !isset($payload['user_id'])) {
             wp_send_json_error(['message' => 'Missing required fields'], 400);
             wp_die();
         }
 
-        // Get current user ID
-        $current_user = wp_get_current_user();
-        $user_id = $current_user->ID;
+        // Use user_id from request (temporary - will be replaced with logged-in user later)
+        $user_id = sanitize_text_field($payload['user_id']);
 
         // Prepare API payload
         $api_payload = [
@@ -1598,6 +1597,244 @@ if (!function_exists('add_kdp_profile_handler')) {
         } else {
             wp_send_json_error([
                 'message' => 'Failed to add KDP profile',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for getting KDP accounts
+add_action('wp_ajax_get_kdp_accounts', 'get_kdp_accounts_handler');
+add_action('wp_ajax_nopriv_get_kdp_accounts', 'get_kdp_accounts_handler');
+
+if (!function_exists('get_kdp_accounts_handler')) {
+    function get_kdp_accounts_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id'])) {
+            wp_send_json_error(['message' => 'User ID is required'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+
+        // Build API URL
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/account/' . urlencode($user_id);
+
+        $response = wp_remote_get($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error fetching KDP accounts: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success($response_data);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to fetch KDP accounts',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for getting optimization schedules
+add_action('wp_ajax_get_optimization_schedules', 'get_optimization_schedules_handler');
+add_action('wp_ajax_nopriv_get_optimization_schedules', 'get_optimization_schedules_handler');
+
+if (!function_exists('get_optimization_schedules_handler')) {
+    function get_optimization_schedules_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id'])) {
+            wp_send_json_error(['message' => 'User ID is required'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+
+        // Build API URL
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimisation-schedule/' . urlencode($user_id);
+
+        $response = wp_remote_get($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error fetching optimization schedules: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success($response_data);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to fetch optimization schedules',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for toggling optimization active status
+add_action('wp_ajax_toggle_optimization', 'toggle_optimization_handler');
+add_action('wp_ajax_nopriv_toggle_optimization', 'toggle_optimization_handler');
+
+if (!function_exists('toggle_optimization_handler')) {
+    function toggle_optimization_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['job_name']) || !isset($payload['active'])) {
+            wp_send_json_error(['message' => 'Missing required fields'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+        $job_name = sanitize_text_field($payload['job_name']);
+        $active = (bool) $payload['active'];
+
+        // Build API URL - using PATCH to update the schedule
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimisation-schedule/' . urlencode($user_id) . '/' . urlencode($job_name);
+
+        $api_payload = [
+            'active' => $active
+        ];
+
+        $response = wp_remote_request($api_url, [
+            'method' => 'PATCH',
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($api_payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error toggling optimization: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success([
+                'message' => 'Optimization toggled successfully',
+                'data' => $response_data
+            ]);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to toggle optimization',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for deleting optimization
+add_action('wp_ajax_delete_optimization', 'delete_optimization_handler');
+add_action('wp_ajax_nopriv_delete_optimization', 'delete_optimization_handler');
+
+if (!function_exists('delete_optimization_handler')) {
+    function delete_optimization_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['job_name'])) {
+            wp_send_json_error(['message' => 'Missing required fields'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+        $job_name = sanitize_text_field($payload['job_name']);
+
+        // Build API URL - using DELETE to remove the schedule
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimisation-schedule/' . urlencode($user_id) . '/' . urlencode($job_name);
+
+        $response = wp_remote_request($api_url, [
+            'method' => 'DELETE',
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error deleting optimization: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200 || $status_code === 204) {
+            wp_send_json_success([
+                'message' => 'Optimization deleted successfully'
+            ]);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to delete optimization',
                 'status' => $status_code,
                 'response' => $body
             ], $status_code);
