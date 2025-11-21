@@ -1741,15 +1741,31 @@ if (!function_exists('toggle_optimization_handler')) {
         $job_name = sanitize_text_field($payload['job_name']);
         $active = (bool) $payload['active'];
 
-        // Build API URL - using PATCH to update the schedule
-        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimisation-schedule/' . urlencode($user_id) . '/' . urlencode($job_name);
+        // Extract kdp_profile from job_name
+        // Job name format: "stefano-KDP-5-US" or "user-account-region"
+        // We need to extract account and region to build kdp_profile as "account-region"
+        $parts = explode('-', $job_name);
+
+        if (count($parts) < 3) {
+            wp_send_json_error(['message' => 'Invalid job name format'], 400);
+            wp_die();
+        }
+
+        // Remove the first element (user_id) and join the rest
+        // For "stefano-KDP-5-US", we want "KDP-5-US"
+        array_shift($parts); // Remove user_id
+        $kdp_profile = implode('-', $parts);
+
+        // Build API URL - using POST to toggle endpoint
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimisation-schedule/toggle';
 
         $api_payload = [
-            'active' => $active
+            'user_id' => (string) $user_id,
+            'kdp_profile' => (string) $kdp_profile,
+            'enable' => $active
         ];
 
-        $response = wp_remote_request($api_url, [
-            'method' => 'PATCH',
+        $response = wp_remote_post($api_url, [
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json'
@@ -1767,7 +1783,7 @@ if (!function_exists('toggle_optimization_handler')) {
         $status_code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
 
-        if ($status_code === 200) {
+        if ($status_code === 200 || $status_code === 201) {
             $response_data = json_decode($body, true);
             wp_send_json_success([
                 'message' => 'Optimization toggled successfully',
@@ -1842,3 +1858,73 @@ if (!function_exists('delete_optimization_handler')) {
         wp_die();
     }
 }
+
+// AJAX handler for scheduling new optimization (placeholder)
+add_action('wp_ajax_schedule_optimization', 'schedule_optimization_handler');
+add_action('wp_ajax_nopriv_schedule_optimization', 'schedule_optimization_handler');
+
+if (!function_exists('schedule_optimization_handler')) {
+    function schedule_optimization_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['account']) || !isset($payload['region'])) {
+            wp_send_json_error(['message' => 'Missing required fields'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+        $account = sanitize_text_field($payload['account']);
+        $region = sanitize_text_field($payload['region']);
+
+        // Build kdp_profile in format: [ACCOUNT_NAME]-[REGION]
+        $kdp_profile = $account . '-' . $region;
+
+        // Prepare API payload
+        $api_payload = [
+            'user_id' => (string) $user_id,
+            'kdp_profile' => (string) $kdp_profile
+        ];
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimisation-schedule';
+
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($api_payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error scheduling optimization: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200 || $status_code === 201) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success([
+                'message' => 'Optimization scheduled successfully',
+                'data' => $response_data
+            ]);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to schedule optimization',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+

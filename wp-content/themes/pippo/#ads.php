@@ -315,6 +315,77 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
               </p>
             </div>
 
+            <!-- Schedule New Optimization -->
+            <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-24); margin-bottom: var(--spacing-40);">
+              <h2 style="font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-20) 0; display: flex; align-items: center; gap: var(--spacing-8);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="16"></line>
+                  <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                Schedule New Optimization
+              </h2>
+
+              <form id="schedule-optimization-form">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-16); margin-bottom: var(--spacing-16);">
+                  <!-- Account Selection -->
+                  <div>
+                    <label for="schedule-account" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                      Account <span style="color: #FF6B6B;">*</span>
+                    </label>
+                    <select
+                      id="schedule-account"
+                      name="account"
+                      required
+                      style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; line-height: 1.5; transition: border-color 0.2s; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
+                    >
+                      <option value="">Select an account...</option>
+                    </select>
+                    <p id="schedule-account-error" style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: #FF6B6B; display: none;"></p>
+                  </div>
+
+                  <!-- Region Selection -->
+                  <div>
+                    <label for="schedule-region" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                      Region <span style="color: #FF6B6B;">*</span>
+                    </label>
+                    <select
+                      id="schedule-region"
+                      name="region"
+                      required
+                      style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; line-height: 1.5; transition: border-color 0.2s; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
+                    >
+                      <option value="">Select a region...</option>
+                      <option value="AU">Australia (AU)</option>
+                      <option value="CA">Canada (CA)</option>
+                      <option value="DE">Germany (DE)</option>
+                      <option value="ES">Spain (ES)</option>
+                      <option value="FR">France (FR)</option>
+                      <option value="IN">India (IN)</option>
+                      <option value="IT">Italy (IT)</option>
+                      <option value="JP">Japan (JP)</option>
+                      <option value="MX">Mexico (MX)</option>
+                      <option value="NL">Netherlands (NL)</option>
+                      <option value="UK">United Kingdom (UK)</option>
+                      <option value="US">United States (US)</option>
+                    </select>
+                    <p id="schedule-region-error" style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: #FF6B6B; display: none;"></p>
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                  type="submit"
+                  id="submit-schedule-optimization"
+                  style="width: 100%; padding: 12px; background: linear-gradient(135deg, #00C2A8, #00A890); color: var(--color-neutral-00); border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 0.9375rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0, 194, 168, 0.3);"
+                  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0, 194, 168, 0.4)'"
+                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 194, 168, 0.3)'"
+                >
+                  <span id="schedule-submit-button-text">Schedule Optimization</span>
+                </button>
+              </form>
+            </div>
+
             <!-- Schedules List -->
             <div>
               <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-24) 0; display: flex; align-items: center; gap: var(--spacing-8);">
@@ -1061,6 +1132,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // OPTIMIZATION SCHEDULE SECTION
   // ============================================
 
+  // Global variables to store current schedules and accounts data
+  let currentSchedulesData = null;
+  let currentAccountsData = null;
+
   // Schedule User ID Input
   const scheduleUserIdInput = document.getElementById('schedule-user-id');
 
@@ -1106,19 +1181,42 @@ document.addEventListener('DOMContentLoaded', function() {
     listEl.style.display = 'none';
 
     try {
-      // Fetch schedules from API
-      const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_optimization_schedules', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          user_id: userId
+      // Fetch accounts and schedules in parallel
+      const [accountsResponse, schedulesResponse] = await Promise.all([
+        fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: userId
+          })
+        }),
+        fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_optimization_schedules', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: userId
+          })
         })
-      });
+      ]);
 
-      const data = await response.json();
+      const accountsData = await accountsResponse.json();
+      const data = await schedulesResponse.json();
+
+      // Store data globally for use in form
+      currentAccountsData = accountsData;
+      currentSchedulesData = data;
+
+      // Update account dropdown
+      updateAccountDropdown(accountsData, data);
+
+      // Update region dropdown filtering
+      updateRegionDropdownFiltering(accountsData, data);
 
       if (data.success && data.data && data.data.jobs) {
         const jobs = data.data.jobs;
@@ -1141,40 +1239,43 @@ document.addEventListener('DOMContentLoaded', function() {
               : 'Not scheduled';
 
             return `
-            <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;">
-              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-16);">
+            <div style="padding: var(--spacing-24); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-20);">
                 <div style="flex: 1;">
-                  <div style="display: flex; align-items: center; gap: var(--spacing-12); margin-bottom: var(--spacing-8);">
-                    <h3 style="margin: 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
+                  <div style="display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-8);">
+                    <h3 style="margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--color-neutral-90);">
                       ${job.account_id}
                     </h3>
-                    <span style="padding: 4px 12px; background: ${job.active ? '#E6F7F5' : '#FFE6E6'}; color: ${job.active ? '#00C2A8' : '#FF6B6B'}; border-radius: var(--radius-small); font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                    <span style="padding: 6px 16px; background: ${job.active ? '#E6F7F5' : '#FFE6E6'}; color: ${job.active ? '#00C2A8' : '#FF6B6B'}; border-radius: var(--radius-small); font-size: 0.875rem; font-weight: 700; text-transform: uppercase;">
                       ${job.active ? '✓ Active' : '✗ Inactive'}
                     </span>
                   </div>
-                  <p style="margin: 0 0 var(--spacing-4) 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                    <strong>Region:</strong> ${job.region}
-                  </p>
-                  <p style="margin: 0 0 var(--spacing-4) 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                    <strong>Job Name:</strong> ${job.job_name}
-                  </p>
+                  <div style="display: flex; align-items: center; gap: var(--spacing-8);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <p style="margin: 0; font-size: 1.125rem; color: var(--color-neutral-70); font-weight: 600;">
+                      ${job.region}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); padding: var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); margin-bottom: var(--spacing-16);">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-16); padding: var(--spacing-20); background: var(--color-neutral-05); border-radius: var(--radius-small); margin-bottom: var(--spacing-20);">
                 <div>
-                  <p style="margin: 0 0 var(--spacing-4) 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; font-weight: 600;">
+                  <p style="margin: 0 0 var(--spacing-8) 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">
                     Last Run
                   </p>
-                  <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-90); font-weight: 500;">
+                  <p style="margin: 0; font-size: 1rem; color: var(--color-neutral-90); font-weight: 500;">
                     ${lastRun}
                   </p>
                 </div>
                 <div>
-                  <p style="margin: 0 0 var(--spacing-4) 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; font-weight: 600;">
+                  <p style="margin: 0 0 var(--spacing-8) 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">
                     Next Run
                   </p>
-                  <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-90); font-weight: 500;">
+                  <p style="margin: 0; font-size: 1rem; color: var(--color-neutral-90); font-weight: 500;">
                     ${nextRun}
                   </p>
                 </div>
@@ -1183,7 +1284,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <div style="display: flex; gap: var(--spacing-12);">
                 <button
                   onclick="toggleOptimization('${userId}', '${job.job_name}', ${job.active})"
-                  style="flex: 1; padding: 10px 16px; background: ${job.active ? '#FFE6E6' : '#E6F7F5'}; color: ${job.active ? '#FF6B6B' : '#00C2A8'}; border: 1px solid ${job.active ? '#FFCCCC' : '#B3E5DB'}; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
+                  style="flex: 1; padding: 12px 20px; background: ${job.active ? '#FFE6E6' : '#E6F7F5'}; color: ${job.active ? '#FF6B6B' : '#00C2A8'}; border: 1px solid ${job.active ? '#FFCCCC' : '#B3E5DB'}; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 1rem;"
                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
                 >
@@ -1191,7 +1292,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
                 <button
                   onclick="deleteOptimization('${userId}', '${job.job_name}')"
-                  style="padding: 10px 16px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
+                  style="padding: 12px 20px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 1rem;"
                   onmouseover="this.style.background='#FFCCCC'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
                   onmouseout="this.style.background='#FFE6E6'; this.style.transform='translateY(0)'; this.style.boxShadow='none';"
                 >
@@ -1216,6 +1317,222 @@ document.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('schedules-list')) {
     loadOptimizationSchedules(null);
   }
+
+  // Helper function to update account dropdown
+  function updateAccountDropdown(accountsData, schedulesData) {
+    const accountDropdown = document.getElementById('schedule-account');
+    if (!accountDropdown) return;
+
+    // Get list of accounts
+    const accounts = accountsData.success && accountsData.data && accountsData.data.account_names
+      ? accountsData.data.account_names
+      : [];
+
+    // Clear existing options except the first one
+    accountDropdown.innerHTML = '<option value="">Select an account...</option>';
+
+    // Add all accounts
+    accounts.forEach(account => {
+      const option = document.createElement('option');
+      option.value = account;
+      option.textContent = account;
+      accountDropdown.appendChild(option);
+    });
+  }
+
+  // Helper function to update region dropdown filtering based on selected account
+  function updateRegionDropdownFiltering(accountsData, schedulesData) {
+    const accountDropdown = document.getElementById('schedule-account');
+    const regionDropdown = document.getElementById('schedule-region');
+
+    if (!accountDropdown || !regionDropdown) return;
+
+    // Remove old event listeners by replacing the element
+    const newAccountDropdown = accountDropdown.cloneNode(true);
+    accountDropdown.parentNode.replaceChild(newAccountDropdown, accountDropdown);
+
+    // Listen for account changes on the new element
+    newAccountDropdown.addEventListener('change', function() {
+      filterRegionOptions(this.value, schedulesData);
+    });
+  }
+
+  // Helper function to filter region options based on existing schedules
+  function filterRegionOptions(selectedAccount, schedulesData) {
+    const regionDropdown = document.getElementById('schedule-region');
+    if (!regionDropdown) return;
+
+    if (!selectedAccount) {
+      // Reset all options to enabled
+      Array.from(regionDropdown.options).forEach(option => {
+        if (option.value) {
+          option.disabled = false;
+          option.style.color = '';
+          // Clean up the text
+          const baseText = option.value === 'AU' ? 'Australia (AU)' :
+                          option.value === 'CA' ? 'Canada (CA)' :
+                          option.value === 'DE' ? 'Germany (DE)' :
+                          option.value === 'ES' ? 'Spain (ES)' :
+                          option.value === 'FR' ? 'France (FR)' :
+                          option.value === 'IN' ? 'India (IN)' :
+                          option.value === 'IT' ? 'Italy (IT)' :
+                          option.value === 'JP' ? 'Japan (JP)' :
+                          option.value === 'MX' ? 'Mexico (MX)' :
+                          option.value === 'NL' ? 'Netherlands (NL)' :
+                          option.value === 'UK' ? 'United Kingdom (UK)' :
+                          option.value === 'US' ? 'United States (US)' : option.textContent;
+          option.textContent = baseText;
+        }
+      });
+      return;
+    }
+
+    // Get existing schedule combinations
+    const existingCombinations = schedulesData && schedulesData.success && schedulesData.data && schedulesData.data.jobs
+      ? schedulesData.data.jobs.map(job => ({
+          account: job.account_id,
+          region: job.region
+        }))
+      : [];
+
+    // Update region options
+    Array.from(regionDropdown.options).forEach(option => {
+      if (option.value) {
+        const isScheduled = existingCombinations.some(
+          combo => combo.account === selectedAccount && combo.region === option.value
+        );
+
+        // Get base text
+        const baseText = option.value === 'AU' ? 'Australia (AU)' :
+                        option.value === 'CA' ? 'Canada (CA)' :
+                        option.value === 'DE' ? 'Germany (DE)' :
+                        option.value === 'ES' ? 'Spain (ES)' :
+                        option.value === 'FR' ? 'France (FR)' :
+                        option.value === 'IN' ? 'India (IN)' :
+                        option.value === 'IT' ? 'Italy (IT)' :
+                        option.value === 'JP' ? 'Japan (JP)' :
+                        option.value === 'MX' ? 'Mexico (MX)' :
+                        option.value === 'NL' ? 'Netherlands (NL)' :
+                        option.value === 'UK' ? 'United Kingdom (UK)' :
+                        option.value === 'US' ? 'United States (US)' : option.textContent;
+
+        if (isScheduled) {
+          option.disabled = true;
+          option.style.color = '#ccc';
+          option.textContent = baseText + ' (Already scheduled)';
+        } else {
+          option.disabled = false;
+          option.style.color = '';
+          option.textContent = baseText;
+        }
+      }
+    });
+  }
+
+  // Schedule Optimization Form Submission
+  const scheduleOptimizationForm = document.getElementById('schedule-optimization-form');
+
+  if (scheduleOptimizationForm) {
+    // Form submission
+    scheduleOptimizationForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Get fresh references to dropdowns (they may be replaced by cloning)
+      const scheduleAccountSelect = document.getElementById('schedule-account');
+      const scheduleRegionSelect = document.getElementById('schedule-region');
+      const scheduleAccountError = document.getElementById('schedule-account-error');
+      const scheduleRegionError = document.getElementById('schedule-region-error');
+      const scheduleSubmitButton = document.getElementById('submit-schedule-optimization');
+      const scheduleSubmitButtonText = document.getElementById('schedule-submit-button-text');
+
+
+      const userId = document.getElementById('schedule-user-id').value.trim();
+      const account = scheduleAccountSelect.value;
+      const region = scheduleRegionSelect.value;
+
+      // Validate user ID
+      if (!userId) {
+        alert('Please enter a User ID first');
+        document.getElementById('schedule-user-id').focus();
+        return;
+      }
+
+      // Validate account
+      if (!account) {
+        scheduleAccountError.textContent = 'Please select an account';
+        scheduleAccountError.style.display = 'block';
+        scheduleAccountSelect.focus();
+        return;
+      }
+
+      // Validate region
+      if (!region) {
+        scheduleRegionError.textContent = 'Please select a region';
+        scheduleRegionError.style.display = 'block';
+        scheduleRegionSelect.focus();
+        return;
+      }
+
+      // Hide errors
+      scheduleAccountError.style.display = 'none';
+      scheduleRegionError.style.display = 'none';
+
+      // Show loading state
+      scheduleSubmitButton.disabled = true;
+      scheduleSubmitButtonText.textContent = 'Scheduling...';
+      scheduleSubmitButton.style.opacity = '0.7';
+
+      try {
+        // Call AJAX endpoint to schedule optimization
+        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=schedule_optimization', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: userId,
+            account: account,
+            region: region
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Show success message
+          const successMessage = document.createElement('div');
+          successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
+          successMessage.textContent = `✓ Optimization scheduled for ${account} in ${region}!`;
+          document.body.appendChild(successMessage);
+
+          setTimeout(() => {
+            successMessage.remove();
+          }, 3000);
+
+          // Reload schedules which will automatically update dropdowns
+          await loadOptimizationSchedules(userId);
+
+          // Reset form after reload
+          scheduleOptimizationForm.reset();
+          scheduleAccountSelect.style.borderColor = 'var(--color-neutral-30)';
+          scheduleRegionSelect.style.borderColor = 'var(--color-neutral-30)';
+        } else {
+          // Error from API
+          scheduleAccountError.textContent = data.data?.message || 'Failed to schedule optimization. Please try again.';
+          scheduleAccountError.style.display = 'block';
+        }
+
+      } catch (error) {
+        scheduleAccountError.textContent = 'Failed to schedule optimization. Please check your connection and try again.';
+        scheduleAccountError.style.display = 'block';
+      } finally {
+        scheduleSubmitButton.disabled = false;
+        scheduleSubmitButtonText.textContent = 'Schedule Optimization';
+        scheduleSubmitButton.style.opacity = '1';
+      }
+    });
+  }
 });
 
 // Global functions for account management
@@ -1230,9 +1547,6 @@ function deleteKDPAccount(userId, accountName) {
 async function toggleOptimization(userId, jobName, currentlyActive) {
   const action = currentlyActive ? 'disable' : 'enable';
 
-  if (!confirm(`Are you sure you want to ${action} the optimization "${jobName}"?`)) {
-    return;
-  }
 
   try {
     const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=toggle_optimization', {
@@ -1267,18 +1581,31 @@ async function toggleOptimization(userId, jobName, currentlyActive) {
         loadOptimizationSchedules(scheduleUserIdInput.value);
       }
     } else {
-      alert('Failed to ' + action + ' optimization: ' + (data.data?.message || 'Unknown error'));
+      // Show error message
+      const errorMessage = document.createElement('div');
+      errorMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #FF6B6B; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
+      errorMessage.textContent = '✗ Failed to ' + action + ' optimization';
+      document.body.appendChild(errorMessage);
+
+      setTimeout(() => {
+        errorMessage.remove();
+      }, 3000);
     }
   } catch (error) {
-    alert('Failed to ' + action + ' optimization. Please try again.');
     console.error('Error toggling optimization:', error);
+    // Show error message
+    const errorMessage = document.createElement('div');
+    errorMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #FF6B6B; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
+    errorMessage.textContent = '✗ Failed to ' + action + ' optimization';
+    document.body.appendChild(errorMessage);
+
+    setTimeout(() => {
+      errorMessage.remove();
+    }, 3000);
   }
 }
 
 async function deleteOptimization(userId, jobName) {
-  if (!confirm(`Are you sure you want to delete the optimization "${jobName}"?\n\nThis action cannot be undone.`)) {
-    return;
-  }
 
   try {
     const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=delete_optimization', {
@@ -1312,11 +1639,27 @@ async function deleteOptimization(userId, jobName) {
         loadOptimizationSchedules(scheduleUserIdInput.value);
       }
     } else {
-      alert('Failed to delete optimization: ' + (data.data?.message || 'Unknown error'));
+      // Show error message
+      const errorMessage = document.createElement('div');
+      errorMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #FF6B6B; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
+      errorMessage.textContent = '✗ Failed to delete optimization';
+      document.body.appendChild(errorMessage);
+
+      setTimeout(() => {
+        errorMessage.remove();
+      }, 3000);
     }
   } catch (error) {
-    alert('Failed to delete optimization. Please try again.');
     console.error('Error deleting optimization:', error);
+    // Show error message
+    const errorMessage = document.createElement('div');
+    errorMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #FF6B6B; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
+    errorMessage.textContent = '✗ Failed to delete optimization';
+    document.body.appendChild(errorMessage);
+
+    setTimeout(() => {
+      errorMessage.remove();
+    }, 3000);
   }
 }
 </script>
