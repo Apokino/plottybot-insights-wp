@@ -1133,8 +1133,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // ============================================
 
   // Global variables to store current schedules and accounts data
-  let currentSchedulesData = null;
-  let currentAccountsData = null;
+  window.currentSchedulesData = null;
+  window.currentAccountsData = null;
 
   // Schedule User ID Input
   const scheduleUserIdInput = document.getElementById('schedule-user-id');
@@ -1150,7 +1150,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (userId.length > 0) {
         this.style.borderColor = '#00C2A8';
         scheduleUserIdTimeout = setTimeout(() => {
-          loadOptimizationSchedules(userId);
+          window.loadOptimizationSchedules(userId);
         }, 500);
       } else {
         this.style.borderColor = 'var(--color-neutral-30)';
@@ -1158,98 +1158,99 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Load Optimization Schedules
-  async function loadOptimizationSchedules(userId) {
-    const loadingEl = document.getElementById('schedules-loading');
-    const emptyEl = document.getElementById('schedules-empty');
-    const listEl = document.getElementById('schedules-list');
+  // Show initial empty state on page load for schedules
+  if (document.getElementById('schedules-list')) {
+    window.loadOptimizationSchedules(null);
+  }
+});
 
-    if (!loadingEl || !emptyEl || !listEl) return;
+// Global function for loading optimization schedules (accessible from global scope)
+window.loadOptimizationSchedules = async function(userId) {
+  const loadingEl = document.getElementById('schedules-loading');
+  const emptyEl = document.getElementById('schedules-empty');
+  const listEl = document.getElementById('schedules-list');
 
-    // If no user ID provided, show prompt
-    if (!userId) {
-      loadingEl.style.display = 'none';
-      emptyEl.style.display = 'block';
-      emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">Please enter a User ID above to view schedules</p>';
-      listEl.style.display = 'none';
-      return;
-    }
+  if (!loadingEl || !emptyEl || !listEl) return;
 
-    // Show loading state
-    loadingEl.style.display = 'block';
-    emptyEl.style.display = 'none';
+  // If no user ID provided, show prompt
+  if (!userId) {
+    loadingEl.style.display = 'none';
+    emptyEl.style.display = 'block';
+    emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">Please enter a User ID above to view schedules</p>';
     listEl.style.display = 'none';
+    return;
+  }
 
-    try {
-      // Fetch accounts and schedules in parallel
-      const [accountsResponse, schedulesResponse] = await Promise.all([
-        fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            user_id: userId
-          })
-        }),
-        fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_optimization_schedules', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            user_id: userId
-          })
+  // Show loading state
+  loadingEl.style.display = 'block';
+  emptyEl.style.display = 'none';
+  listEl.style.display = 'none';
+
+  try {
+    // Fetch accounts and schedules in parallel
+    const [accountsResponse, schedulesResponse] = await Promise.all([
+      fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userId
         })
-      ]);
+      }),
+      fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_optimization_schedules', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userId
+        })
+      })
+    ]);
 
-      const accountsData = await accountsResponse.json();
-      const data = await schedulesResponse.json();
+    const accountsData = await accountsResponse.json();
+    const data = await schedulesResponse.json();
 
-      // Store data globally for use in form
-      currentAccountsData = accountsData;
-      currentSchedulesData = data;
+    // Store data globally for use in form
+    window.currentAccountsData = accountsData;
+    window.currentSchedulesData = data;
 
-      // Update account dropdown
-      updateAccountDropdown(accountsData, data);
+    // Update account dropdown
+    updateAccountDropdown(accountsData, data);
 
-      // Update region dropdown filtering
-      updateRegionDropdownFiltering(accountsData, data);
+    // Update region dropdown filtering
+    updateRegionDropdownFiltering(accountsData, data);
 
-      if (data.success && data.data && data.data.jobs) {
-        const jobs = data.data.jobs;
+    if (data.success && data.data && data.data.jobs) {
+      const jobs = data.data.jobs;
 
-        if (jobs.length === 0) {
-          loadingEl.style.display = 'none';
-          emptyEl.style.display = 'block';
-          emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">No scheduled optimizations found for this user</p>';
-        } else {
-          loadingEl.style.display = 'none';
-          listEl.style.display = 'grid';
+      if (jobs.length === 0) {
+        loadingEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+        emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">No scheduled optimizations found for this user</p>';
+      } else {
+        loadingEl.style.display = 'none';
+        listEl.style.display = 'grid';
 
-          // Render schedules
-          listEl.innerHTML = jobs.map((job, index) => {
-            const lastRun = job.last_run_time !== "1970-01-01T00:00:00+00:00"
-              ? new Date(job.last_run_time).toLocaleString()
-              : 'Never';
-            const nextRun = job.next_run_time !== "1970-01-01T00:00:00+00:00"
-              ? new Date(job.next_run_time).toLocaleString()
-              : 'Not scheduled';
+        // Render schedules
+        listEl.innerHTML = jobs.map((job, index) => {
+          const lastRun = job.last_run_time !== "1970-01-01T00:00:00+00:00"
+            ? new Date(job.last_run_time).toLocaleString()
+            : 'Never';
+          const nextRun = job.next_run_time !== "1970-01-01T00:00:00+00:00"
+            ? new Date(job.next_run_time).toLocaleString()
+            : 'Not scheduled';
 
             return `
             <div style="padding: var(--spacing-24); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-20);">
                 <div style="flex: 1;">
-                  <div style="display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-8);">
-                    <h3 style="margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--color-neutral-90);">
-                      ${job.account_id}
-                    </h3>
-                    <span style="padding: 6px 16px; background: ${job.active ? '#E6F7F5' : '#FFE6E6'}; color: ${job.active ? '#00C2A8' : '#FF6B6B'}; border-radius: var(--radius-small); font-size: 0.875rem; font-weight: 700; text-transform: uppercase;">
-                      ${job.active ? '✓ Active' : '✗ Inactive'}
-                    </span>
-                  </div>
+                  <h3 style="margin: 0 0 var(--spacing-8) 0; font-size: 1.5rem; font-weight: 700; color: var(--color-neutral-90);">
+                    ${job.account_id}
+                  </h3>
                   <div style="display: flex; align-items: center; gap: var(--spacing-8);">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -1281,18 +1282,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
               </div>
 
-              <div style="display: flex; gap: var(--spacing-12);">
-                <button
-                  onclick="toggleOptimization('${userId}', '${job.job_name}', ${job.active})"
-                  style="flex: 1; padding: 12px 20px; background: ${job.active ? '#FFE6E6' : '#E6F7F5'}; color: ${job.active ? '#FF6B6B' : '#00C2A8'}; border: 1px solid ${job.active ? '#FFCCCC' : '#B3E5DB'}; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 1rem;"
-                  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
-                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
-                >
-                  ${job.active ? 'Disable' : 'Enable'}
-                </button>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-16);">
+                <!-- Toggle Switch with Status -->
+                <div style="display: flex; align-items: center; gap: var(--spacing-12);">
+                  <label style="position: relative; display: inline-block; width: 54px; height: 28px; cursor: pointer;">
+                    <input
+                      type="checkbox"
+                      ${job.active ? 'checked' : ''}
+                      onchange="toggleOptimization('${userId}', '${job.job_name}', ${job.active})"
+                      style="opacity: 0; width: 0; height: 0;"
+                    />
+                    <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: ${job.active ? '#00C2A8' : '#E0E0E0'}; transition: 0.3s; border-radius: 28px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                      <span style="position: absolute; content: ''; height: 22px; width: 22px; left: ${job.active ? '29px' : '3px'}; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                    </span>
+                  </label>
+                  <span style="font-size: 0.9375rem; color: ${job.active ? '#00C2A8' : '#999'}; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                    ${job.active ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+
+                <!-- Delete Button -->
                 <button
                   onclick="deleteOptimization('${userId}', '${job.job_name}')"
-                  style="padding: 12px 20px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 1rem;"
+                  style="padding: 10px 20px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.9375rem;"
                   onmouseover="this.style.background='#FFCCCC'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
                   onmouseout="this.style.background='#FFE6E6'; this.style.transform='translateY(0)'; this.style.boxShadow='none';"
                 >
@@ -1301,64 +1313,59 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
             </div>
           `}).join('');
-        }
-      } else {
-        throw new Error(data.data?.message || 'Failed to load schedules');
       }
-    } catch (error) {
-      console.error('Error loading schedules:', error);
-      loadingEl.style.display = 'none';
-      emptyEl.style.display = 'block';
-      emptyEl.innerHTML = '<p style="color: #FF6B6B;">Failed to load schedules. Please try again.</p>';
+    } else {
+      throw new Error(data.data?.message || 'Failed to load schedules');
     }
+  } catch (error) {
+    console.error('Error loading schedules:', error);
+    loadingEl.style.display = 'none';
+    emptyEl.style.display = 'block';
+    emptyEl.innerHTML = '<p style="color: #FF6B6B;">Failed to load schedules. Please try again.</p>';
   }
+};
 
-  // Show initial empty state on page load for schedules
-  if (document.getElementById('schedules-list')) {
-    loadOptimizationSchedules(null);
-  }
+// Helper function to update account dropdown
+function updateAccountDropdown(accountsData, schedulesData) {
+  const accountDropdown = document.getElementById('schedule-account');
+  if (!accountDropdown) return;
 
-  // Helper function to update account dropdown
-  function updateAccountDropdown(accountsData, schedulesData) {
-    const accountDropdown = document.getElementById('schedule-account');
-    if (!accountDropdown) return;
+  // Get list of accounts
+  const accounts = accountsData.success && accountsData.data && accountsData.data.account_names
+    ? accountsData.data.account_names
+    : [];
 
-    // Get list of accounts
-    const accounts = accountsData.success && accountsData.data && accountsData.data.account_names
-      ? accountsData.data.account_names
-      : [];
+  // Clear existing options except the first one
+  accountDropdown.innerHTML = '<option value="">Select an account...</option>';
 
-    // Clear existing options except the first one
-    accountDropdown.innerHTML = '<option value="">Select an account...</option>';
+  // Add all accounts
+  accounts.forEach(account => {
+    const option = document.createElement('option');
+    option.value = account;
+    option.textContent = account;
+    accountDropdown.appendChild(option);
+  });
+}
 
-    // Add all accounts
-    accounts.forEach(account => {
-      const option = document.createElement('option');
-      option.value = account;
-      option.textContent = account;
-      accountDropdown.appendChild(option);
-    });
-  }
+// Helper function to update region dropdown filtering based on selected account
+function updateRegionDropdownFiltering(accountsData, schedulesData) {
+  const accountDropdown = document.getElementById('schedule-account');
+  const regionDropdown = document.getElementById('schedule-region');
 
-  // Helper function to update region dropdown filtering based on selected account
-  function updateRegionDropdownFiltering(accountsData, schedulesData) {
-    const accountDropdown = document.getElementById('schedule-account');
-    const regionDropdown = document.getElementById('schedule-region');
+  if (!accountDropdown || !regionDropdown) return;
 
-    if (!accountDropdown || !regionDropdown) return;
+  // Remove old event listeners by replacing the element
+  const newAccountDropdown = accountDropdown.cloneNode(true);
+  accountDropdown.parentNode.replaceChild(newAccountDropdown, accountDropdown);
 
-    // Remove old event listeners by replacing the element
-    const newAccountDropdown = accountDropdown.cloneNode(true);
-    accountDropdown.parentNode.replaceChild(newAccountDropdown, accountDropdown);
+  // Listen for account changes on the new element
+  newAccountDropdown.addEventListener('change', function() {
+    filterRegionOptions(this.value, schedulesData);
+  });
+}
 
-    // Listen for account changes on the new element
-    newAccountDropdown.addEventListener('change', function() {
-      filterRegionOptions(this.value, schedulesData);
-    });
-  }
-
-  // Helper function to filter region options based on existing schedules
-  function filterRegionOptions(selectedAccount, schedulesData) {
+// Helper function to filter region options based on existing schedules
+function filterRegionOptions(selectedAccount, schedulesData) {
     const regionDropdown = document.getElementById('schedule-region');
     if (!regionDropdown) return;
 
@@ -1427,8 +1434,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     });
-  }
+}
 
+document.addEventListener('DOMContentLoaded', function() {
   // Schedule Optimization Form Submission
   const scheduleOptimizationForm = document.getElementById('schedule-optimization-form');
 
@@ -1565,20 +1573,10 @@ async function toggleOptimization(userId, jobName, currentlyActive) {
     const data = await response.json();
 
     if (data.success) {
-      // Show success message
-      const successMessage = document.createElement('div');
-      successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
-      successMessage.textContent = `✓ Optimization ${action}d successfully!`;
-      document.body.appendChild(successMessage);
-
-      setTimeout(() => {
-        successMessage.remove();
-      }, 3000);
-
-      // Reload schedules
+      // Reload schedules (this will update the button state)
       const scheduleUserIdInput = document.getElementById('schedule-user-id');
       if (scheduleUserIdInput && scheduleUserIdInput.value) {
-        loadOptimizationSchedules(scheduleUserIdInput.value);
+        await window.loadOptimizationSchedules(scheduleUserIdInput.value);
       }
     } else {
       // Show error message
@@ -1623,20 +1621,11 @@ async function deleteOptimization(userId, jobName) {
     const data = await response.json();
 
     if (data.success) {
-      // Show success message
-      const successMessage = document.createElement('div');
-      successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
-      successMessage.textContent = '✓ Optimization deleted successfully!';
-      document.body.appendChild(successMessage);
-
-      setTimeout(() => {
-        successMessage.remove();
-      }, 3000);
 
       // Reload schedules
       const scheduleUserIdInput = document.getElementById('schedule-user-id');
       if (scheduleUserIdInput && scheduleUserIdInput.value) {
-        loadOptimizationSchedules(scheduleUserIdInput.value);
+        await window.loadOptimizationSchedules(scheduleUserIdInput.value);
       }
     } else {
       // Show error message

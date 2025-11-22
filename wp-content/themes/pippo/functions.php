@@ -1823,8 +1823,28 @@ if (!function_exists('delete_optimization_handler')) {
         $user_id = sanitize_text_field($payload['user_id']);
         $job_name = sanitize_text_field($payload['job_name']);
 
-        // Build API URL - using DELETE to remove the schedule
-        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimisation-schedule/' . urlencode($user_id) . '/' . urlencode($job_name);
+        // Extract kdp_profile from job_name
+        // Job name format: "stefano-KDP-5-US" or "user-account-region"
+        // We need to extract account and region to build kdp_profile as "account-region"
+        $parts = explode('-', $job_name);
+
+        if (count($parts) < 3) {
+            wp_send_json_error(['message' => 'Invalid job name format'], 400);
+            wp_die();
+        }
+
+        // Remove the first element (user_id) and join the rest
+        // For "stefano-KDP-5-US", we want "KDP-5-US"
+        array_shift($parts); // Remove user_id
+        $kdp_profile = implode('-', $parts);
+
+        // Build API URL and payload
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimisation-schedule';
+
+        $api_payload = [
+            'user_id' => (string) $user_id,
+            'kdp_profile' => (string) $kdp_profile
+        ];
 
         $response = wp_remote_request($api_url, [
             'method' => 'DELETE',
@@ -1832,6 +1852,7 @@ if (!function_exists('delete_optimization_handler')) {
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json'
             ],
+            'body' => json_encode($api_payload),
             'timeout' => 30,
             'sslverify' => true
         ]);
