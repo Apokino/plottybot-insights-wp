@@ -669,9 +669,10 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
 </style>
 
 <script>
+// Global variable for ads enabled status
+const adsEnabled = <?php echo $ads_enabled ? 'true' : 'false'; ?>;
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Check if ads are enabled
-  const adsEnabled = <?php echo $ads_enabled ? 'true' : 'false'; ?>;
 
   // Check/create user in ads optimizer system
   async function checkCreateAdsUser() {
@@ -774,6 +775,96 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Run user check/creation on page load
   checkCreateAdsUser();
+});
+
+// Global function for loading KDP accounts (accessible from global scope)
+window.loadKDPAccounts = async function(userId) {
+  const loadingEl = document.getElementById('kdp-accounts-loading');
+  const emptyEl = document.getElementById('kdp-accounts-empty');
+  const listEl = document.getElementById('kdp-accounts-list');
+
+  if (!loadingEl || !emptyEl || !listEl) return;
+
+  // If no user ID provided, show prompt to enter user ID
+  if (!userId) {
+    loadingEl.style.display = 'none';
+    emptyEl.style.display = 'block';
+    emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">Please enter a User ID above to view KDP accounts</p>';
+    listEl.style.display = 'none';
+    return;
+  }
+
+  // Show loading state
+  loadingEl.style.display = 'block';
+  emptyEl.style.display = 'none';
+  listEl.style.display = 'none';
+
+  try {
+    // Fetch accounts from API
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: userId
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.data && data.data.account_names) {
+      const accounts = data.data.account_names;
+
+      if (accounts.length === 0) {
+        loadingEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+        emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">No KDP accounts found for this user</p>';
+      } else {
+        loadingEl.style.display = 'none';
+        listEl.style.display = 'grid';
+
+        // Render accounts
+        listEl.innerHTML = accounts.map(accountName => `
+          <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <div>
+              <h3 style="margin: 0 0 var(--spacing-8) 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
+                ${accountName}
+              </h3>
+              <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60);">
+                User ID: ${userId}
+              </p>
+            </div>
+            <div style="display: flex; gap: var(--spacing-12);">
+              <button
+                onclick="deleteKDPAccount('${userId}', '${accountName}')"
+                style="padding: 10px 16px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
+                onmouseover="this.style.background='#FFCCCC'; this.style.transform='translateY(-2px)';"
+                onmouseout="this.style.background='#FFE6E6'; this.style.transform='translateY(0)';"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+    } else {
+      throw new Error(data.data?.message || 'Failed to load accounts');
+    }
+  } catch (error) {
+    console.error('Error loading accounts:', error);
+    loadingEl.style.display = 'none';
+    emptyEl.style.display = 'block';
+    emptyEl.innerHTML = '<p style="color: #FF6B6B;">Failed to load accounts. Please try again.</p>';
+  }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Show initial empty state on page load
+  if (document.getElementById('kdp-accounts-list')) {
+    window.loadKDPAccounts(null);
+  }
 
   // KDP Account Form Validation and Submission
   const kdpForm = document.getElementById('add-kdp-account-form');
@@ -808,7 +899,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (userId.length > 0) {
         userIdTimeout = setTimeout(() => {
-          loadKDPAccounts(userId);
+          window.loadKDPAccounts(userId);
         }, 500);
       }
     });
@@ -934,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', function() {
           }, 3000);
 
           // Reload accounts list
-          loadKDPAccounts(userId);
+          window.loadKDPAccounts(userId);
         } else {
           // Error from API
           authCodeError.textContent = data.data?.message || 'Failed to add account. Please try again.';
@@ -952,93 +1043,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Load KDP Accounts
-  async function loadKDPAccounts(userId) {
-    const loadingEl = document.getElementById('kdp-accounts-loading');
-    const emptyEl = document.getElementById('kdp-accounts-empty');
-    const listEl = document.getElementById('kdp-accounts-list');
-
-    if (!loadingEl || !emptyEl || !listEl) return;
-
-    // If no user ID provided, show prompt to enter user ID
-    if (!userId) {
-      loadingEl.style.display = 'none';
-      emptyEl.style.display = 'block';
-      emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">Please enter a User ID above to view KDP accounts</p>';
-      listEl.style.display = 'none';
-      return;
-    }
-
-    // Show loading state
-    loadingEl.style.display = 'block';
-    emptyEl.style.display = 'none';
-    listEl.style.display = 'none';
-
-    try {
-      // Fetch accounts from API
-      const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          user_id: userId
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success && data.data && data.data.account_names) {
-        const accounts = data.data.account_names;
-
-        if (accounts.length === 0) {
-          loadingEl.style.display = 'none';
-          emptyEl.style.display = 'block';
-          emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">No KDP accounts found for this user</p>';
-        } else {
-          loadingEl.style.display = 'none';
-          listEl.style.display = 'grid';
-
-          // Render accounts
-          listEl.innerHTML = accounts.map(accountName => `
-            <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-              <div>
-                <h3 style="margin: 0 0 var(--spacing-8) 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
-                  ${accountName}
-                </h3>
-                <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                  User ID: ${userId}
-                </p>
-              </div>
-              <div style="display: flex; gap: var(--spacing-12);">
-                <button
-                  onclick="deleteKDPAccount('${userId}', '${accountName}')"
-                  style="padding: 10px 16px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
-                  onmouseover="this.style.background='#FFCCCC'; this.style.transform='translateY(-2px)';"
-                  onmouseout="this.style.background='#FFE6E6'; this.style.transform='translateY(0)';"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          `).join('');
-        }
-      } else {
-        throw new Error(data.data?.message || 'Failed to load accounts');
-      }
-    } catch (error) {
-      console.error('Error loading accounts:', error);
-      loadingEl.style.display = 'none';
-      emptyEl.style.display = 'block';
-      emptyEl.innerHTML = '<p style="color: #FF6B6B;">Failed to load accounts. Please try again.</p>';
-    }
-  }
-
-  // Show initial empty state on page load
-  if (document.getElementById('kdp-accounts-list')) {
-    loadKDPAccounts(null);
-  }
 
   // Sidebar Toggle Functionality
   const sidebar = document.getElementById('sidebar');
@@ -1544,10 +1548,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Global functions for account management
-function deleteKDPAccount(userId, accountName) {
-  if (confirm(`Are you sure you want to delete the account "${accountName}"?`)) {
-    alert('Delete account: ' + accountName + '\nUser ID: ' + userId + '\n\nThis will be implemented with actual delete functionality.');
-    // TODO: Implement actual delete API call
+async function deleteKDPAccount(userId, accountName) {
+  try {
+    await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=delete_kdp_account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        account_name: accountName
+      })
+    });
+
+    // Always reload accounts list regardless of response
+    // The account will disappear if deletion was successful
+    window.loadKDPAccounts(userId);
+  } catch (error) {
+    console.error('Error deleting KDP account:', error);
+    // Still reload the list to reflect actual state
+    window.loadKDPAccounts(userId);
   }
 }
 

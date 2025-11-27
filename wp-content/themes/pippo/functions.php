@@ -1568,7 +1568,7 @@ if (!function_exists('add_kdp_profile_handler')) {
             'auth_code' => (string) $payload['auth_code']
         ];
 
-        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/kdp_profile';
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/account';
 
         $response = wp_remote_post($api_url, [
             'headers' => [
@@ -1601,6 +1601,63 @@ if (!function_exists('add_kdp_profile_handler')) {
                 'response' => $body
             ], $status_code);
         }
+        wp_die();
+    }
+}
+
+// AJAX handler for deleting KDP account
+add_action('wp_ajax_delete_kdp_account', 'delete_kdp_account_handler');
+add_action('wp_ajax_nopriv_delete_kdp_account', 'delete_kdp_account_handler');
+
+if (!function_exists('delete_kdp_account_handler')) {
+    function delete_kdp_account_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['account_name'])) {
+            wp_send_json_error(['message' => 'Missing required fields'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+        $account_name = sanitize_text_field($payload['account_name']);
+
+        // Prepare API payload
+        $api_payload = [
+            'user_id' => (string) $user_id,
+            'account_name' => (string) $account_name
+        ];
+
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/account';
+
+        $response = wp_remote_request($api_url, [
+            'method' => 'DELETE',
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($api_payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        // Log the response for debugging
+        $status_code = is_wp_error($response) ? 0 : wp_remote_retrieve_response_code($response);
+        $body = is_wp_error($response) ? '' : wp_remote_retrieve_body($response);
+        error_log("Delete KDP Account - Status: {$status_code}, Body: {$body}");
+
+        // Always return success - let the frontend reload to check actual state
+        // This handles cases where API deletes but returns non-standard status codes
+        wp_send_json_success([
+            'message' => 'Delete request sent',
+            'status' => $status_code
+        ]);
         wp_die();
     }
 }
