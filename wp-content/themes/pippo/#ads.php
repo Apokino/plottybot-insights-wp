@@ -8,6 +8,9 @@ if (!is_user_logged_in()) {
     exit;
 }
 
+// Get current WordPress user ID
+$current_user_id = get_current_user_id();
+
 // Ads access control variable
 $ads_enabled = true; // Set to true to enable ads access, false to disable
 ?>
@@ -152,26 +155,29 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                 Add New KDP Account
               </h2>
 
+              <!-- Fetch Authorization Code Button -->
+              <div style="margin-bottom: var(--spacing-24); padding: var(--spacing-20); background: linear-gradient(135deg, #E3F9F5, #D1F4EC); border-radius: var(--radius-medium); border: 2px solid #00C2A8;">
+                <p style="margin: 0 0 var(--spacing-16) 0; color: var(--color-neutral-80); font-size: 0.9375rem; line-height: 1.6;">
+                  Click the button below to open Amazon authorization in a new tab. After authorizing, copy the code from the URL and paste it below.
+                </p>
+                <button
+                  type="button"
+                  id="fetch-auth-code-btn"
+                  style="width: 100%; padding: var(--spacing-16); background: linear-gradient(135deg, #FF9900, #FF8800); color: white; border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3); display: flex; align-items: center; justify-content: center; gap: var(--spacing-12);"
+                  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 153, 0, 0.4)'"
+                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 153, 0, 0.3)'"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                  <span>GET AUTHORIZATION CODE</span>
+                </button>
+              </div>
+
               <form id="add-kdp-account-form">
                 <div style="display: grid; gap: var(--spacing-24); margin-bottom: var(--spacing-24);">
-                  <!-- User ID Input (Temporary) -->
-                  <div>
-                    <label for="kdp-user-id" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                      User ID <span style="color: #FF6B6B;">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="kdp-user-id"
-                      name="user_id"
-                      placeholder="Enter user ID"
-                      required
-                      style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s;"
-                    />
-                    <p id="user-id-error" style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: #FF6B6B; display: none;"></p>
-                    <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                      ⚠️ Temporary field - will be auto-filled at login in the future
-                    </p>
-                  </div>
 
                   <!-- Authorization Code Input -->
                   <div>
@@ -208,7 +214,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                     />
                     <p id="account-name-error" style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: #FF6B6B; display: none;"></p>
                     <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                      Only letters, numbers, and hyphens (-) allowed. No spaces.
+                      <strong>Step 3:</strong> Choose a unique name for this account. Only letters, numbers, and hyphens (-) allowed. No spaces.
                     </p>
                   </div>
                 </div>
@@ -298,22 +304,6 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
               </h1>
               <p class="text--body-lg" style="color: var(--color-neutral-70);">
                 View and manage your scheduled optimizations
-              </p>
-            </div>
-
-            <!-- User ID Input -->
-            <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-32); margin-bottom: var(--spacing-40);">
-              <label for="schedule-user-id" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                User ID <span style="color: #FF6B6B;">*</span>
-              </label>
-              <input
-                type="text"
-                id="schedule-user-id"
-                placeholder="Enter user ID to view schedules"
-                style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s;"
-              />
-              <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                ⚠️ Temporary field - will be auto-filled at login in the future
               </p>
             </div>
 
@@ -452,22 +442,6 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             </h1>
             <p class="text--body-lg" style="color: var(--color-neutral-70);">
               Configure campaign settings for your KDP accounts
-            </p>
-          </div>
-
-          <!-- User ID Input -->
-          <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-32); margin-bottom: var(--spacing-40);">
-            <label for="campaign-user-id" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-              User ID <span style="color: #FF6B6B;">*</span>
-            </label>
-            <input
-              type="text"
-              id="campaign-user-id"
-              placeholder="Enter user ID"
-              style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s;"
-            />
-            <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-              ⚠️ Temporary field - will be auto-filled at login in the future
             </p>
           </div>
 
@@ -915,6 +889,9 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
 // Global variable for ads enabled status
 const adsEnabled = <?php echo $ads_enabled ? 'true' : 'false'; ?>;
 
+// Global variable for current WordPress user ID
+const currentUserId = '<?php echo $current_user_id; ?>';
+
 // Global variables for campaign configuration
 let currentCampaigns = [];
 let currentConfigurations = [];
@@ -1026,18 +1003,21 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Global function for loading KDP accounts (accessible from global scope)
-window.loadKDPAccounts = async function(userId) {
+window.loadKDPAccounts = async function(userId = null) {
+  // Use current WordPress user ID if no userId provided
+  userId = userId || currentUserId;
+
   const loadingEl = document.getElementById('kdp-accounts-loading');
   const emptyEl = document.getElementById('kdp-accounts-empty');
   const listEl = document.getElementById('kdp-accounts-list');
 
   if (!loadingEl || !emptyEl || !listEl) return;
 
-  // If no user ID provided, show prompt to enter user ID
+  // If still no user ID, show error
   if (!userId) {
     loadingEl.style.display = 'none';
     emptyEl.style.display = 'block';
-    emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">Please enter a User ID above to view KDP accounts</p>';
+    emptyEl.innerHTML = '<p style="color: #FF6B6B;">User ID not available. Please log in again.</p>';
     listEl.style.display = 'none';
     return;
   }
@@ -1118,39 +1098,27 @@ document.addEventListener('DOMContentLoaded', function() {
   const kdpForm = document.getElementById('add-kdp-account-form');
   const authCodeInput = document.getElementById('kdp-auth-code');
   const accountNameInput = document.getElementById('kdp-account-name');
-  const userIdInput = document.getElementById('kdp-user-id');
   const authCodeError = document.getElementById('auth-code-error');
   const accountNameError = document.getElementById('account-name-error');
-  const userIdError = document.getElementById('user-id-error');
   const submitButton = document.getElementById('submit-kdp-account');
   const submitButtonText = document.getElementById('submit-button-text');
 
+  // Load KDP accounts automatically for current user
+  if (document.getElementById('kdp-accounts-list')) {
+    window.loadKDPAccounts(currentUserId);
+  }
+
+  // Handle GET AUTHORIZATION CODE button - opens Amazon OAuth in new tab
+  const fetchAuthCodeBtn = document.getElementById('fetch-auth-code-btn');
+  if (fetchAuthCodeBtn) {
+    fetchAuthCodeBtn.addEventListener('click', function() {
+      const amazonOAuthUrl = 'https://www.amazon.com/ap/oa?client_id=amzn1.application-oa2-client.f58a70d6e0524c08b8634335eba3bcbf&scope=advertising::campaign_management&response_type=code&redirect_uri=https://amazon.com';
+      window.open(amazonOAuthUrl, '_blank');
+      console.log('Opened Amazon OAuth in new tab');
+    });
+  }
+
   if (kdpForm) {
-    // Real-time validation for user ID
-    userIdInput.addEventListener('input', function() {
-      const value = this.value.trim();
-
-      if (value.length > 0) {
-        this.style.borderColor = '#00C2A8';
-        userIdError.style.display = 'none';
-      } else {
-        this.style.borderColor = 'var(--color-neutral-30)';
-      }
-    });
-
-    // Load accounts when user ID changes (after user stops typing)
-    let userIdTimeout;
-    userIdInput.addEventListener('input', function() {
-      const userId = this.value.trim();
-
-      clearTimeout(userIdTimeout);
-
-      if (userId.length > 0) {
-        userIdTimeout = setTimeout(() => {
-          window.loadKDPAccounts(userId);
-        }, 500);
-      }
-    });
 
     // Real-time validation for authorization code
     authCodeInput.addEventListener('input', function() {
@@ -1198,15 +1166,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const authCode = authCodeInput.value.trim();
       const accountName = accountNameInput.value.trim();
-      const userId = userIdInput.value.trim();
+      const userId = currentUserId; // Use current WordPress user ID
 
-      // Validate user ID
-      if (userId.length === 0) {
-        userIdError.textContent = 'User ID is required';
-        userIdError.style.display = 'block';
-        userIdInput.focus();
-        return;
-      }
+      console.log('Form submission - Auth Code:', authCode);
+      console.log('Form submission - Auth Code Length:', authCode.length);
+      console.log('Form submission - Account Name:', accountName);
+      console.log('Form submission - User ID:', userId);
 
       // Validate authorization code
       if (authCode.length !== 20) {
@@ -1253,14 +1218,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const data = await response.json();
 
+        console.log('Add KDP account response:', data);
+        console.log('API Response Status:', response.status);
+        console.log('Full API Response Object:', JSON.stringify(data, null, 2));
+
         if (data.success) {
-          // Success - clear form (but keep user ID)
-          const currentUserId = userIdInput.value;
+          // Success - clear form
           kdpForm.reset();
-          userIdInput.value = currentUserId;
           authCodeInput.style.borderColor = 'var(--color-neutral-30)';
           accountNameInput.style.borderColor = 'var(--color-neutral-30)';
-          userIdInput.style.borderColor = '#00C2A8';
+
+
 
           // Show success message
           const successMessage = document.createElement('div');
@@ -1272,16 +1240,30 @@ document.addEventListener('DOMContentLoaded', function() {
             successMessage.remove();
           }, 3000);
 
-          // Reload accounts list
-          window.loadKDPAccounts(userId);
+          // Reload accounts list using currentUserId
+          window.loadKDPAccounts(currentUserId);
         } else {
           // Error from API
-          authCodeError.textContent = data.data?.message || 'Failed to add account. Please try again.';
+          console.error('API returned error:', data);
+          console.error('Error message:', data.data?.message);
+          console.error('Error details:', data.data);
+
+          // Show detailed error message
+          let errorMessage = 'Failed to add account. ';
+          if (data.data?.message) {
+            errorMessage += data.data.message;
+          } else {
+            errorMessage += 'Please try again.';
+          }
+
+          authCodeError.innerHTML = errorMessage;
           authCodeError.style.display = 'block';
         }
 
       } catch (error) {
-        authCodeError.textContent = 'Failed to add account. Please check your connection and try again.';
+        console.error('Exception during account creation:', error);
+        console.error('Error stack:', error.stack);
+        authCodeError.innerHTML = 'Failed to add account. Please check your connection and try again.<br><small>Check console for details.</small>';
         authCodeError.style.display = 'block';
       } finally {
         submitButton.disabled = false;
@@ -1388,47 +1370,28 @@ document.addEventListener('DOMContentLoaded', function() {
   window.currentSchedulesData = null;
   window.currentAccountsData = null;
 
-  // Schedule User ID Input
-  const scheduleUserIdInput = document.getElementById('schedule-user-id');
-
-  if (scheduleUserIdInput) {
-    // Load schedules when user ID changes (after user stops typing)
-    let scheduleUserIdTimeout;
-    scheduleUserIdInput.addEventListener('input', function() {
-      const userId = this.value.trim();
-
-      clearTimeout(scheduleUserIdTimeout);
-
-      if (userId.length > 0) {
-        this.style.borderColor = '#00C2A8';
-        scheduleUserIdTimeout = setTimeout(() => {
-          window.loadOptimizationSchedules(userId);
-        }, 500);
-      } else {
-        this.style.borderColor = 'var(--color-neutral-30)';
-      }
-    });
-  }
-
-  // Show initial empty state on page load for schedules
+  // Load optimization schedules automatically for current user
   if (document.getElementById('schedules-list')) {
-    window.loadOptimizationSchedules(null);
+    window.loadOptimizationSchedules(currentUserId);
   }
 });
 
 // Global function for loading optimization schedules (accessible from global scope)
-window.loadOptimizationSchedules = async function(userId) {
+window.loadOptimizationSchedules = async function(userId = null) {
+  // Use current WordPress user ID if no userId provided
+  userId = userId || currentUserId;
+
   const loadingEl = document.getElementById('schedules-loading');
   const emptyEl = document.getElementById('schedules-empty');
   const listEl = document.getElementById('schedules-list');
 
   if (!loadingEl || !emptyEl || !listEl) return;
 
-  // If no user ID provided, show prompt
+  // If still no user ID, show error
   if (!userId) {
     loadingEl.style.display = 'none';
     emptyEl.style.display = 'block';
-    emptyEl.innerHTML = '<p style="color: var(--color-neutral-60);">Please enter a User ID above to view schedules</p>';
+    emptyEl.innerHTML = '<p style="color: #FF6B6B;">User ID not available. Please log in again.</p>';
     listEl.style.display = 'none';
     return;
   }
@@ -1706,16 +1669,10 @@ document.addEventListener('DOMContentLoaded', function() {
       const scheduleSubmitButtonText = document.getElementById('schedule-submit-button-text');
 
 
-      const userId = document.getElementById('schedule-user-id').value.trim();
+      const userId = currentUserId; // Use current WordPress user ID
       const account = scheduleAccountSelect.value;
       const region = scheduleRegionSelect.value;
 
-      // Validate user ID
-      if (!userId) {
-        alert('Please enter a User ID first');
-        document.getElementById('schedule-user-id').focus();
-        return;
-      }
 
       // Validate account
       if (!account) {
@@ -1798,74 +1755,56 @@ document.addEventListener('DOMContentLoaded', function() {
   // CAMPAIGN CONFIGURATION SECTION
   // ============================================
 
-  const campaignUserIdInput = document.getElementById('campaign-user-id');
   const campaignAccountSelect = document.getElementById('campaign-account');
   const campaignRegionSelect = document.getElementById('campaign-region');
 
-  if (campaignUserIdInput && campaignAccountSelect) {
-    // Load KDP accounts when user ID changes (after user stops typing)
-    let campaignUserIdTimeout;
-    campaignUserIdInput.addEventListener('input', async function() {
-      const userId = this.value.trim();
+  if (campaignAccountSelect) {
+    // Load KDP accounts automatically for campaign configuration
+    (async function() {
+      try {
+        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: currentUserId
+          })
+        });
 
-      clearTimeout(campaignUserIdTimeout);
+        const data = await response.json();
 
-      if (userId.length > 0) {
-        this.style.borderColor = '#00C2A8';
+        if (data.success && data.data && data.data.account_names) {
+          const accounts = data.data.account_names;
 
-        campaignUserIdTimeout = setTimeout(async () => {
-          // Load KDP accounts for this user
-          try {
-            const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify({
-                user_id: userId
-              })
-            });
+          // Clear and populate account dropdown
+          campaignAccountSelect.innerHTML = '<option value="">Select an account...</option>';
 
-            const data = await response.json();
+          accounts.forEach(account => {
+            const option = document.createElement('option');
+            option.value = account;
+            option.textContent = account;
+            campaignAccountSelect.appendChild(option);
+          });
 
-            if (data.success && data.data && data.data.account_names) {
-              const accounts = data.data.account_names;
-
-              // Clear and populate account dropdown
-              campaignAccountSelect.innerHTML = '<option value="">Select an account...</option>';
-
-              accounts.forEach(account => {
-                const option = document.createElement('option');
-                option.value = account;
-                option.textContent = account;
-                campaignAccountSelect.appendChild(option);
-              });
-
-              // Enable the dropdown
-              campaignAccountSelect.disabled = false;
-            } else {
-              // No accounts found
-              campaignAccountSelect.innerHTML = '<option value="">No accounts found</option>';
-              campaignAccountSelect.disabled = true;
-            }
-          } catch (error) {
-            console.error('Error loading accounts for campaign:', error);
-            campaignAccountSelect.innerHTML = '<option value="">Error loading accounts</option>';
-            campaignAccountSelect.disabled = true;
-          }
-        }, 500);
-      } else {
-        this.style.borderColor = 'var(--color-neutral-30)';
-        // Reset account dropdown
-        campaignAccountSelect.innerHTML = '<option value="">Select an account...</option>';
-        campaignAccountSelect.disabled = false;
+          // Enable the dropdown
+          campaignAccountSelect.disabled = false;
+        } else {
+          // No accounts found
+          campaignAccountSelect.innerHTML = '<option value="">No accounts found</option>';
+          campaignAccountSelect.disabled = true;
+        }
+      } catch (error) {
+        console.error('Error loading accounts for campaign:', error);
+        campaignAccountSelect.innerHTML = '<option value="">Error loading accounts</option>';
+        campaignAccountSelect.disabled = true;
       }
-    });
+    })();
 
     // Load campaigns and configurations when both account and region are selected
     async function loadCampaignData() {
-      const userId = campaignUserIdInput.value.trim();
+      const userId = currentUserId; // Use current WordPress user ID
       const account = campaignAccountSelect.value;
       const region = campaignRegionSelect.value;
 
@@ -2030,7 +1969,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const submitButton = document.getElementById('submit-campaign-config');
         const submitButtonText = document.getElementById('config-submit-button-text');
 
-        const userId = campaignUserIdInput.value.trim();
+        const userId = currentUserId; // Use current WordPress user ID
         const account = campaignAccountSelect.value;
         const region = campaignRegionSelect.value;
         const selectedCampaignName = document.getElementById('config-campaign-name').value;
@@ -2486,12 +2425,8 @@ async function deleteOptimization(userId, jobName) {
     const data = await response.json();
 
     if (data.success) {
-
-      // Reload schedules
-      const scheduleUserIdInput = document.getElementById('schedule-user-id');
-      if (scheduleUserIdInput && scheduleUserIdInput.value) {
-        await window.loadOptimizationSchedules(scheduleUserIdInput.value);
-      }
+      // Reload schedules using current user ID
+      await window.loadOptimizationSchedules(currentUserId);
     } else {
       // Show error message
       const errorMessage = document.createElement('div');
