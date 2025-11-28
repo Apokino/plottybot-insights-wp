@@ -2006,3 +2006,400 @@ if (!function_exists('schedule_optimization_handler')) {
     }
 }
 
+// AJAX handler for getting campaign list
+add_action('wp_ajax_get_campaign_list', 'get_campaign_list_handler');
+add_action('wp_ajax_nopriv_get_campaign_list', 'get_campaign_list_handler');
+
+if (!function_exists('get_campaign_list_handler')) {
+    function get_campaign_list_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['account']) || !isset($payload['region'])) {
+            wp_send_json_error(['message' => 'Missing required fields'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+        $account = sanitize_text_field($payload['account']);
+        $region = sanitize_text_field($payload['region']);
+
+        // Build kdp_profile in format: [ACCOUNT_NAME]-[REGION]
+        $kdp_profile = $account . '-' . $region;
+
+        // Prepare API payload
+        $api_payload = [
+            'user_id' => (string) $user_id,
+            'kdp_profile' => (string) $kdp_profile,
+            'all_campaigns' => true
+        ];
+
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/list';
+
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($api_payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error fetching campaigns: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200 || $status_code === 201) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success([
+                'campaigns' => $response_data
+            ]);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to fetch campaigns',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for creating campaign configuration
+add_action('wp_ajax_create_campaign_config', 'create_campaign_config_handler');
+add_action('wp_ajax_nopriv_create_campaign_config', 'create_campaign_config_handler');
+
+if (!function_exists('create_campaign_config_handler')) {
+    function create_campaign_config_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $raw_input = file_get_contents('php://input');
+        error_log('Campaign Config: Raw input = ' . $raw_input);
+
+        $payload = json_decode($raw_input, true);
+        error_log('Campaign Config: Decoded payload = ' . print_r($payload, true));
+
+        if (!$payload) {
+            error_log('Campaign Config: Payload is null or invalid JSON');
+            wp_send_json_error(['message' => 'Invalid JSON payload'], 400);
+            wp_die();
+        }
+
+        if (!isset($payload['user_id'])) {
+            error_log('Campaign Config: Missing user_id');
+            wp_send_json_error(['message' => 'Missing user_id'], 400);
+            wp_die();
+        }
+
+        if (!isset($payload['kdp_profile'])) {
+            error_log('Campaign Config: Missing kdp_profile');
+            wp_send_json_error(['message' => 'Missing kdp_profile'], 400);
+            wp_die();
+        }
+
+        if (!isset($payload['configuration'])) {
+            error_log('Campaign Config: Missing configuration');
+            wp_send_json_error(['message' => 'Missing configuration'], 400);
+            wp_die();
+        }
+
+        error_log('Campaign Config: All fields present, proceeding with API call');
+
+        // Log configuration details for debugging
+        if (isset($payload['configuration']) && is_array($payload['configuration'])) {
+            foreach ($payload['configuration'] as $index => $config) {
+                error_log("Campaign Config: Configuration[$index] includes ad_group_name: " .
+                    (isset($config['ad_group_name']) ? $config['ad_group_name'] : 'NOT SET'));
+            }
+        }
+
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/configuration';
+
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error creating campaign configuration: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200 || $status_code === 201) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success([
+                'message' => 'Campaign configuration created successfully',
+                'data' => $response_data
+            ]);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to create campaign configuration',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for listing campaign configurations
+add_action('wp_ajax_list_campaign_configs', 'list_campaign_configs_handler');
+add_action('wp_ajax_nopriv_list_campaign_configs', 'list_campaign_configs_handler');
+
+if (!function_exists('list_campaign_configs_handler')) {
+    function list_campaign_configs_handler() {
+        error_log('List Campaign Configs: Handler called');
+
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            error_log('List Campaign Configs: User not logged in');
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $raw_input = file_get_contents('php://input');
+        error_log('List Campaign Configs: Raw input = ' . $raw_input);
+
+        $payload = json_decode($raw_input, true);
+        error_log('List Campaign Configs: Payload = ' . print_r($payload, true));
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['kdp_profile'])) {
+            error_log('List Campaign Configs: Missing required fields');
+            wp_send_json_error(['message' => 'Missing required fields'], 400);
+            wp_die();
+        }
+
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/configuration/list';
+        error_log('List Campaign Configs: Calling API with URL = ' . $api_url);
+
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            error_log('List Campaign Configs: WP Error - ' . $response->get_error_message());
+            wp_send_json_error(['message' => 'Error fetching configurations: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        error_log('List Campaign Configs: API Status = ' . $status_code);
+        error_log('List Campaign Configs: API Response Body = ' . $body);
+
+        if ($status_code === 200 || $status_code === 201) {
+            $response_data = json_decode($body, true);
+            error_log('List Campaign Configs: Decoded response = ' . print_r($response_data, true));
+            error_log('List Campaign Configs: Is array? ' . (is_array($response_data) ? 'yes' : 'no'));
+            error_log('List Campaign Configs: Count = ' . (is_array($response_data) ? count($response_data) : 'N/A'));
+
+            wp_send_json_success([
+                'configurations' => $response_data
+            ]);
+        } else {
+            error_log('List Campaign Configs: API returned error status ' . $status_code);
+            wp_send_json_error([
+                'message' => 'Failed to fetch configurations',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for updating campaign configuration
+add_action('wp_ajax_update_campaign_config', 'update_campaign_config_handler');
+add_action('wp_ajax_nopriv_update_campaign_config', 'update_campaign_config_handler');
+
+if (!function_exists('update_campaign_config_handler')) {
+    function update_campaign_config_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['kdp_profile']) || !isset($payload['configuration'])) {
+            wp_send_json_error(['message' => 'Missing required fields'], 400);
+            wp_die();
+        }
+
+        // Log configuration details for debugging
+        error_log('Update Campaign Config: Payload received');
+        if (isset($payload['configuration']) && is_array($payload['configuration'])) {
+            foreach ($payload['configuration'] as $index => $config) {
+                error_log("Update Campaign Config: Configuration[$index] includes ad_group_name: " .
+                    (isset($config['ad_group_name']) ? $config['ad_group_name'] : 'NOT SET'));
+            }
+        }
+
+        // Use same endpoint as create - API should handle update if config exists
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/configuration';
+
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error updating configuration: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200 || $status_code === 201) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success([
+                'message' => 'Configuration updated successfully',
+                'data' => $response_data
+            ]);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to update configuration',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for deleting campaign configuration
+add_action('wp_ajax_delete_campaign_config', 'delete_campaign_config_handler');
+add_action('wp_ajax_nopriv_delete_campaign_config', 'delete_campaign_config_handler');
+
+if (!function_exists('delete_campaign_config_handler')) {
+    function delete_campaign_config_handler() {
+        error_log('Delete Campaign Config: Handler called');
+
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            error_log('Delete Campaign Config: User not logged in');
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $raw_input = file_get_contents('php://input');
+        error_log('Delete Campaign Config: Raw input = ' . $raw_input);
+
+        $payload = json_decode($raw_input, true);
+        error_log('Delete Campaign Config: Decoded payload = ' . print_r($payload, true));
+
+        // Validate all required fields
+        if (!$payload) {
+            error_log('Delete Campaign Config: Invalid JSON payload');
+            wp_send_json_error(['message' => 'Invalid JSON payload'], 400);
+            wp_die();
+        }
+
+        if (!isset($payload['user_id'])) {
+            error_log('Delete Campaign Config: Missing user_id');
+            wp_send_json_error(['message' => 'Missing user_id'], 400);
+            wp_die();
+        }
+
+        if (!isset($payload['kdp_profile'])) {
+            error_log('Delete Campaign Config: Missing kdp_profile');
+            wp_send_json_error(['message' => 'Missing kdp_profile'], 400);
+            wp_die();
+        }
+
+        if (!isset($payload['campaign_id'])) {
+            error_log('Delete Campaign Config: Missing campaign_id');
+            wp_send_json_error(['message' => 'Missing campaign_id'], 400);
+            wp_die();
+        }
+
+        if (!isset($payload['ad_group_id'])) {
+            error_log('Delete Campaign Config: Missing ad_group_id');
+            wp_send_json_error(['message' => 'Missing ad_group_id'], 400);
+            wp_die();
+        }
+
+        error_log('Delete Campaign Config: All fields present, proceeding with API call');
+
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/configuration';
+
+        $response = wp_remote_request($api_url, [
+            'method' => 'DELETE',
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            error_log('Delete Campaign Config: WP Error - ' . $response->get_error_message());
+            wp_send_json_error(['message' => 'Error deleting configuration: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        error_log('Delete Campaign Config: API Status = ' . $status_code);
+        error_log('Delete Campaign Config: API Response Body = ' . $body);
+
+        if ($status_code === 200 || $status_code === 204) {
+            error_log('Delete Campaign Config: Successfully deleted');
+            wp_send_json_success([
+                'message' => 'Configuration deleted successfully'
+            ]);
+        } else {
+            error_log('Delete Campaign Config: API returned error status ' . $status_code);
+            wp_send_json_error([
+                'message' => 'Failed to delete configuration',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
