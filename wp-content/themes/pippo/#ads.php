@@ -62,6 +62,17 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
         </span>
         <span>Campaign Configuration</span>
       </button>
+
+      <!-- Create Campaign Nav Item -->
+      <button class="service-nav-btn" data-service="placeholder-4" <?php echo !$ads_enabled ? 'disabled' : ''; ?> style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-50); font-weight: 600; font-size: 1rem; cursor: <?php echo $ads_enabled ? 'pointer' : 'not-allowed'; ?>; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4); opacity: <?php echo $ads_enabled ? '1' : '0.5'; ?>;">
+        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M2 12h20"></path>
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+        </span>
+        <span>Create Campaign</span>
+      </button>
     </nav>
 
   </aside>
@@ -496,6 +507,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             </div>
           </div>
 
+
           <!-- Existing Configurations List -->
           <div id="campaign-configs-list-container" style="display: none;">
             <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-16) 0;">
@@ -676,6 +688,190 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
               Please select a User ID, Account, and Region above to configure campaigns
             </p>
           </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Campaign Section -->
+    <div id="service-placeholder-4" class="service-section" style="display: none;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40);">
+
+          <?php if ($ads_enabled): ?>
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: var(--spacing-40);">
+              <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">
+                🚀 Create Campaign
+              </h1>
+              <p class="text--body-lg" style="color: var(--color-neutral-70);">
+                Get keyword recommendations to optimize your advertising campaigns
+              </p>
+            </div>
+
+            <!-- Keyword Recommendations Section -->
+            <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-32);">
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-24) 0; display: flex; align-items: center; gap: var(--spacing-12);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                Keyword Recommendations
+              </h2>
+
+              <!-- Input Form -->
+              <form id="keyword-recommendations-form" style="display: grid; gap: var(--spacing-20); margin-bottom: var(--spacing-24);">
+                <!-- Book Title -->
+                <div>
+                  <label for="keyword-book-title" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                    Book Title <span style="color: #FF6B6B;">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="keyword-book-title"
+                    placeholder="Enter your book title"
+                    required
+                    style="width: 100%; padding: 12px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
+                  />
+                </div>
+
+                <!-- Market Selector & ASINs -->
+                <div style="display: grid; grid-template-columns: 200px 1fr; gap: var(--spacing-20);">
+                  <div>
+                    <label for="keyword-market" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                      Market <span style="color: #FF6B6B;">*</span>
+                    </label>
+                    <select
+                      id="keyword-market"
+                      required
+                      style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; background: white; cursor: pointer;"
+                    >
+                      <option value="US">US</option>
+                      <option value="DE">DE</option>
+                      <option value="UK">UK</option>
+                      <option value="ES">ES</option>
+                      <option value="FR">FR</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="keyword-asins" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                      ASINs <span style="color: #FF6B6B;">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="keyword-asins"
+                      placeholder="Enter ASINs separated by commas (e.g., B0FP8VS5MF, B0DL7MQZBG)"
+                      required
+                      style="width: 100%; padding: 12px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
+                    />
+                    <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: var(--color-neutral-60);">
+                      Separate multiple ASINs with commas
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                  type="submit"
+                  id="get-keywords-btn"
+                  style="padding: 14px 24px; background: linear-gradient(135deg, #00C2A8, #00A890); color: white; border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0, 194, 168, 0.3); width: fit-content;"
+                  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0, 194, 168, 0.4)'"
+                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 194, 168, 0.3)'"
+                >
+                  Get Keyword Recommendations
+                </button>
+              </form>
+
+              <!-- Loading State -->
+              <div id="keywords-loading" style="display: none; text-align: center; padding: var(--spacing-32);">
+                <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <p style="margin-top: var(--spacing-16); color: var(--color-neutral-60);">Fetching keyword recommendations...</p>
+              </div>
+
+              <!-- Results Section -->
+              <div id="keywords-results" style="display: none;">
+                <!-- Export Buttons -->
+                <div style="display: flex; justify-content: flex-end; gap: var(--spacing-12); margin-bottom: var(--spacing-16);">
+                  <button
+                    id="export-csv-btn"
+                    onclick="exportKeywordsAsCSV()"
+                    style="padding: 10px 16px; background: #4CAF50; color: white; border: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: var(--spacing-8);"
+                    onmouseover="this.style.background='#45a049'"
+                    onmouseout="this.style.background='#4CAF50'"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export CSV
+                  </button>
+                  <button
+                    id="export-excel-btn"
+                    onclick="exportKeywordsAsExcel()"
+                    style="padding: 10px 16px; background: #2196F3; color: white; border: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: var(--spacing-8);"
+                    onmouseover="this.style.background='#0b7dda'"
+                    onmouseout="this.style.background='#2196F3'"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export Excel
+                  </button>
+                </div>
+
+                <!-- Filter Controls -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-20); padding: var(--spacing-16); background: white; border-radius: var(--radius-medium); border: 1px solid var(--color-neutral-20);">
+                  <div style="display: flex; align-items: center; gap: var(--spacing-16);">
+                    <label style="font-weight: 600; color: var(--color-neutral-90); font-size: 0.875rem;">Filter by Match Type:</label>
+                    <div style="display: flex; gap: var(--spacing-8);">
+                      <button class="match-type-filter active" data-match-type="all" style="padding: 6px 12px; border: 2px solid #00C2A8; background: #00C2A8; color: white; border-radius: var(--radius-small); font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                        All
+                      </button>
+                      <button class="match-type-filter" data-match-type="BROAD" style="padding: 6px 12px; border: 2px solid var(--color-neutral-30); background: white; color: var(--color-neutral-70); border-radius: var(--radius-small); font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                        Broad
+                      </button>
+                      <button class="match-type-filter" data-match-type="PHRASE" style="padding: 6px 12px; border: 2px solid var(--color-neutral-30); background: white; color: var(--color-neutral-70); border-radius: var(--radius-small); font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                        Phrase
+                      </button>
+                      <button class="match-type-filter" data-match-type="EXACT" style="padding: 6px 12px; border: 2px solid var(--color-neutral-30); background: white; color: var(--color-neutral-70); border-radius: var(--radius-small); font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                        Exact
+                      </button>
+                    </div>
+                  </div>
+                  <div style="font-weight: 600; color: var(--color-neutral-70); font-size: 0.875rem;">
+                    <span id="keywords-count">0</span> keywords
+                  </div>
+                </div>
+
+                <!-- Keywords List -->
+                <div id="keywords-list" style="display: grid; gap: var(--spacing-12); max-height: 500px; overflow-y: auto; padding: var(--spacing-12); background: white; border-radius: var(--radius-medium); border: 1px solid var(--color-neutral-20);">
+                  <!-- Keywords will be inserted here -->
+                </div>
+              </div>
+            </div>
+
+          <?php else: ?>
+            <!-- Access Denied Message -->
+            <div style="text-align: center; padding: var(--spacing-48);">
+              <div style="width: 80px; height: 80px; margin: 0 auto var(--spacing-24); background: linear-gradient(135deg, #FF6B6B, #FF5252); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <h1 style="font-size: 2rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-16) 0;">
+                Access Denied
+              </h1>
+              <p style="font-size: 1.125rem; color: var(--color-neutral-70); margin: 0;">
+                You don't have access to the Ads features.
+              </p>
+            </div>
+          <?php endif; ?>
 
         </div>
       </div>
@@ -1108,15 +1304,66 @@ document.addEventListener('DOMContentLoaded', function() {
     window.loadKDPAccounts(currentUserId);
   }
 
-  // Handle GET AUTHORIZATION CODE button - opens Amazon OAuth in new tab
+  // Handle GET AUTHORIZATION CODE button - redirects to Amazon OAuth
   const fetchAuthCodeBtn = document.getElementById('fetch-auth-code-btn');
   if (fetchAuthCodeBtn) {
     fetchAuthCodeBtn.addEventListener('click', function() {
-      const amazonOAuthUrl = 'https://www.amazon.com/ap/oa?client_id=amzn1.application-oa2-client.f58a70d6e0524c08b8634335eba3bcbf&scope=advertising::campaign_management&response_type=code&redirect_uri=https://amazon.com';
-      window.open(amazonOAuthUrl, '_blank');
-      console.log('Opened Amazon OAuth in new tab');
+      // Build authorization URL (redirects back to ads page)
+      const amazonOAuthUrl = 'https://www.amazon.com/ap/oa?client_id=amzn1.application-oa2-client.f58a70d6e0524c08b8634335eba3bcbf&scope=advertising::campaign_management&response_type=code&redirect_uri=https://insights.plottybot.com/ads';
+
+      console.log('Redirecting to Amazon OAuth');
+
+      // Redirect to Amazon (same window - will return to ads page after authorization)
+      window.location.href = amazonOAuthUrl;
     });
   }
+
+  // Check if user just returned from Amazon OAuth with authorization code
+  function checkForAuthorizationCode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+
+    if (code) {
+      console.log('Authorization code detected in URL');
+      console.log('Code:', code);
+
+      // Auto-fill the authorization code
+      const authCodeInput = document.getElementById('kdp-auth-code');
+      if (authCodeInput) {
+        authCodeInput.value = code;
+        console.log('Authorization code filled automatically');
+
+        // Trigger validation
+        authCodeInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+        // Focus on account name field
+        const accountNameInput = document.getElementById('kdp-account-name');
+        if (accountNameInput) {
+          setTimeout(() => {
+            accountNameInput.focus();
+          }, 300);
+        }
+
+        // Show success message
+        const successMessage = document.createElement('div');
+        successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
+        successMessage.innerHTML = '✓ Authorization code retrieved!<br><small>Now enter your Account Name and submit.</small>';
+        document.body.appendChild(successMessage);
+
+        setTimeout(() => {
+          successMessage.remove();
+        }, 5000);
+      }
+
+      // Clean URL (remove query parameters) without reloading page
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+      console.log('URL cleaned');
+    }
+  }
+
+  // Run the check immediately on page load
+  checkForAuthorizationCode();
 
   if (kdpForm) {
 
@@ -1201,6 +1448,18 @@ document.addEventListener('DOMContentLoaded', function() {
       submitButtonText.textContent = 'Adding Account...';
       submitButton.style.opacity = '0.7';
 
+      // Prepare payload
+      const payload = {
+        user_id: userId,
+        account_name: accountName,
+        auth_code: authCode,
+        redirect_uri: 'https://insights.plottybot.com/ads'
+      };
+
+      console.log('=== ADD KDP ACCOUNT REQUEST ===');
+      console.log('Payload being sent:', JSON.stringify(payload, null, 2));
+      console.log('================================');
+
       try {
         // Call AJAX endpoint to add KDP profile
         const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=add_kdp_profile', {
@@ -1209,11 +1468,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify({
-            user_id: userId,
-            account_name: accountName,
-            auth_code: authCode
-          })
+          body: JSON.stringify(payload)
         });
 
         const data = await response.json();
@@ -1915,6 +2170,297 @@ document.addEventListener('DOMContentLoaded', function() {
     // Trigger campaign loading when account or region changes
     campaignAccountSelect.addEventListener('change', loadCampaignData);
     campaignRegionSelect.addEventListener('change', loadCampaignData);
+
+    // Handle keyword recommendations form submission (in Create Campaign tab)
+    const keywordForm = document.getElementById('keyword-recommendations-form');
+    if (keywordForm) {
+      keywordForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const bookTitle = document.getElementById('keyword-book-title').value.trim();
+        const market = document.getElementById('keyword-market').value;
+        const asinsInput = document.getElementById('keyword-asins').value.trim();
+
+        // Parse ASINs (split by comma and trim)
+        const asins = asinsInput.split(',').map(asin => asin.trim()).filter(asin => asin);
+
+        if (!bookTitle || !market || asins.length === 0) {
+          alert('Please fill in all fields');
+          return;
+        }
+
+        // Get button reference
+        const submitButton = document.getElementById('get-keywords-btn');
+        const originalButtonText = submitButton.innerHTML;
+
+        // Disable button and change text
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.6';
+        submitButton.style.cursor = 'not-allowed';
+        submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Fetching...';
+
+        // Show loading state
+        document.getElementById('keywords-loading').style.display = 'block';
+        document.getElementById('keywords-results').style.display = 'none';
+
+        // Prepare payload
+        const payload = {
+          book_title: bookTitle,
+          asins: asins,
+          market: market
+        };
+
+        console.log('=== KEYWORD RECOMMENDATIONS REQUEST ===');
+        console.log('Book Title:', bookTitle);
+        console.log('Market:', market);
+        console.log('ASINs Input:', asinsInput);
+        console.log('Parsed ASINs:', asins);
+        console.log('Full Payload:', JSON.stringify(payload, null, 2));
+        console.log('======================================');
+
+        try {
+          const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_keyword_recommendations', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          console.log('Response Status:', response.status);
+          console.log('Response OK:', response.ok);
+
+          const data = await response.json();
+          console.log('Response Data:', data);
+
+          if (data.success && data.data && data.data.keywords) {
+            console.log('Keywords received:', data.data.keywords.length);
+            displayKeywordResults(data.data.keywords);
+          } else {
+            console.error('API Error Response:', data);
+            const errorMsg = data.data?.message || 'Unknown error';
+            const errorDetails = data.data?.error_details || {};
+            const sentPayload = data.data?.sent_payload || {};
+
+            console.error('Error Message:', errorMsg);
+            console.error('Error Details:', errorDetails);
+            console.error('Sent Payload (from backend):', sentPayload);
+
+            alert('Failed to fetch keyword recommendations:\n' + errorMsg + '\n\nCheck console for details.');
+          }
+        } catch (error) {
+          console.error('Exception during fetch:', error);
+          alert('Error fetching keyword recommendations. Please try again.\n\nError: ' + error.message);
+        } finally {
+          // Re-enable button
+          submitButton.disabled = false;
+          submitButton.style.opacity = '1';
+          submitButton.style.cursor = 'pointer';
+          submitButton.innerHTML = originalButtonText;
+
+          document.getElementById('keywords-loading').style.display = 'none';
+        }
+      });
+    }
+
+    // Display keyword results
+    let allKeywords = [];
+    let currentFilter = 'all';
+
+    function displayKeywordResults(keywords) {
+      allKeywords = keywords;
+      currentFilter = 'all';
+
+      // Reset filter buttons
+      document.querySelectorAll('.match-type-filter').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.background = 'white';
+        btn.style.color = 'var(--color-neutral-70)';
+        btn.style.borderColor = 'var(--color-neutral-30)';
+      });
+      document.querySelector('.match-type-filter[data-match-type="all"]').classList.add('active');
+      document.querySelector('.match-type-filter[data-match-type="all"]').style.background = '#00C2A8';
+      document.querySelector('.match-type-filter[data-match-type="all"]').style.color = 'white';
+      document.querySelector('.match-type-filter[data-match-type="all"]').style.borderColor = '#00C2A8';
+
+      filterAndRenderKeywords();
+
+      document.getElementById('keywords-results').style.display = 'block';
+    }
+
+    function filterAndRenderKeywords() {
+      const filteredKeywords = currentFilter === 'all'
+        ? allKeywords
+        : allKeywords.filter(k => k.match_type === currentFilter);
+
+      document.getElementById('keywords-count').textContent = filteredKeywords.length;
+
+      const keywordsList = document.getElementById('keywords-list');
+      keywordsList.innerHTML = filteredKeywords.map((keyword, index) => `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-12) var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20);">
+          <span style="font-size: 0.9375rem; color: var(--color-neutral-90); flex: 1;">${keyword.keyword}</span>
+          <div style="display: flex; align-items: center; gap: var(--spacing-12);">
+            <span style="padding: 4px 8px; background: ${getMatchTypeColor(keyword.match_type)}; color: white; border-radius: var(--radius-small); font-size: 0.75rem; font-weight: 600;">
+              ${keyword.match_type}
+            </span>
+            <button
+              onclick="deleteKeyword('${keyword.keyword}', '${keyword.match_type}')"
+              style="padding: 6px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
+              onmouseover="this.style.background='#FFCCCC'"
+              onmouseout="this.style.background='#FFE6E6'"
+              title="Delete keyword"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getMatchTypeColor(matchType) {
+      switch(matchType) {
+        case 'BROAD': return '#2196F3';
+        case 'PHRASE': return '#FF9800';
+        case 'EXACT': return '#4CAF50';
+        default: return '#9E9E9E';
+      }
+    }
+
+    // Handle filter button clicks
+    document.querySelectorAll('.match-type-filter').forEach(button => {
+      button.addEventListener('click', function() {
+        currentFilter = this.getAttribute('data-match-type');
+
+        // Update button styles
+        document.querySelectorAll('.match-type-filter').forEach(btn => {
+          btn.classList.remove('active');
+          btn.style.background = 'white';
+          btn.style.color = 'var(--color-neutral-70)';
+          btn.style.borderColor = 'var(--color-neutral-30)';
+        });
+
+        this.classList.add('active');
+        this.style.background = '#00C2A8';
+        this.style.color = 'white';
+        this.style.borderColor = '#00C2A8';
+
+        filterAndRenderKeywords();
+      });
+    });
+
+    // Global function to delete a keyword
+    window.deleteKeyword = function(keyword, matchType) {
+      if (!confirm(`Delete keyword "${keyword}" (${matchType})?`)) {
+        return;
+      }
+
+      // Remove from allKeywords array
+      allKeywords = allKeywords.filter(k => !(k.keyword === keyword && k.match_type === matchType));
+
+      // Re-render
+      filterAndRenderKeywords();
+
+      // Show success message
+      const successMsg = document.createElement('div');
+      successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
+      successMsg.textContent = `✓ Keyword "${keyword}" deleted`;
+      document.body.appendChild(successMsg);
+
+      setTimeout(() => {
+        successMsg.remove();
+      }, 3000);
+    };
+
+    // Global function to export keywords as CSV
+    window.exportKeywordsAsCSV = function() {
+      if (allKeywords.length === 0) {
+        alert('No keywords to export');
+        return;
+      }
+
+      // Get currently filtered keywords
+      const keywordsToExport = currentFilter === 'all'
+        ? allKeywords
+        : allKeywords.filter(k => k.match_type === currentFilter);
+
+      // Create CSV content
+      let csvContent = 'Keyword,Match Type\n';
+      keywordsToExport.forEach(keyword => {
+        // Escape commas and quotes in keyword text
+        const escapedKeyword = keyword.keyword.replace(/"/g, '""');
+        csvContent += `"${escapedKeyword}","${keyword.match_type}"\n`;
+      });
+
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', `keywords_${currentFilter}_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Show success message
+      const successMsg = document.createElement('div');
+      successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
+      successMsg.textContent = `✓ Exported ${keywordsToExport.length} keywords as CSV`;
+      document.body.appendChild(successMsg);
+
+      setTimeout(() => {
+        successMsg.remove();
+      }, 3000);
+    };
+
+    // Global function to export keywords as Excel
+    window.exportKeywordsAsExcel = function() {
+      if (allKeywords.length === 0) {
+        alert('No keywords to export');
+        return;
+      }
+
+      // Get currently filtered keywords
+      const keywordsToExport = currentFilter === 'all'
+        ? allKeywords
+        : allKeywords.filter(k => k.match_type === currentFilter);
+
+      // Create HTML table for Excel
+      let tableHTML = '<table><thead><tr><th>Keyword</th><th>Match Type</th></tr></thead><tbody>';
+      keywordsToExport.forEach(keyword => {
+        tableHTML += `<tr><td>${keyword.keyword}</td><td>${keyword.match_type}</td></tr>`;
+      });
+      tableHTML += '</tbody></table>';
+
+      // Create blob with Excel MIME type
+      const blob = new Blob([tableHTML], { type: 'application/vnd.ms-excel' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', `keywords_${currentFilter}_${currentFilter}_${new Date().toISOString().split('T')[0]}.xls`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Show success message
+      const successMsg = document.createElement('div');
+      successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2196F3; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
+      successMsg.textContent = `✓ Exported ${keywordsToExport.length} keywords as Excel`;
+      document.body.appendChild(successMsg);
+
+      setTimeout(() => {
+        successMsg.remove();
+      }, 3000);
+    };
 
     // When campaign is selected, populate ad group dropdown
     const campaignNameSelect = document.getElementById('config-campaign-name');
