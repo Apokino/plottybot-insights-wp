@@ -1198,6 +1198,84 @@ document.addEventListener('DOMContentLoaded', function() {
   checkCreateAdsUser();
 });
 
+// Global function to refresh account dropdowns across all tabs
+window.refreshAccountDropdowns = async function(userId = null) {
+  userId = userId || currentUserId;
+
+  if (!userId) return;
+
+  try {
+    // Fetch accounts from API
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: userId
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.data && data.data.account_names) {
+      const accounts = data.data.account_names;
+
+      // Update Campaign Configuration dropdown
+      const campaignAccountSelect = document.getElementById('campaign-account');
+      if (campaignAccountSelect) {
+        const currentValue = campaignAccountSelect.value;
+        campaignAccountSelect.innerHTML = '<option value="">Select an account...</option>';
+
+        if (accounts.length === 0) {
+          campaignAccountSelect.innerHTML = '<option value="">No accounts found</option>';
+          campaignAccountSelect.disabled = true;
+        } else {
+          accounts.forEach(account => {
+            const option = document.createElement('option');
+            option.value = account;
+            option.textContent = account;
+            campaignAccountSelect.appendChild(option);
+          });
+          campaignAccountSelect.disabled = false;
+
+          // Restore previous selection if still valid
+          if (accounts.includes(currentValue)) {
+            campaignAccountSelect.value = currentValue;
+          }
+        }
+      }
+
+      // Update Optimization Schedule dropdown
+      const scheduleAccountSelect = document.getElementById('schedule-account');
+      if (scheduleAccountSelect) {
+        const currentValue = scheduleAccountSelect.value;
+        scheduleAccountSelect.innerHTML = '<option value="">Select an account...</option>';
+
+        accounts.forEach(account => {
+          const option = document.createElement('option');
+          option.value = account;
+          option.textContent = account;
+          scheduleAccountSelect.appendChild(option);
+        });
+
+        // Restore previous selection if still valid
+        if (accounts.includes(currentValue)) {
+          scheduleAccountSelect.value = currentValue;
+        }
+      }
+
+      // Update global accounts data for optimization schedule
+      if (window.currentAccountsData) {
+        window.currentAccountsData = data;
+      }
+    }
+  } catch (error) {
+    console.error('Error refreshing account dropdowns:', error);
+  }
+};
+
 // Global function for loading KDP accounts (accessible from global scope)
 window.loadKDPAccounts = async function(userId = null) {
   // Use current WordPress user ID if no userId provided
@@ -1253,12 +1331,9 @@ window.loadKDPAccounts = async function(userId = null) {
         listEl.innerHTML = accounts.map(accountName => `
           <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
             <div>
-              <h3 style="margin: 0 0 var(--spacing-8) 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
+              <h3 style="margin: 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
                 ${accountName}
               </h3>
-              <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                User ID: ${userId}
-              </p>
             </div>
             <div style="display: flex; gap: var(--spacing-12);">
               <button
@@ -1273,6 +1348,9 @@ window.loadKDPAccounts = async function(userId = null) {
           </div>
         `).join('');
       }
+
+      // Refresh account dropdowns in other tabs after loading accounts list
+      await window.refreshAccountDropdowns(userId);
     } else {
       throw new Error(data.data?.message || 'Failed to load accounts');
     }
@@ -1495,8 +1573,13 @@ document.addEventListener('DOMContentLoaded', function() {
             successMessage.remove();
           }, 3000);
 
-          // Reload accounts list using currentUserId
+          // Reload accounts list using currentUserId (this also refreshes dropdowns)
           window.loadKDPAccounts(currentUserId);
+
+          // Also refresh optimization schedules if they're loaded
+          if (window.loadOptimizationSchedules) {
+            window.loadOptimizationSchedules(currentUserId);
+          }
         } else {
           // Error from API
           console.error('API returned error:', data);
@@ -2894,10 +2977,20 @@ async function deleteKDPAccount(userId, accountName) {
     // Always reload accounts list regardless of response
     // The account will disappear if deletion was successful
     window.loadKDPAccounts(userId);
+
+    // Also refresh optimization schedules if they're loaded
+    if (window.loadOptimizationSchedules) {
+      window.loadOptimizationSchedules(userId);
+    }
   } catch (error) {
     console.error('Error deleting KDP account:', error);
     // Still reload the list to reflect actual state
     window.loadKDPAccounts(userId);
+
+    // Also refresh optimization schedules if they're loaded
+    if (window.loadOptimizationSchedules) {
+      window.loadOptimizationSchedules(userId);
+    }
   }
 }
 
