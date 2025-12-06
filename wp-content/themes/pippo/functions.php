@@ -1803,29 +1803,15 @@ if (!function_exists('toggle_optimization_handler')) {
         // Get POST data
         $payload = json_decode(file_get_contents('php://input'), true);
 
-        if (!$payload || !isset($payload['user_id']) || !isset($payload['job_name']) || !isset($payload['active'])) {
-            wp_send_json_error(['message' => 'Missing required fields'], 400);
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['kdp_profile']) || !isset($payload['active'])) {
+            wp_send_json_error(['message' => 'Missing required fields: user_id, kdp_profile, and active'], 400);
             wp_die();
         }
 
         $user_id = sanitize_text_field($payload['user_id']);
-        $job_name = sanitize_text_field($payload['job_name']);
+        $kdp_profile = sanitize_text_field($payload['kdp_profile']);
         $active = (bool) $payload['active'];
 
-        // Extract kdp_profile from job_name
-        // Job name format: "stefano-KDP-5-US" or "user-account-region"
-        // We need to extract account and region to build kdp_profile as "account-region"
-        $parts = explode('-', $job_name);
-
-        if (count($parts) < 3) {
-            wp_send_json_error(['message' => 'Invalid job name format'], 400);
-            wp_die();
-        }
-
-        // Remove the first element (user_id) and join the rest
-        // For "stefano-KDP-5-US", we want "KDP-5-US"
-        array_shift($parts); // Remove user_id
-        $kdp_profile = implode('-', $parts);
 
         // Build API URL - using POST to toggle endpoint
         $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimisation-schedule/toggle';
@@ -1886,28 +1872,13 @@ if (!function_exists('delete_optimization_handler')) {
         // Get POST data
         $payload = json_decode(file_get_contents('php://input'), true);
 
-        if (!$payload || !isset($payload['user_id']) || !isset($payload['job_name'])) {
-            wp_send_json_error(['message' => 'Missing required fields'], 400);
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['kdp_profile'])) {
+            wp_send_json_error(['message' => 'Missing required fields: user_id and kdp_profile'], 400);
             wp_die();
         }
 
         $user_id = sanitize_text_field($payload['user_id']);
-        $job_name = sanitize_text_field($payload['job_name']);
-
-        // Extract kdp_profile from job_name
-        // Job name format: "stefano-KDP-5-US" or "user-account-region"
-        // We need to extract account and region to build kdp_profile as "account-region"
-        $parts = explode('-', $job_name);
-
-        if (count($parts) < 3) {
-            wp_send_json_error(['message' => 'Invalid job name format'], 400);
-            wp_die();
-        }
-
-        // Remove the first element (user_id) and join the rest
-        // For "stefano-KDP-5-US", we want "KDP-5-US"
-        array_shift($parts); // Remove user_id
-        $kdp_profile = implode('-', $parts);
+        $kdp_profile = sanitize_text_field($payload['kdp_profile']);
 
         // Build API URL and payload
         $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimisation-schedule';
@@ -2313,6 +2284,120 @@ if (!function_exists('update_campaign_config_handler')) {
         } else {
             wp_send_json_error([
                 'message' => 'Failed to update configuration',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for getting optimization runs for an account
+add_action('wp_ajax_get_optimization_runs', 'get_optimization_runs_handler');
+add_action('wp_ajax_nopriv_get_optimization_runs', 'get_optimization_runs_handler');
+
+if (!function_exists('get_optimization_runs_handler')) {
+    function get_optimization_runs_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['account_name'])) {
+            wp_send_json_error(['message' => 'Missing required fields: user_id and account_name'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+        $account_name = sanitize_text_field($payload['account_name']);
+
+        // Build API URL
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimise/logs/' . urlencode($user_id) . '/' . urlencode($account_name);
+
+        $response = wp_remote_get($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error fetching optimization runs: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success($response_data);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to fetch optimization runs',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for getting run details/logs
+add_action('wp_ajax_get_run_details', 'get_run_details_handler');
+add_action('wp_ajax_nopriv_get_run_details', 'get_run_details_handler');
+
+if (!function_exists('get_run_details_handler')) {
+    function get_run_details_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['run_id'])) {
+            wp_send_json_error(['message' => 'Missing required fields: user_id and run_id'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+        $run_id = sanitize_text_field($payload['run_id']);
+
+        // Build API URL
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimise/logs/run/' . urlencode($user_id) . '/' . urlencode($run_id);
+
+        $response = wp_remote_get($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error fetching run details: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success($response_data);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to fetch run details',
                 'status' => $status_code,
                 'response' => $body
             ], $status_code);

@@ -562,41 +562,6 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                     </div>
                   </div>
 
-                  <!-- Royalties and Book Price -->
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-20);">
-                    <div>
-                      <label for="config-royalties" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                        Royalties <span style="color: #FF6B6B;">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        id="config-royalties"
-                        name="royalties"
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        required
-                        style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
-                      />
-                    </div>
-
-                    <div>
-                      <label for="config-book-price" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                        Book Price <span style="color: #FF6B6B;">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        id="config-book-price"
-                        name="book_price"
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        required
-                        style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
-                      />
-                    </div>
-                  </div>
-
                   <!-- Bid Update Strategy -->
                   <div>
                     <label for="config-bid-strategy" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
@@ -614,40 +579,66 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                     </select>
                   </div>
 
-                  <!-- Target ACOS and TOSIS -->
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-20);">
-                    <div>
-                      <label for="config-target-acos" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                        Target ACOS (%) <span style="color: #FF6B6B;">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        id="config-target-acos"
-                        name="target_acos"
-                        step="0.1"
-                        min="0"
-                        max="100"
-                        placeholder="0.0"
-                        required
-                        style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
-                      />
-                    </div>
+                  <!-- Target TOSIS -->
+                  <div>
+                    <label for="config-target-tosis" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                      Target TOSIS (%) <span style="color: #FF6B6B;">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      id="config-target-tosis"
+                      name="target_tosis"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      placeholder="0.0"
+                      required
+                      style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
+                    />
+                  </div>
 
-                    <div>
-                      <label for="config-target-tosis" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                        Target TOSIS (%) <span style="color: #FF6B6B;">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        id="config-target-tosis"
-                        name="target_tosis"
-                        step="0.1"
-                        min="0"
-                        max="100"
-                        placeholder="0.0"
-                        required
-                        style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
-                      />
+                  <!-- Royalties and Book Price (Optional but must be provided together) -->
+                  <div style="background: var(--color-neutral-05); padding: var(--spacing-20); border-radius: var(--radius-medium); border: 1px solid var(--color-neutral-20);">
+                    <div style="margin-bottom: var(--spacing-12);">
+                      <p style="font-weight: 600; color: var(--color-neutral-90); font-size: 0.875rem; margin: 0 0 var(--spacing-4) 0;">
+                        Royalties & Book Price (Optional)
+                      </p>
+                      <p style="font-size: 0.75rem; color: var(--color-neutral-60); margin: 0;">
+                        If you provide one, you must provide both
+                      </p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-20);">
+                      <div>
+                        <label for="config-royalties" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                          Royalties
+                        </label>
+                        <input
+                          type="number"
+                          id="config-royalties"
+                          name="royalties"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
+                        />
+                        <p id="config-royalties-error" style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: #FF6B6B; display: none;"></p>
+                      </div>
+
+                      <div>
+                        <label for="config-book-price" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                          Book Price
+                        </label>
+                        <input
+                          type="number"
+                          id="config-book-price"
+                          name="book_price"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
+                        />
+                        <p id="config-book-price-error" style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: #FF6B6B; display: none;"></p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1835,14 +1826,14 @@ window.loadOptimizationSchedules = async function(userId = null) {
                 </div>
               </div>
 
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-16);">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-16); margin-bottom: var(--spacing-16);">
                 <!-- Toggle Switch with Status -->
                 <div style="display: flex; align-items: center; gap: var(--spacing-12);">
                   <label style="position: relative; display: inline-block; width: 54px; height: 28px; cursor: pointer;">
                     <input
                       type="checkbox"
                       ${job.active ? 'checked' : ''}
-                      onchange="toggleOptimization('${userId}', '${job.job_name}', ${job.active})"
+                      onchange="toggleOptimization('${userId}', '${job.account_id}-${job.region}', ${job.active})"
                       style="opacity: 0; width: 0; height: 0;"
                     />
                     <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: ${job.active ? '#00C2A8' : '#E0E0E0'}; transition: 0.3s; border-radius: 28px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
@@ -1854,16 +1845,31 @@ window.loadOptimizationSchedules = async function(userId = null) {
                   </span>
                 </div>
 
-                <!-- Delete Button -->
-                <button
-                  onclick="deleteOptimization('${userId}', '${job.job_name}')"
-                  style="padding: 10px 20px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.9375rem;"
-                  onmouseover="this.style.background='#FFCCCC'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
-                  onmouseout="this.style.background='#FFE6E6'; this.style.transform='translateY(0)'; this.style.boxShadow='none';"
-                >
-                  Delete
-                </button>
+                <div style="display: flex; gap: var(--spacing-12);">
+                  <!-- View Optimization Runs Button -->
+                  <button
+                    onclick="window.fetchOptimizationRuns('${userId}', '${job.account_id}', 'schedule-runs-${job.account_id}-${job.region}')"
+                    style="padding: 10px 20px; background: #E3F9F5; color: #00A890; border: 1px solid #00C2A8; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.9375rem;"
+                    onmouseover="this.style.background='#D1F4EC'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
+                    onmouseout="this.style.background='#E3F9F5'; this.style.transform='translateY(0)'; this.style.boxShadow='none';"
+                  >
+                    View Optimization Runs
+                  </button>
+
+                  <!-- Delete Button -->
+                  <button
+                    onclick="deleteOptimization('${userId}', '${job.account_id}-${job.region}')"
+                    style="padding: 10px 20px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.9375rem;"
+                    onmouseover="this.style.background='#FFCCCC'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
+                    onmouseout="this.style.background='#FFE6E6'; this.style.transform='translateY(0)'; this.style.boxShadow='none';"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
+
+              <!-- Optimization Runs Container -->
+              <div id="schedule-runs-${job.account_id}-${job.region}" style="display: none; margin-top: var(--spacing-16); padding: var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-30);"></div>
             </div>
           `}).join('');
       }
@@ -2603,16 +2609,42 @@ document.addEventListener('DOMContentLoaded', function() {
         const region = campaignRegionSelect.value;
         const selectedCampaignName = document.getElementById('config-campaign-name').value;
         const selectedAdGroupId = document.getElementById('config-ad-group').value;
-        const royalties = parseFloat(document.getElementById('config-royalties').value);
-        const bookPrice = parseFloat(document.getElementById('config-book-price').value);
+        const royaltiesInput = document.getElementById('config-royalties').value.trim();
+        const bookPriceInput = document.getElementById('config-book-price').value.trim();
         const bidUpdateStrategy = document.getElementById('config-bid-strategy').value;
-        const targetAcos = parseFloat(document.getElementById('config-target-acos').value);
         const targetTosis = parseFloat(document.getElementById('config-target-tosis').value);
+
+        const royaltiesError = document.getElementById('config-royalties-error');
+        const bookPriceError = document.getElementById('config-book-price-error');
 
         if (!selectedAdGroupId) {
           alert('Please select an ad group');
           return;
         }
+
+        // Validate royalties and book price - must be provided together or both empty
+        const hasRoyalties = royaltiesInput !== '';
+        const hasBookPrice = bookPriceInput !== '';
+
+        // Hide errors first
+        royaltiesError.style.display = 'none';
+        bookPriceError.style.display = 'none';
+
+        if (hasRoyalties !== hasBookPrice) {
+          if (!hasRoyalties) {
+            royaltiesError.textContent = 'Royalties is required when Book Price is provided';
+            royaltiesError.style.display = 'block';
+          }
+          if (!hasBookPrice) {
+            bookPriceError.textContent = 'Book Price is required when Royalties is provided';
+            bookPriceError.style.display = 'block';
+          }
+          return;
+        }
+
+        // Parse values if provided
+        const royalties = hasRoyalties ? parseFloat(royaltiesInput) : null;
+        const bookPrice = hasBookPrice ? parseFloat(bookPriceInput) : null;
 
         // Build kdp_profile
         const kdpProfile = account + '-' + region;
@@ -2628,18 +2660,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Build configuration array - single entry for selected ad group
-        const configuration = [{
+        const configObj = {
           asin: selectedCampaign.asin || [],
           campaign_name: selectedCampaign.campaignName,
           campaign_id: selectedCampaign.campaignId,
           ad_group_id: selectedCampaign.adGroupId,
           ad_group_name: selectedCampaign.adGroupName || null,
-          royalties: royalties,
-          book_price: bookPrice,
           bid_update_strategy: bidUpdateStrategy,
-          target_acos: targetAcos,
           target_tosis: targetTosis
-        }];
+        };
+
+        // Add optional fields only if provided
+        if (royalties !== null) {
+          configObj.royalties = royalties;
+        }
+        if (bookPrice !== null) {
+          configObj.book_price = bookPrice;
+        }
+
+        const configuration = [configObj];
 
         // Build final payload
         const payload = {
@@ -2788,20 +2827,8 @@ function renderConfigurationsList(userId, kdpProfile) {
       </div>
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-12); padding: var(--spacing-12); background: var(--color-neutral-05); border-radius: var(--radius-small);">
         <div>
-          <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Royalties</p>
-          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">$${config.royalties}</p>
-        </div>
-        <div>
-          <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Book Price</p>
-          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">$${config.book_price}</p>
-        </div>
-        <div>
           <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Strategy</p>
           <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.bid_update_strategy}</p>
-        </div>
-        <div>
-          <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Target ACOS</p>
-          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.target_acos}%</p>
         </div>
         <div>
           <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Target TOSIS</p>
@@ -2812,6 +2839,18 @@ function renderConfigurationsList(userId, kdpProfile) {
           <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.asin ? config.asin.join(', ') : 'N/A'}</p>
         </div>
       </div>
+      ${config.royalties && config.book_price ? `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); padding: var(--spacing-12); margin-top: var(--spacing-8); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-20); border-radius: var(--radius-small);">
+        <div>
+          <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Royalties</p>
+          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">$${config.royalties}</p>
+        </div>
+        <div>
+          <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Book Price</p>
+          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">$${config.book_price}</p>
+        </div>
+      </div>
+      ` : ''}
     </div>
   `;
     }).join('');
@@ -2849,10 +2888,9 @@ async function editCampaignConfig(adGroupId) {
   document.getElementById('config-editing-ad-group-id').value = adGroupId;
 
   // Populate form fields
-  document.getElementById('config-royalties').value = config.royalties;
-  document.getElementById('config-book-price').value = config.book_price;
+  document.getElementById('config-royalties').value = config.royalties || '';
+  document.getElementById('config-book-price').value = config.book_price || '';
   document.getElementById('config-bid-strategy').value = config.bid_update_strategy;
-  document.getElementById('config-target-acos').value = config.target_acos;
   document.getElementById('config-target-tosis').value = config.target_tosis;
 
   // Select campaign - this will trigger the ad group dropdown population
@@ -2959,6 +2997,318 @@ async function deleteCampaignConfig(userId, kdpProfile, adGroupId) {
   }
 }
 
+// Global function to toggle run details display
+window.toggleRunDetails = async function(userId, runId, containerId) {
+  const container = document.getElementById(containerId);
+
+  if (!container) {
+    console.error('Run details container not found:', containerId);
+    return;
+  }
+
+  // If already visible, hide it
+  if (container.style.display === 'block') {
+    container.style.display = 'none';
+    return;
+  }
+
+  // Show loading state
+  container.style.display = 'block';
+  container.innerHTML = '<div style="text-align: center; padding: var(--spacing-12);"><div style="display: inline-block; width: 20px; height: 20px; border: 2px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: var(--spacing-8); color: var(--color-neutral-60); font-size: 0.75rem;">Loading run details...</p></div>';
+
+  try {
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_run_details', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        run_id: runId
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.data && Array.isArray(data.data)) {
+      const logs = data.data;
+
+      if (logs.length === 0) {
+        container.innerHTML = '<p style="margin: 0; color: var(--color-neutral-60); font-size: 0.75rem;">No actions found for this run.</p>';
+        return;
+      }
+
+      // Group logs by campaign_name -> adgroup_id -> action_type
+      const groupedLogs = {};
+
+      logs.forEach(log => {
+        const campaignName = log.campaign_name || 'Unknown Campaign';
+        const adgroupId = log.adgroup_id || 'unknown';
+        const actionType = log.action_type || 0;
+
+        if (!groupedLogs[campaignName]) {
+          groupedLogs[campaignName] = {};
+        }
+        if (!groupedLogs[campaignName][adgroupId]) {
+          groupedLogs[campaignName][adgroupId] = {};
+        }
+        if (!groupedLogs[campaignName][adgroupId][actionType]) {
+          groupedLogs[campaignName][adgroupId][actionType] = [];
+        }
+
+        groupedLogs[campaignName][adgroupId][actionType].push(log);
+      });
+
+      // Build HTML
+      let html = '<div style="display: grid; gap: var(--spacing-12);">';
+
+      // Sort campaign names alphabetically
+      const sortedCampaigns = Object.keys(groupedLogs).sort();
+
+      sortedCampaigns.forEach((campaignName, campaignIndex) => {
+        const adgroups = groupedLogs[campaignName];
+        const campaignId = `campaign-${runId}-${campaignIndex}`;
+
+        // Count total actions in this campaign
+        let totalActions = 0;
+        Object.keys(adgroups).forEach(adgroupId => {
+          Object.keys(adgroups[adgroupId]).forEach(actionType => {
+            totalActions += adgroups[adgroupId][actionType].length;
+          });
+        });
+
+        html += `
+          <div style="background: white; border-radius: var(--radius-small); border: 1px solid var(--color-neutral-30);">
+            <div
+              onclick="document.getElementById('${campaignId}').style.display = document.getElementById('${campaignId}').style.display === 'none' ? 'block' : 'none'; event.currentTarget.querySelector('.chevron').style.transform = document.getElementById('${campaignId}').style.display === 'none' ? 'rotate(0deg)' : 'rotate(180deg)';"
+              style="padding: var(--spacing-12); cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.2s;"
+              onmouseover="this.style.background='var(--color-neutral-05)';"
+              onmouseout="this.style.background='white';"
+            >
+              <h6 style="margin: 0; font-size: 0.875rem; font-weight: 700; color: var(--color-primary-60); display: flex; align-items: center; gap: var(--spacing-6);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+                ${campaignName}
+                <span style="font-size: 0.75rem; font-weight: 500; color: var(--color-neutral-60);">(${totalActions} action${totalActions !== 1 ? 's' : ''})</span>
+              </h6>
+              <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s; transform: rotate(0deg);">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+            <div id="${campaignId}" style="display: none; padding: 0 var(--spacing-12) var(--spacing-12) var(--spacing-12); display: none;">
+              <div style="display: grid; gap: var(--spacing-10);">
+        `;
+
+        // Sort adgroup IDs
+        const sortedAdgroups = Object.keys(adgroups).sort();
+
+        sortedAdgroups.forEach((adgroupId, adgroupIndex) => {
+          const actionTypes = adgroups[adgroupId];
+          const adgroupId_unique = `adgroup-${runId}-${campaignIndex}-${adgroupIndex}`;
+
+          // Count actions in this ad group
+          let adgroupActions = 0;
+          Object.keys(actionTypes).forEach(actionType => {
+            adgroupActions += actionTypes[actionType].length;
+          });
+
+          html += `
+            <div style="background: var(--color-neutral-05); border-radius: var(--radius-small); border-left: 3px solid var(--color-primary-40);">
+              <div
+                onclick="document.getElementById('${adgroupId_unique}').style.display = document.getElementById('${adgroupId_unique}').style.display === 'none' ? 'block' : 'none'; event.currentTarget.querySelector('.chevron').style.transform = document.getElementById('${adgroupId_unique}').style.display === 'none' ? 'rotate(0deg)' : 'rotate(180deg)';"
+                style="padding: var(--spacing-8); cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.2s;"
+                onmouseover="this.style.background='rgba(255,255,255,0.5)';"
+                onmouseout="this.style.background='transparent';"
+              >
+                <div style="font-size: 0.75rem; font-weight: 600; color: var(--color-neutral-70);">
+                  Ad Group ID: ${adgroupId}
+                  <span style="font-weight: 500; color: var(--color-neutral-60);">(${adgroupActions} action${adgroupActions !== 1 ? 's' : ''})</span>
+                </div>
+                <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s; transform: rotate(0deg);">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+              <div id="${adgroupId_unique}" style="display: none; padding: 0 var(--spacing-8) var(--spacing-8) var(--spacing-8);">
+                <div style="display: grid; gap: var(--spacing-6);">
+          `;
+
+          // Sort action types - prioritize TURN_OFF (3) and LOWER_BID (2) first, then RAISE_BID (1)
+          const sortedActionTypes = Object.keys(actionTypes).sort((a, b) => {
+            const aType = parseInt(a);
+            const bType = parseInt(b);
+
+            // Priority order: TURN_OFF (3) = highest priority (0), LOWER_BID (2) = medium (1), RAISE_BID (1) = lowest (2)
+            const getPriority = (type) => {
+              if (type === 3) return 0; // TURN_OFF - highest priority
+              if (type === 2) return 1; // LOWER_BID - medium priority
+              if (type === 1) return 2; // RAISE_BID - lowest priority
+              return 999; // Unknown types go last
+            };
+
+            return getPriority(aType) - getPriority(bType);
+          });
+
+          sortedActionTypes.forEach(actionType => {
+            const actions = actionTypes[actionType];
+
+            // Display each action's description with color-coded borders
+            actions.forEach(action => {
+              // Determine color based on action_type
+              // RAISE_BID = 1 (green), LOWER_BID = 2 (orange), TURN_OFF = 3 (red)
+              let borderColor = 'var(--color-neutral-20)';
+              let backgroundColor = 'white';
+
+              if (action.action_type === 1) {
+                // Raise bid - green
+                borderColor = '#10B981';
+                backgroundColor = '#F0FDF4';
+              } else if (action.action_type === 2) {
+                // Lower bid - orange
+                borderColor = '#F59E0B';
+                backgroundColor = '#FFFBEB';
+              } else if (action.action_type === 3) {
+                // Turn off - red
+                borderColor = '#EF4444';
+                backgroundColor = '#FEF2F2';
+              }
+
+              html += `
+                <div style="padding: var(--spacing-8); background: ${backgroundColor}; border-radius: var(--radius-small); font-size: 0.75rem; line-height: 1.5; color: var(--color-neutral-80); border: 1px solid var(--color-neutral-20); border-left: 4px solid ${borderColor};">
+                  ${action.description}
+                </div>
+              `;
+            });
+          });
+
+          html += `
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      html += '</div>';
+
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<p style="margin: 0; color: #FF6B6B; font-size: 0.75rem;">Failed to fetch run details. Please try again.</p>';
+    }
+  } catch (error) {
+    console.error('Error fetching run details:', error);
+    container.innerHTML = '<p style="margin: 0; color: #FF6B6B; font-size: 0.75rem;">Error fetching run details. Please try again.</p>';
+  }
+};
+
+// Global function to fetch and display optimization runs for an account
+window.fetchOptimizationRuns = async function(userId, accountName, containerId = null) {
+  // Use provided containerId or default to runs-${accountName}
+  const containerIdToUse = containerId || `runs-${accountName}`;
+  const runsDiv = document.getElementById(containerIdToUse);
+
+  if (!runsDiv) {
+    console.error('Runs container not found:', containerIdToUse);
+    return;
+  }
+
+  // Toggle visibility - if already visible, hide it
+  if (runsDiv.style.display === 'block') {
+    runsDiv.style.display = 'none';
+    return;
+  }
+
+  // Show loading state
+  runsDiv.style.display = 'block';
+  runsDiv.innerHTML = '<div style="text-align: center; padding: var(--spacing-16);"><div style="display: inline-block; width: 24px; height: 24px; border: 3px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: var(--spacing-8); color: var(--color-neutral-60); font-size: 0.875rem;">Loading optimization runs...</p></div>';
+
+  try {
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_optimization_runs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        account_name: accountName
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.data) {
+      const runs = data.data.runs || [];
+      const count = data.data.count || 0;
+
+      if (runs.length === 0) {
+        runsDiv.innerHTML = '<p style="margin: 0; color: var(--color-neutral-60); font-size: 0.875rem;">No optimization runs found for this account.</p>';
+      } else {
+        // Sort runs by datetime (most recent first)
+        runs.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+
+        runsDiv.innerHTML = `
+          <div style="margin-bottom: var(--spacing-12);">
+            <h4 style="margin: 0 0 var(--spacing-12) 0; font-size: 0.875rem; font-weight: 700; color: var(--color-neutral-90);">
+              Optimization Runs (${count} total)
+            </h4>
+          </div>
+          <div style="display: grid; gap: var(--spacing-6);">
+            ${runs.map((run, index) => {
+              const date = new Date(run.datetime);
+              const formattedDate = date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+              });
+
+              const runContainerId = `run-details-${accountName}-${run.region}-${index}`;
+
+              return `
+                <div>
+                  <div
+                    data-kdp-profile="${run.kdp_profile}"
+                    data-run-id="${run.run_id}"
+                    onclick="window.toggleRunDetails('${userId}', '${run.run_id}', '${runContainerId}')"
+                    style="padding: var(--spacing-10); background: white; border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small); display: flex; align-items: center; gap: var(--spacing-10); cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.background='var(--color-neutral-05)'; this.style.borderColor='var(--color-primary-60)';"
+                    onmouseout="this.style.background='white'; this.style.borderColor='var(--color-neutral-30)';"
+                  >
+                    <div style="width: 6px; height: 6px; background: #00C2A8; border-radius: 50%; flex-shrink: 0;"></div>
+                    <div style="font-size: 0.8125rem; color: var(--color-neutral-70); flex: 1;">
+                      ${formattedDate}
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                  <div id="${runContainerId}" style="display: none; margin-top: var(--spacing-8); padding: var(--spacing-12); background: var(--color-neutral-05); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small);"></div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+    } else {
+      runsDiv.innerHTML = '<p style="margin: 0; color: #FF6B6B; font-size: 0.875rem;">Failed to fetch optimization runs. Please try again.</p>';
+    }
+  } catch (error) {
+    console.error('Error fetching optimization runs:', error);
+    runsDiv.innerHTML = '<p style="margin: 0; color: #FF6B6B; font-size: 0.875rem;">Error fetching runs. Please try again.</p>';
+  }
+};
+
 // Global functions for account management
 async function deleteKDPAccount(userId, accountName) {
   try {
@@ -2995,9 +3345,8 @@ async function deleteKDPAccount(userId, accountName) {
 }
 
 // Global functions for optimization schedule management
-async function toggleOptimization(userId, jobName, currentlyActive) {
+async function toggleOptimization(userId, kdpProfile, currentlyActive) {
   const action = currentlyActive ? 'disable' : 'enable';
-
 
   try {
     const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=toggle_optimization', {
@@ -3008,7 +3357,7 @@ async function toggleOptimization(userId, jobName, currentlyActive) {
       },
       body: JSON.stringify({
         user_id: userId,
-        job_name: jobName,
+        kdp_profile: kdpProfile,
         active: !currentlyActive
       })
     });
@@ -3016,11 +3365,8 @@ async function toggleOptimization(userId, jobName, currentlyActive) {
     const data = await response.json();
 
     if (data.success) {
-      // Reload schedules (this will update the button state)
-      const scheduleUserIdInput = document.getElementById('schedule-user-id');
-      if (scheduleUserIdInput && scheduleUserIdInput.value) {
-        await window.loadOptimizationSchedules(scheduleUserIdInput.value);
-      }
+      // Reload schedules using current user ID (this will update the toggle state)
+      await window.loadOptimizationSchedules(currentUserId);
     } else {
       // Show error message
       const errorMessage = document.createElement('div');
@@ -3046,8 +3392,7 @@ async function toggleOptimization(userId, jobName, currentlyActive) {
   }
 }
 
-async function deleteOptimization(userId, jobName) {
-
+async function deleteOptimization(userId, kdpProfile) {
   try {
     const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=delete_optimization', {
       method: 'POST',
@@ -3057,28 +3402,39 @@ async function deleteOptimization(userId, jobName) {
       },
       body: JSON.stringify({
         user_id: userId,
-        job_name: jobName
+        kdp_profile: kdpProfile
       })
     });
 
     const data = await response.json();
 
     if (data.success) {
+      // Show success message
+      const successMessage = document.createElement('div');
+      successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
+      successMessage.textContent = '✓ Optimization deleted successfully';
+      document.body.appendChild(successMessage);
+
+      setTimeout(() => {
+        successMessage.remove();
+      }, 3000);
+
       // Reload schedules using current user ID
       await window.loadOptimizationSchedules(currentUserId);
     } else {
-      // Show error message
+      // Show error message with details
       const errorMessage = document.createElement('div');
       errorMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #FF6B6B; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
-      errorMessage.textContent = '✗ Failed to delete optimization';
+      errorMessage.textContent = '✗ Failed to delete optimization: ' + (data.data?.message || 'Unknown error');
       document.body.appendChild(errorMessage);
 
       setTimeout(() => {
         errorMessage.remove();
-      }, 3000);
+      }, 5000);
     }
   } catch (error) {
     console.error('Error deleting optimization:', error);
+
     // Show error message
     const errorMessage = document.createElement('div');
     errorMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #FF6B6B; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
