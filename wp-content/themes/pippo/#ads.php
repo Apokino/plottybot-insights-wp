@@ -4,9 +4,14 @@ get_header();
 
 // Check if user is logged in, if not redirect to login page
 if (!is_user_logged_in()) {
-    wp_redirect('https://plottybot.com/login');
+    wp_redirect('https://insights.plottybot.com/wp-login.php?loggedout=true');
     exit;
 }
+// Get browser language header safely
+$browser_lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2);
+
+// Normalize to IT or EN only
+$user_language = ($browser_lang === 'it') ? 'IT' : 'EN';
 
 // Get current WordPress user ID
 $current_user_id = get_current_user_id();
@@ -169,7 +174,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
               <!-- Fetch Authorization Code Button -->
               <div style="margin-bottom: var(--spacing-24); padding: var(--spacing-20); background: linear-gradient(135deg, #E3F9F5, #D1F4EC); border-radius: var(--radius-medium); border: 2px solid #00C2A8;">
                 <p style="margin: 0 0 var(--spacing-16) 0; color: var(--color-neutral-80); font-size: 0.9375rem; line-height: 1.6;">
-                  Click the button below to open Amazon authorization in a new tab. After authorizing, copy the code from the URL and paste it below.
+                  <strong>⚠️ Important:</strong> Before clicking the button below, make sure you are logged into <strong>amazon.com</strong> with the credentials of the KDP account you want to connect to Plottybot Ads. This ensures the correct authorization code is retrieved for that specific account.
                 </p>
                 <button
                   type="button"
@@ -190,7 +195,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
               <form id="add-kdp-account-form">
                 <div style="display: grid; gap: var(--spacing-24); margin-bottom: var(--spacing-24);">
 
-                  <!-- Authorization Code Input -->
+                  <!-- Authorization Code Input (Read-only) -->
                   <div>
                     <label for="kdp-auth-code" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
                       Authorization Code <span style="color: #FF6B6B;">*</span>
@@ -200,32 +205,43 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                       id="kdp-auth-code"
                       name="auth_code"
                       maxlength="20"
-                      placeholder="Enter 20-character authorization code"
+                      placeholder="Click 'Get Authorization Code' button above"
                       required
-                      style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s; font-family: 'Courier New', monospace; letter-spacing: 1px;"
+                      readonly
+                      style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s; font-family: 'Courier New', monospace; letter-spacing: 1px; background: var(--color-neutral-05); cursor: not-allowed;"
                     />
                     <p id="auth-code-error" style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: #FF6B6B; display: none;"></p>
                     <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                      Must be exactly 20 characters
+                      The authorization code will be filled automatically after authorization
                     </p>
                   </div>
 
-                  <!-- Account Name Input -->
+                  <!-- Account Name Dropdown -->
                   <div>
                     <label for="kdp-account-name" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
                       Account Name <span style="color: #FF6B6B;">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="kdp-account-name"
                       name="account_name"
-                      placeholder="e.g., my-main-account"
                       required
-                      style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s;"
-                    />
+                      style="width: 100%; padding: 12px 40px 12px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; font-weight: 500; color: #000; transition: border-color 0.2s; background-color: white; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 18px; line-height: normal; display: block; min-height: 44px;"
+                    >
+                      <option value="" style="color: #999;">Select an account name...</option>
+                      <option value="KDP-1" style="color: #000; background: white;">KDP-1</option>
+                      <option value="KDP-2" style="color: #000; background: white;">KDP-2</option>
+                      <option value="KDP-3" style="color: #000; background: white;">KDP-3</option>
+                      <option value="KDP-4" style="color: #000; background: white;">KDP-4</option>
+                      <option value="KDP-5" style="color: #000; background: white;">KDP-5</option>
+                      <option value="KDP-6" style="color: #000; background: white;">KDP-6</option>
+                      <option value="KDP-7" style="color: #000; background: white;">KDP-7</option>
+                      <option value="KDP-8" style="color: #000; background: white;">KDP-8</option>
+                      <option value="KDP-9" style="color: #000; background: white;">KDP-9</option>
+                      <option value="KDP-10" style="color: #000; background: white;">KDP-10</option>
+                    </select>
                     <p id="account-name-error" style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: #FF6B6B; display: none;"></p>
                     <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                      <strong>Step 3:</strong> Choose a unique name for this account. Only letters, numbers, and hyphens (-) allowed. No spaces.
+                      Select an available account name (unavailable names are greyed out)
                     </p>
                   </div>
                 </div>
@@ -1079,6 +1095,9 @@ const adsEnabled = <?php echo $ads_enabled ? 'true' : 'false'; ?>;
 // Global variable for current WordPress user ID
 const currentUserId = '<?php echo $current_user_id; ?>';
 
+// Global variable for user language preference
+const userLanguage = '<?php echo $user_language; ?>';
+
 // Global variables for campaign configuration
 let currentCampaigns = [];
 let currentConfigurations = [];
@@ -1342,6 +1361,9 @@ window.loadKDPAccounts = async function(userId = null) {
 
       // Refresh account dropdowns in other tabs after loading accounts list
       await window.refreshAccountDropdowns(userId);
+
+      // Update the account name dropdown to disable taken names
+      window.updateAccountNameDropdown(accounts);
     } else {
       throw new Error(data.data?.message || 'Failed to load accounts');
     }
@@ -1351,6 +1373,32 @@ window.loadKDPAccounts = async function(userId = null) {
     emptyEl.style.display = 'block';
     emptyEl.innerHTML = '<p style="color: #FF6B6B;">Failed to load accounts. Please try again.</p>';
   }
+};
+
+// Function to update account name dropdown based on existing accounts
+window.updateAccountNameDropdown = function(existingAccounts) {
+  const dropdown = document.getElementById('kdp-account-name');
+  if (!dropdown) return;
+
+  // Get all options except the first (placeholder)
+  const options = dropdown.querySelectorAll('option:not(:first-child)');
+
+  options.forEach(option => {
+    const accountName = option.value;
+    const isTaken = existingAccounts.includes(accountName);
+
+    if (isTaken) {
+      option.disabled = true;
+      option.style.color = '#999';
+      option.style.background = '#f5f5f5';
+      option.textContent = accountName + ' (Already in use)';
+    } else {
+      option.disabled = false;
+      option.style.color = '';
+      option.style.background = '';
+      option.textContent = accountName;
+    }
+  });
 };
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1453,24 +1501,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // Real-time validation for account name
-    accountNameInput.addEventListener('input', function() {
-      let value = this.value;
+    // Real-time validation for account name dropdown
+    accountNameInput.addEventListener('change', function() {
+      const value = this.value;
 
-      // Remove any characters that aren't letters, numbers, or hyphens
-      const cleanValue = value.replace(/[^a-zA-Z0-9-]/g, '');
-
-      if (value !== cleanValue) {
-        this.value = cleanValue;
-        accountNameError.textContent = 'Removed invalid characters (only letters, numbers, and hyphens allowed)';
-        accountNameError.style.display = 'block';
-        setTimeout(() => {
-          accountNameError.style.display = 'none';
-        }, 3000);
-      }
-
-      if (cleanValue.length > 0) {
+      if (value && value !== '') {
         this.style.borderColor = '#00C2A8';
+        accountNameError.style.display = 'none';
       } else {
         this.style.borderColor = 'var(--color-neutral-30)';
       }
@@ -1498,15 +1535,17 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       // Validate account name
-      if (accountName.length === 0) {
-        accountNameError.textContent = 'Account name is required';
+      if (!accountName || accountName === '') {
+        accountNameError.textContent = 'Please select an account name';
         accountNameError.style.display = 'block';
         accountNameInput.focus();
         return;
       }
 
-      if (!/^[a-zA-Z0-9-]+$/.test(accountName)) {
-        accountNameError.textContent = 'Account name can only contain letters, numbers, and hyphens';
+      // Check if the selected option is disabled (already taken)
+      const selectedOption = accountNameInput.querySelector(`option[value="${accountName}"]`);
+      if (selectedOption && selectedOption.disabled) {
+        accountNameError.textContent = 'This account name is already in use. Please select another.';
         accountNameError.style.display = 'block';
         accountNameInput.focus();
         return;
@@ -1848,7 +1887,7 @@ window.loadOptimizationSchedules = async function(userId = null) {
                 <div style="display: flex; gap: var(--spacing-12);">
                   <!-- View Optimization Runs Button -->
                   <button
-                    onclick="window.fetchOptimizationRuns('${userId}', '${job.account_id}', 'schedule-runs-${job.account_id}-${job.region}')"
+                    onclick="window.fetchOptimizationRuns('${userId}', '${job.account_id}', '${job.region}', 'schedule-runs-${job.account_id}-${job.region}')"
                     style="padding: 10px 20px; background: #E3F9F5; color: #00A890; border: 1px solid #00C2A8; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.9375rem;"
                     onmouseover="this.style.background='#D1F4EC'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
                     onmouseout="this.style.background='#E3F9F5'; this.style.transform='translateY(0)'; this.style.boxShadow='none';"
@@ -3025,7 +3064,8 @@ window.toggleRunDetails = async function(userId, runId, containerId) {
       },
       body: JSON.stringify({
         user_id: userId,
-        run_id: runId
+        run_id: runId,
+        language: userLanguage
       })
     });
 
@@ -3209,8 +3249,8 @@ window.toggleRunDetails = async function(userId, runId, containerId) {
   }
 };
 
-// Global function to fetch and display optimization runs for an account
-window.fetchOptimizationRuns = async function(userId, accountName, containerId = null) {
+// Global function to fetch and display optimization runs for an account and specific region
+window.fetchOptimizationRuns = async function(userId, accountName, region = null, containerId = null) {
   // Use provided containerId or default to runs-${accountName}
   const containerIdToUse = containerId || `runs-${accountName}`;
   const runsDiv = document.getElementById(containerIdToUse);
@@ -3246,8 +3286,15 @@ window.fetchOptimizationRuns = async function(userId, accountName, containerId =
     const data = await response.json();
 
     if (data.success && data.data) {
-      const runs = data.data.runs || [];
-      const count = data.data.count || 0;
+      let runs = data.data.runs || [];
+      const totalCount = data.data.count || 0;
+
+      // Filter runs by region if region parameter is provided
+      if (region) {
+        runs = runs.filter(run => run.region === region);
+      }
+
+      const count = runs.length;
 
       if (runs.length === 0) {
         runsDiv.innerHTML = '<p style="margin: 0; color: var(--color-neutral-60); font-size: 0.875rem;">No optimization runs found for this account.</p>';

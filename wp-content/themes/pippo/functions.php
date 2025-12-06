@@ -2371,9 +2371,10 @@ if (!function_exists('get_run_details_handler')) {
 
         $user_id = sanitize_text_field($payload['user_id']);
         $run_id = sanitize_text_field($payload['run_id']);
+        $language = isset($payload['language']) ? sanitize_text_field($payload['language']) : 'EN';
 
-        // Build API URL
-        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimise/logs/run/' . urlencode($user_id) . '/' . urlencode($run_id);
+        // Build API URL with language parameter
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimise/logs/run/' . urlencode($user_id) . '/' . urlencode($run_id) . '?language=' . urlencode($language);
 
         $response = wp_remote_get($api_url, [
             'headers' => [
