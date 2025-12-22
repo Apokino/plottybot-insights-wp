@@ -2407,6 +2407,76 @@ if (!function_exists('get_run_details_handler')) {
     }
 }
 
+// AJAX handler for getting suggested bids
+add_action('wp_ajax_get_suggested_bids', 'get_suggested_bids_handler');
+add_action('wp_ajax_nopriv_get_suggested_bids', 'get_suggested_bids_handler');
+
+if (!function_exists('get_suggested_bids_handler')) {
+    function get_suggested_bids_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['region']) || !isset($payload['targeting_expressions'])) {
+            wp_send_json_error(['message' => 'Missing required fields: region and targeting_expressions'], 400);
+            wp_die();
+        }
+
+        $region = sanitize_text_field($payload['region']);
+        $targeting_expressions = $payload['targeting_expressions'];
+
+        // Validate targeting expressions is an array
+        if (!is_array($targeting_expressions)) {
+            wp_send_json_error(['message' => 'targeting_expressions must be an array'], 400);
+            wp_die();
+        }
+
+        // Build API URL
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/sp/suggested-bids';
+
+        // Prepare API payload
+        $api_payload = [
+            'region' => $region,
+            'targeting_expressions' => $targeting_expressions
+        ];
+
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($api_payload),
+            'timeout' => 60,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error fetching suggested bids: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success($response_data);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to fetch suggested bids',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
 // AJAX handler for deleting campaign configuration
 add_action('wp_ajax_delete_campaign_config', 'delete_campaign_config_handler');
 add_action('wp_ajax_nopriv_delete_campaign_config', 'delete_campaign_config_handler');

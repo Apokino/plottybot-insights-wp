@@ -65,7 +65,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <line x1="3" y1="15" x2="21" y2="15"></line>
           </svg>
         </span>
-        <span>Campaign Configuration</span>
+        <span>⚠️ Campaign Configuration - WIP DO NOT TOUCH</span>
       </button>
 
       <!-- Create Campaign Nav Item -->
@@ -76,7 +76,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <circle cx="12" cy="12" r="10"></circle>
           </svg>
         </span>
-        <span>Create Campaign</span>
+        <span>⚠️ Create Campaign - WIP DO NOT TOUCH</span>
       </button>
     </nav>
 
@@ -465,7 +465,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
           <!-- Header -->
           <div style="text-align: center; margin-bottom: var(--spacing-40);">
             <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">
-              ⚙️ Campaign Configuration
+              ⚠️ Campaign Configuration - WIP DO NOT TOUCH
             </h1>
             <p class="text--body-lg" style="color: var(--color-neutral-70);">
               Configure campaign settings for your KDP accounts
@@ -709,7 +709,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <!-- Header -->
             <div style="text-align: center; margin-bottom: var(--spacing-40);">
               <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">
-                🚀 Create Campaign
+                ⚠️ Create Campaign - WIP DO NOT TOUCH
               </h1>
               <p class="text--body-lg" style="color: var(--color-neutral-70);">
                 Get keyword recommendations to optimize your advertising campaigns
@@ -798,36 +798,51 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
 
               <!-- Results Section -->
               <div id="keywords-results" style="display: none;">
-                <!-- Export Buttons -->
-                <div style="display: flex; justify-content: flex-end; gap: var(--spacing-12); margin-bottom: var(--spacing-16);">
+                <!-- Action Buttons -->
+                <div style="display: flex; justify-content: space-between; gap: var(--spacing-12); margin-bottom: var(--spacing-16);">
                   <button
-                    id="export-csv-btn"
-                    onclick="exportKeywordsAsCSV()"
-                    style="padding: 10px 16px; background: #4CAF50; color: white; border: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: var(--spacing-8);"
-                    onmouseover="this.style.background='#45a049'"
-                    onmouseout="this.style.background='#4CAF50'"
+                    id="get-suggested-bid-btn"
+                    onclick="getSuggestedBids()"
+                    style="padding: 10px 20px; background: linear-gradient(135deg, #FF9800, #F57C00); color: white; border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 0.9375rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: var(--spacing-8); box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 152, 0, 0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 152, 0, 0.3)'"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                     </svg>
-                    Export CSV
+                    Get Suggested Bid
                   </button>
-                  <button
-                    id="export-excel-btn"
-                    onclick="exportKeywordsAsExcel()"
-                    style="padding: 10px 16px; background: #2196F3; color: white; border: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: var(--spacing-8);"
-                    onmouseover="this.style.background='#0b7dda'"
-                    onmouseout="this.style.background='#2196F3'"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Export Excel
-                  </button>
+                  <div style="display: flex; gap: var(--spacing-12);">
+                    <button
+                      id="export-csv-btn"
+                      onclick="exportKeywordsAsCSV()"
+                      style="padding: 10px 16px; background: #4CAF50; color: white; border: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: var(--spacing-8);"
+                      onmouseover="this.style.background='#45a049'"
+                      onmouseout="this.style.background='#4CAF50'"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                      Export CSV
+                    </button>
+                    <button
+                      id="export-excel-btn"
+                      onclick="exportKeywordsAsExcel()"
+                      style="padding: 10px 16px; background: #2196F3; color: white; border: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: var(--spacing-8);"
+                      onmouseover="this.style.background='#0b7dda'"
+                      onmouseout="this.style.background='#2196F3'"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                      Export Excel
+                    </button>
+                  </div>
                 </div>
 
                 <!-- Filter Controls -->
@@ -2327,6 +2342,9 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.style.cursor = 'not-allowed';
         submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Fetching...';
 
+        // Store market value globally for later use (e.g., suggested bids)
+        currentMarket = market;
+
         // Show loading state
         document.getElementById('keywords-loading').style.display = 'block';
         document.getElementById('keywords-results').style.display = 'none';
@@ -2364,7 +2382,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
           if (data.success && data.data && data.data.keywords) {
             console.log('Keywords received:', data.data.keywords.length);
-            displayKeywordResults(data.data.keywords);
+            displayKeywordResults(data.data.keywords, market);
           } else {
             console.error('API Error Response:', data);
             const errorMsg = data.data?.message || 'Unknown error';
@@ -2395,6 +2413,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Display keyword results
     let allKeywords = [];
     let currentFilter = 'all';
+    let currentMarket = '';
 
     function displayKeywordResults(keywords) {
       allKeywords = keywords;
@@ -2425,14 +2444,24 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('keywords-count').textContent = filteredKeywords.length;
 
       const keywordsList = document.getElementById('keywords-list');
-      keywordsList.innerHTML = filteredKeywords.map((keyword, index) => `
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-12) var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20);">
+      keywordsList.innerHTML = filteredKeywords.map((keyword, index) => {
+        const bidInfo = keyword.suggested_bid ? `
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px; margin-right: var(--spacing-8);">
+            <div style="font-size: 0.75rem; color: var(--color-neutral-60);">Suggested: <strong style="color: #00C2A8;">$${keyword.suggested_bid.toFixed(2)}</strong></div>
+            <div style="font-size: 0.65rem; color: var(--color-neutral-50);">Range: $${keyword.lowest_suggested_bid?.toFixed(2)} - $${keyword.highest_suggested_bid?.toFixed(2)}</div>
+          </div>
+        ` : '';
+
+        return `
+        <div class="keyword-item" data-keyword="${keyword.keyword}" data-match-type="${keyword.match_type}" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-12) var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20);">
           <span style="font-size: 0.9375rem; color: var(--color-neutral-90); flex: 1;">${keyword.keyword}</span>
           <div style="display: flex; align-items: center; gap: var(--spacing-12);">
+            ${bidInfo}
             <span style="padding: 4px 8px; background: ${getMatchTypeColor(keyword.match_type)}; color: white; border-radius: var(--radius-small); font-size: 0.75rem; font-weight: 600;">
               ${keyword.match_type}
             </span>
             <button
+              class="delete-keyword-btn"
               onclick="deleteKeyword('${keyword.keyword}', '${keyword.match_type}')"
               style="padding: 6px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
               onmouseover="this.style.background='#FFCCCC'"
@@ -2448,7 +2477,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function getMatchTypeColor(matchType) {
@@ -2503,6 +2533,153 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         successMsg.remove();
       }, 3000);
+    };
+
+    // Global function to get suggested bids for keywords
+    window.getSuggestedBids = async function() {
+      if (allKeywords.length === 0) {
+        alert('No keywords available');
+        return;
+      }
+
+      if (!currentMarket) {
+        alert('Market information is missing');
+        return;
+      }
+
+      // Prepare targeting expressions
+      const targetingExpressions = allKeywords.map(keyword => {
+        // Convert match type to API format
+        let type;
+        switch(keyword.match_type) {
+          case 'EXACT':
+            type = 'KEYWORD_EXACT_MATCH';
+            break;
+          case 'PHRASE':
+            type = 'KEYWORD_PHRASE_MATCH';
+            break;
+          case 'BROAD':
+            type = 'KEYWORD_BROAD_MATCH';
+            break;
+          default:
+            type = 'KEYWORD_BROAD_MATCH';
+        }
+
+        return {
+          type: type,
+          value: keyword.keyword
+        };
+      });
+
+      const payload = {
+        region: currentMarket,
+        targeting_expressions: targetingExpressions
+      };
+
+      console.log('=== GET SUGGESTED BIDS REQUEST ===');
+      console.log('Region:', currentMarket);
+      console.log('Keywords count:', allKeywords.length);
+      console.log('Payload:', JSON.stringify(payload, null, 2));
+      console.log('===================================');
+
+      // Disable all action buttons
+      const getKeywordsBtn = document.getElementById('get-keywords-btn');
+      const getSuggestedBidBtn = document.getElementById('get-suggested-bid-btn');
+      const exportCsvBtn = document.getElementById('export-csv-btn');
+      const exportExcelBtn = document.getElementById('export-excel-btn');
+      const deleteButtons = document.querySelectorAll('.delete-keyword-btn');
+
+      const originalBidBtnText = getSuggestedBidBtn.innerHTML;
+
+      // Disable buttons
+      [getKeywordsBtn, getSuggestedBidBtn, exportCsvBtn, exportExcelBtn].forEach(btn => {
+        if (btn) {
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
+          btn.style.cursor = 'not-allowed';
+        }
+      });
+
+      deleteButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+      });
+
+      // Update button to show loading
+      getSuggestedBidBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Fetching Bids...';
+
+      try {
+        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_suggested_bids', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        console.log('Response:', data);
+
+        if (data.success && data.data && Array.isArray(data.data)) {
+          const bidData = data.data;
+          console.log('Bid data received:', bidData.length, 'items');
+
+          // Update allKeywords with bid information
+          bidData.forEach(bid => {
+            // Find matching keyword in allKeywords
+            const matchType = bid.match_type.replace('KEYWORD_', '').replace('_MATCH', '');
+            const keywordObj = allKeywords.find(k =>
+              k.keyword === bid.value && k.match_type === matchType
+            );
+
+            if (keywordObj) {
+              keywordObj.suggested_bid = bid.suggested_bid;
+              keywordObj.lowest_suggested_bid = bid.lowest_suggested_bid;
+              keywordObj.highest_suggested_bid = bid.highest_suggested_bid;
+            }
+          });
+
+          // Re-render keywords with bid info
+          filterAndRenderKeywords();
+
+          // Show success message
+          const successMsg = document.createElement('div');
+          successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
+          successMsg.textContent = `✓ Bid suggestions loaded for ${bidData.length} keywords`;
+          document.body.appendChild(successMsg);
+
+          setTimeout(() => {
+            successMsg.remove();
+          }, 3000);
+
+        } else {
+          console.error('API Error:', data);
+          alert('Failed to fetch bid suggestions:\n' + (data.data?.message || 'Unknown error'));
+        }
+
+      } catch (error) {
+        console.error('Exception:', error);
+        alert('Error fetching bid suggestions. Please try again.\n\nError: ' + error.message);
+      } finally {
+        // Re-enable all buttons
+        [getKeywordsBtn, getSuggestedBidBtn, exportCsvBtn, exportExcelBtn].forEach(btn => {
+          if (btn) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+          }
+        });
+
+        document.querySelectorAll('.delete-keyword-btn').forEach(btn => {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+        });
+
+        getSuggestedBidBtn.innerHTML = originalBidBtnText;
+      }
     };
 
     // Global function to export keywords as CSV
@@ -3142,12 +3319,72 @@ window.toggleRunDetails = async function(userId, runId, containerId) {
               <div style="display: grid; gap: var(--spacing-10);">
         `;
 
-        // Sort adgroup IDs
-        const sortedAdgroups = Object.keys(adgroups).sort();
+        // Sort adgroup IDs - CAMPAIGN_LEVEL should come first
+        const sortedAdgroups = Object.keys(adgroups).sort((a, b) => {
+          if (a === 'CAMPAIGN_LEVEL') return -1;
+          if (b === 'CAMPAIGN_LEVEL') return 1;
+          return a.localeCompare(b);
+        });
 
         sortedAdgroups.forEach((adgroupId, adgroupIndex) => {
           const actionTypes = adgroups[adgroupId];
           const adgroupId_unique = `adgroup-${runId}-${campaignIndex}-${adgroupIndex}`;
+
+          // Special handling for CAMPAIGN_LEVEL - display actions directly without adgroup wrapper
+          if (adgroupId === 'CAMPAIGN_LEVEL') {
+            // Sort action types - prioritize TURN_OFF (3) and LOWER_BID (2) first, then RAISE_BID (1)
+            const sortedActionTypes = Object.keys(actionTypes).sort((a, b) => {
+              const aType = parseInt(a);
+              const bType = parseInt(b);
+
+              const getPriority = (type) => {
+                if (type === 3) return 0; // TURN_OFF - highest priority
+                if (type === 2) return 1; // LOWER_BID - medium priority
+                if (type === 1) return 2; // RAISE_BID - lowest priority
+                return 999; // Unknown types go last
+              };
+
+              return getPriority(aType) - getPriority(bType);
+            });
+
+            // Add campaign-level optimizations section header
+            html += `
+              <div style="background: #F3F4F6; padding: var(--spacing-6) var(--spacing-8); border-radius: var(--radius-small); margin-bottom: var(--spacing-4);">
+                <div style="font-size: 0.7rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.05em;">
+                  📍 Campaign-Level Optimizations
+                </div>
+              </div>
+            `;
+
+            sortedActionTypes.forEach(actionType => {
+              const actions = actionTypes[actionType];
+
+              // Display each action's description with color-coded borders
+              actions.forEach(action => {
+                let borderColor = 'var(--color-neutral-20)';
+                let backgroundColor = 'white';
+
+                if (action.action_type === 1) {
+                  borderColor = '#10B981';
+                  backgroundColor = '#F0FDF4';
+                } else if (action.action_type === 2) {
+                  borderColor = '#F59E0B';
+                  backgroundColor = '#FFFBEB';
+                } else if (action.action_type === 3) {
+                  borderColor = '#EF4444';
+                  backgroundColor = '#FEF2F2';
+                }
+
+                html += `
+                  <div style="padding: var(--spacing-8); background: ${backgroundColor}; border-radius: var(--radius-small); font-size: 0.75rem; line-height: 1.5; color: var(--color-neutral-80); border: 1px solid var(--color-neutral-20); border-left: 4px solid ${borderColor};">
+                    ${action.description}
+                  </div>
+                `;
+              });
+            });
+
+            return; // Skip the normal adgroup rendering
+          }
 
           // Count actions in this ad group
           let adgroupActions = 0;
