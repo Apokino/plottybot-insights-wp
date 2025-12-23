@@ -2156,7 +2156,6 @@ document.addEventListener('DOMContentLoaded', function() {
           }
 
           const data = await response.json();
-          console.log('Book analysis data:', data);
 
           // Hide loading and show content
           loadingDiv.style.display = 'none';
@@ -2168,6 +2167,9 @@ document.addEventListener('DOMContentLoaded', function() {
           const hasReputablePublisher = summary.has_reputable_publisher || false;
           const isCopyTitle = summary.is_copy_title || false;
           const keywords = summary.keywords || [];
+          const bidRecommendations = data.bid_recommendations || {};
+          const bidKeywords = bidRecommendations.keywords || [];
+          const market = bidRecommendations.market || 'N/A';
 
           // Format keywords for display
           const keywordsHtml = keywords.length > 0
@@ -2177,6 +2179,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 </span>
               `).join('')
             : '<p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60); font-style: italic;">No keywords identified</p>';
+
+          // Format bid recommendations for display
+          const bidRecommendationsHtml = bidKeywords.length > 0
+            ? bidKeywords.map(bid => `
+                <div style="padding: 12px; background: var(--color-neutral-00); border-radius: var(--radius-medium); border: 1px solid var(--color-neutral-20); display: flex; justify-content: space-between; align-items: center;">
+                  <div style="flex: 1;">
+                    <p style="margin: 0 0 4px 0; font-size: 0.875rem; font-weight: 600; color: var(--color-neutral-90);">${bid.keyword}</p>
+                    <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">
+                      ${bid.match_type.replace('KEYWORD_', '').replace('_', ' ')}
+                    </p>
+                  </div>
+                  <div style="text-align: right;">
+                    <p style="margin: 0; font-size: 0.875rem; font-weight: 700; color: var(--color-primary-70);">
+                      $${bid.rangeStart.toFixed(2)} - $${bid.rangeEnd.toFixed(2)}
+                    </p>
+                    <p style="margin: 0; font-size: 0.7rem; color: var(--color-neutral-60);">Suggested Bid Range</p>
+                  </div>
+                </div>
+              `).join('')
+            : '<p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60); font-style: italic;">No bid recommendations available</p>';
 
           // Render analysis results
           contentDiv.innerHTML = `
@@ -2214,10 +2236,20 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
 
               <!-- Keywords -->
-              <div>
+              <div style="margin-bottom: var(--spacing-16);">
                 <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 8px 0; font-weight: 600;">Identified Keywords</p>
                 <div style="padding: 12px; background: var(--color-neutral-00); border-radius: var(--radius-medium); border: 2px solid var(--color-primary-20); display: flex; flex-wrap: wrap; align-items: center; min-height: 44px;">
                   ${keywordsHtml}
+                </div>
+              </div>
+
+              <!-- Bid Recommendations -->
+              <div>
+                <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 8px 0; font-weight: 600;">
+                  Estimated Ads Costs - Amazon Suggestions
+                </p>
+                <div style="display: grid; gap: 8px;">
+                  ${bidRecommendationsHtml}
                 </div>
               </div>
             </div>
