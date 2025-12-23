@@ -1297,7 +1297,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let currentPage = 1;
   let totalPages = 1;
   let totalResults = 0;
-  let resultsPerPage = 20;
+  let resultsPerPage = 50;
   let lastSearchPayload = null;
   
   // Initialize access level restrictions
@@ -1619,8 +1619,6 @@ document.addEventListener('DOMContentLoaded', function() {
           if (payload[key] === undefined) delete payload[key];
         });
 
-        console.log('Categories API Request Payload:', payload);
-
         const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=plottybot_search_categories', {
           method: 'POST',
           headers: {
@@ -1635,7 +1633,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const data = await response.json();
-        console.log('Categories API Response:', data);
 
         // Hide loading indicator
         categoriesLoadingIndicator.style.display = 'none';
@@ -1880,7 +1877,6 @@ document.addEventListener('DOMContentLoaded', function() {
       bsr_range: parseRange(bsrRange),
       price_range: parseRange(priceRange),
       ratings_count_range: parseRange(ratingsRange),
-      rating_range: [4, 5], // Default rating range 4-5 stars
       categories: selectedCategories,
       publisher_type: publisherSelectorInput.value === 'self' ? 'self_publisher' : 'all',
       limit: resultsPerPage,
@@ -1891,8 +1887,6 @@ document.addEventListener('DOMContentLoaded', function() {
     Object.keys(payload).forEach(key => {
       if (payload[key] === null || payload[key] === undefined) delete payload[key];
     });
-
-    console.log('API Request Payload:', payload);
 
     // Store payload for pagination
     lastSearchPayload = { ...payload };
@@ -1921,29 +1915,29 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       const data = await response.json();
-      console.log('API Response:', data);
-      console.log('Books array:', data.books);
-      console.log('Books count from array:', data.books ? data.books.length : 0);
 
       // Hide loading indicator
       loadingIndicator.style.display = 'none';
       applyButton.disabled = false;
 
-      // Update pagination state - try different possible field names
-      totalResults = data.total_count || data.total || data.count || (data.books ? data.books.length : 0);
-      console.log('Total results calculated:', totalResults);
-      
-      // For now, assume we have more pages if we got a full page of results
-      // This is a fallback if the API doesn't return total count
-      if (!data.total_count && !data.total && !data.count && data.books && data.books.length === resultsPerPage) {
-        // Assume there might be more pages - set to a large number
-        totalResults = Math.max(totalResults, resultsPerPage * 10);
-        console.log('Estimated total results (no API count):', totalResults);
+      // Update pagination state - use total_count from API response
+      if (data.total_count !== undefined && data.total_count !== null) {
+        totalResults = Number(data.total_count);
+      } else if (data.total !== undefined && data.total !== null) {
+        totalResults = Number(data.total);
+      } else if (data.count !== undefined && data.count !== null) {
+        totalResults = Number(data.count);
+      } else {
+        // Fallback: if we got a full page and has_more is true, estimate
+        if (data.has_more && data.books && data.books.length >= resultsPerPage) {
+          totalResults = resultsPerPage * 10; // Estimate for pagination
+        } else {
+          totalResults = data.books ? data.books.length : 0;
+        }
       }
       
       totalPages = Math.ceil(totalResults / resultsPerPage);
-      console.log('Total pages calculated:', totalPages);
-      
+
       // Render books
       renderBooks(data.books, totalResults);
 
@@ -2299,6 +2293,7 @@ document.addEventListener('DOMContentLoaded', function() {
     prevBtn.disabled = currentPage <= 1;
     nextBtn.disabled = currentPage >= totalPages;
     
+
     // Generate page numbers
     generatePageNumbers();
   }
@@ -2532,18 +2527,14 @@ document.addEventListener('DOMContentLoaded', function() {
   async function fetchCategories(country) {
     categoriesList.innerHTML = '<span style="color: var(--color-neutral-60);">Loading categories...</span>';
     try {
-      console.log('Fetching categories for country:', country);
       const url = '<?php echo admin_url('admin-ajax.php'); ?>?action=plottybot_fetch_categories&country=' + country;
-      console.log('API URL:', url);
       const resp = await fetch(url, {
         headers: {
           'Accept': 'application/json'
         }
       });
-      console.log('API response status:', resp.status);
       if (!resp.ok) throw new Error('API error: ' + resp.status);
       const data = await resp.json();
-      console.log('API response data:', data);
       if (!data.categories || !Array.isArray(data.categories)) throw new Error('Malformed API response');
       renderCategories(data.categories);
     } catch (err) {

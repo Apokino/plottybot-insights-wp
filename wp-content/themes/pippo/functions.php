@@ -1005,34 +1005,24 @@ add_action('wp_ajax_nopriv_plottybot_search_books', 'plottybot_search_books_hand
 
 if (!function_exists('plottybot_search_books_handler')) {
     function plottybot_search_books_handler() {
-        error_log('Plottybot Books: Handler called');
-        error_log('Plottybot Books: User logged in = ' . (is_user_logged_in() ? 'yes' : 'no'));
-
         // Verify user is logged in
         if (!is_user_logged_in()) {
-            error_log('Plottybot Books: Auth failed - not logged in');
             wp_send_json_error(['message' => 'Unauthorized'], 401);
             wp_die();
         }
 
         // Get POST data
         $payload = json_decode(file_get_contents('php://input'), true);
-        error_log('Plottybot Books: Payload = ' . json_encode($payload));
 
         if (!$payload) {
-            error_log('Plottybot Books: Invalid payload');
             wp_send_json_error(['message' => 'Invalid payload'], 400);
             wp_die();
         }
 
         // Make API call with explicit server IP
-        // Use the actual external IP of the WordPress server
         $server_external_ip = '95.110.231.49';
-        error_log('Plottybot Books: Using external IP = ' . $server_external_ip);
-        error_log('Plottybot Books: API Key = ' . substr(PLOTTYBOT_API_KEY, 0, 8) . '...');
 
         $api_url = 'https://api-frontend-1044931876531.us-central1.run.app/books/search';
-        error_log('Plottybot Books: API URL = ' . $api_url);
 
         $request_args = [
             'headers' => [
@@ -1049,26 +1039,19 @@ if (!function_exists('plottybot_search_books_handler')) {
             'sslverify' => true
         ];
 
-        error_log('Plottybot Books: Request headers being sent = ' . json_encode($request_args['headers']));
-
         $response = wp_remote_post($api_url, $request_args);
 
-        error_log('Plottybot Books: Request sent to API');
-
         if (is_wp_error($response)) {
-            error_log('Plottybot Books: WP Error - ' . $response->get_error_message());
+            error_log('Plottybot Books: API Error - ' . $response->get_error_message());
             wp_send_json_error(['message' => $response->get_error_message()], 500);
             wp_die();
         }
 
         $body = wp_remote_retrieve_body($response);
         $status_code = wp_remote_retrieve_response_code($response);
-        $response_headers = wp_remote_retrieve_headers($response);
 
-        error_log('Plottybot Books: API response status = ' . $status_code);
-        error_log('Plottybot Books: API response body length = ' . strlen($body));
         if ($status_code >= 400) {
-            error_log('Plottybot Books: Error response body = ' . $body);
+            error_log('Plottybot Books: Error response (status ' . $status_code . '): ' . $body);
         }
 
         // Send the successful response
