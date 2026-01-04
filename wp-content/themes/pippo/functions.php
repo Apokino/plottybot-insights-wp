@@ -2390,6 +2390,76 @@ if (!function_exists('get_run_details_handler')) {
     }
 }
 
+// AJAX handler for getting PDF download URL (returns signed GCS URL)
+add_action('wp_ajax_get_pdf_download_url', 'get_pdf_download_url_handler');
+add_action('wp_ajax_nopriv_get_pdf_download_url', 'get_pdf_download_url_handler');
+
+if (!function_exists('get_pdf_download_url_handler')) {
+    function get_pdf_download_url_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized']);
+            return;
+        }
+
+        // Get parameters from query string
+        $user_id = isset($_GET['user_id']) ? sanitize_text_field($_GET['user_id']) : '';
+        $run_id = isset($_GET['run_id']) ? sanitize_text_field($_GET['run_id']) : '';
+        $language = isset($_GET['language']) ? sanitize_text_field($_GET['language']) : 'EN';
+
+        if (empty($user_id) || empty($run_id)) {
+            wp_send_json_error(['message' => 'Missing required parameters: user_id and run_id']);
+            return;
+        }
+
+        // Build API URL
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/optimise/logs/pdf/' .
+                   urlencode($user_id) . '/' . urlencode($run_id) . '?language=' . urlencode($language);
+
+        // Make request to API
+        $response = wp_remote_get($api_url, [
+            'headers' => [
+                'Accept' => 'application/json'
+            ],
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => 'Error fetching download URL: ' . $response->get_error_message()]);
+            return;
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        if ($status_code !== 200) {
+            // Try to decode error message
+            $error_data = json_decode($body, true);
+            $error_message = isset($error_data['error']) ? $error_data['error'] : 'Failed to get download URL. Status: ' . $status_code;
+            wp_send_json_error(['message' => $error_message]);
+            return;
+        }
+
+        // Parse the response
+        $data = json_decode($body, true);
+
+        if (!$data || !isset($data['download_url'])) {
+            wp_send_json_error(['message' => 'Invalid response from API: missing download_url']);
+            return;
+        }
+
+        // Return the signed URL and metadata to the frontend
+        wp_send_json_success([
+            'download_url' => $data['download_url'],
+            'filename' => isset($data['filename']) ? $data['filename'] : 'optimization-report.pdf',
+            'expires_in' => isset($data['expires_in']) ? $data['expires_in'] : 86400,
+            'kdp_profile' => isset($data['kdp_profile']) ? $data['kdp_profile'] : null,
+            'run_id' => isset($data['run_id']) ? $data['run_id'] : $run_id
+        ]);
+    }
+}
+
 // AJAX handler for getting suggested bids
 add_action('wp_ajax_get_suggested_bids', 'get_suggested_bids_handler');
 add_action('wp_ajax_nopriv_get_suggested_bids', 'get_suggested_bids_handler');
@@ -2646,6 +2716,121 @@ if (!function_exists('get_keyword_recommendations_handler')) {
                 'response' => $body,
                 'error_details' => $error_data,
                 'sent_payload' => $request_body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
+// AJAX handler for retrieving campaign keywords/targets
+add_action('wp_ajax_get_campaign_targets', 'get_campaign_targets_handler');
+add_action('wp_ajax_nopriv_get_campaign_targets', 'get_campaign_targets_handler');
+
+if (!function_exists('get_campaign_targets_handler')) {
+    function get_campaign_targets_handler() {
+        error_log('Get Campaign Targets: Handler called');
+
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            error_log('Get Campaign Targets: User not logged in');
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $raw_input = file_get_contents('php://input');
+        error_log('Get Campaign Targets: Raw input = ' . $raw_input);
+
+        $payload = json_decode($raw_input, true);
+        error_log('Get Campaign Targets: Decoded payload = ' . print_r($payload, true));
+
+        if (!$payload) {
+            error_log('Get Campaign Targets: Invalid JSON payload');
+            wp_send_json_error(['message' => 'Invalid JSON payload'], 400);
+            wp_die();
+        }
+
+        // Validate required fields
+        if (!isset($payload['user_id']) || !isset($payload['kdp_profile']) || 
+            !isset($payload['campaign_id']) || !isset($payload['adgroups'])) {
+            error_log('Get Campaign Targets: Missing required fields');
+            wp_send_json_error([
+                'message' => 'Missing required fields: user_id, kdp_profile, campaign_id, and adgroups are required'
+            ], 400);
+            wp_die();
+        }
+
+        // Validate adgroups is an array
+        if (!is_array($payload['adgroups']) || empty($payload['adgroups'])) {
+            error_log('Get Campaign Targets: adgroups must be a non-empty array');
+            wp_send_json_error(['message' => 'adgroups must be a non-empty array'], 400);
+            wp_die();
+        }
+
+        error_log('Get Campaign Targets: All fields valid, calling API');
+
+        // Build API URL
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/keywords/list';
+
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            error_log('Get Campaign Targets: WP Error - ' . $response->get_error_message());
+            wp_send_json_error([
+                'message' => 'Error fetching campaign targets: ' . $response->get_error_message()
+            ], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        error_log('Get Campaign Targets: API Status = ' . $status_code);
+        error_log('Get Campaign Targets: API Response length = ' . strlen($body));
+
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            error_log('Get Campaign Targets: Successfully retrieved ' . (is_array($response_data) ? count($response_data) : 0) . ' targets');
+
+            // Process the response to translate match types for ASINs
+            if (is_array($response_data)) {
+                foreach ($response_data as &$target) {
+                    if (isset($target['target_type']) && $target['target_type'] === 'product') {
+                        // Translate ASIN match types
+                        if (isset($target['match_type'])) {
+                            if ($target['match_type'] === 'ASIN_SAME_AS') {
+                                $target['match_type_display'] = 'EXACT';
+                            } elseif ($target['match_type'] === 'ASIN_EXPANDED_FROM') {
+                                $target['match_type_display'] = 'EXPANDED';
+                            } else {
+                                $target['match_type_display'] = $target['match_type'];
+                            }
+                        }
+                    } else {
+                        // For keywords, use the original match type
+                        $target['match_type_display'] = isset($target['match_type']) ? $target['match_type'] : '';
+                    }
+                }
+            }
+
+            wp_send_json_success([
+                'targets' => $response_data
+            ]);
+        } else {
+            error_log('Get Campaign Targets: API returned error status ' . $status_code);
+            error_log('Get Campaign Targets: Error response = ' . $body);
+            wp_send_json_error([
+                'message' => 'Failed to fetch campaign targets',
+                'status' => $status_code,
+                'response' => $body
             ], $status_code);
         }
         wp_die();

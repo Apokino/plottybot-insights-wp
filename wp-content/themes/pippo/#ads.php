@@ -546,87 +546,84 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
               <input type="hidden" id="config-editing-ad-group-id" />
 
               <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-32); margin-bottom: var(--spacing-24);">
-                <div style="display: grid; gap: var(--spacing-20);">
-                  <!-- Campaign and Ad Group Selection -->
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-20);">
+                <!-- Two Column Layout: Form Fields (Left) and Targets (Right) -->
+                <div style="display: grid; grid-template-columns: 1fr 400px; gap: var(--spacing-32);">
+                  
+                  <!-- LEFT COLUMN: Form Fields -->
+                  <div style="display: grid; gap: var(--spacing-20);">
+                    <!-- Campaign and Ad Group Selection -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-20);">
+                      <div>
+                        <label for="config-campaign-name" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                          Campaign <span style="color: #FF6B6B;">*</span>
+                        </label>
+                        <select
+                          id="config-campaign-name"
+                          name="campaign_name"
+                          required
+                          style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; line-height: 1.5; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
+                        >
+                          <option value="">Select a campaign...</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label for="config-ad-group" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                          Ad Group <span style="color: #FF6B6B;">*</span>
+                        </label>
+                        <select
+                          id="config-ad-group"
+                          name="ad_group"
+                          required
+                          style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; line-height: 1.5; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
+                        >
+                          <option value="">First select a campaign...</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Bid Update Strategy -->
                     <div>
-                      <label for="config-campaign-name" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                        Campaign <span style="color: #FF6B6B;">*</span>
+                      <label for="config-bid-strategy" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                        Bid Update Strategy <span style="color: #FF6B6B;">*</span>
                       </label>
                       <select
-                        id="config-campaign-name"
-                        name="campaign_name"
+                        id="config-bid-strategy"
+                        name="bid_update_strategy"
                         required
                         style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; line-height: 1.5; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
                       >
-                        <option value="">Select a campaign...</option>
+                        <option value="">Select strategy...</option>
+                        <option value="aggressive">Aggressive</option>
+                        <option value="conservative">Conservative</option>
                       </select>
                     </div>
 
+                    <!-- Target TOSIS -->
                     <div>
-                      <label for="config-ad-group" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                        Ad Group <span style="color: #FF6B6B;">*</span>
+                      <label for="config-target-tosis" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                        Target TOSIS (%)
                       </label>
-                      <select
-                        id="config-ad-group"
-                        name="ad_group"
-                        required
-                        style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; line-height: 1.5; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
-                      >
-                        <option value="">First select a campaign...</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <!-- Bid Update Strategy -->
-                  <div>
-                    <label for="config-bid-strategy" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                      Bid Update Strategy <span style="color: #FF6B6B;">*</span>
-                    </label>
-                    <select
-                      id="config-bid-strategy"
-                      name="bid_update_strategy"
-                      required
-                      style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; line-height: 1.5; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
-                    >
-                      <option value="">Select strategy...</option>
-                      <option value="aggressive">Aggressive</option>
-                      <option value="conservative">Conservative</option>
-                    </select>
-                  </div>
-
-                  <!-- Target TOSIS -->
-                  <div>
-                    <label for="config-target-tosis" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                      Target TOSIS (%) <span style="color: #FF6B6B;">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      id="config-target-tosis"
-                      name="target_tosis"
-                      step="0.1"
-                      min="0"
-                      max="100"
-                      placeholder="0.0"
-                      required
-                      style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
-                    />
-                  </div>
-
-                  <!-- Royalties and Book Price (Optional but must be provided together) -->
-                  <div style="background: var(--color-neutral-05); padding: var(--spacing-20); border-radius: var(--radius-medium); border: 1px solid var(--color-neutral-20);">
-                    <div style="margin-bottom: var(--spacing-12);">
-                      <p style="font-weight: 600; color: var(--color-neutral-90); font-size: 0.875rem; margin: 0 0 var(--spacing-4) 0;">
-                        Royalties & Book Price (Optional)
-                      </p>
-                      <p style="font-size: 0.75rem; color: var(--color-neutral-60); margin: 0;">
-                        If you provide one, you must provide both
+                      <input
+                        type="number"
+                        id="config-target-tosis"
+                        name="target_tosis"
+                        step="0.1"
+                        min="0"
+                        max="100"
+                        placeholder="0.0"
+                        style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
+                      />
+                      <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: var(--color-neutral-60);">
+                        Optional - Leave empty to use default value
                       </p>
                     </div>
+
+                    <!-- Royalties and Book Price -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-20);">
                       <div>
                         <label for="config-royalties" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                          Royalties
+                          Royalties <span style="color: #FF6B6B;">*</span>
                         </label>
                         <input
                           type="number"
@@ -635,6 +632,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                           step="0.01"
                           min="0"
                           placeholder="0.00"
+                          required
                           style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
                         />
                         <p id="config-royalties-error" style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: #FF6B6B; display: none;"></p>
@@ -642,7 +640,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
 
                       <div>
                         <label for="config-book-price" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                          Book Price
+                          Book Price <span style="color: #FF6B6B;">*</span>
                         </label>
                         <input
                           type="number"
@@ -651,13 +649,54 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                           step="0.01"
                           min="0"
                           placeholder="0.00"
+                          required
                           style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
                         />
                         <p id="config-book-price-error" style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: #FF6B6B; display: none;"></p>
                       </div>
                     </div>
                   </div>
+                  <!-- END LEFT COLUMN -->
+
+                  <!-- RIGHT COLUMN: Campaign Targets -->
+                  <div>
+                    <div style="margin-bottom: var(--spacing-12);">
+                      <p style="font-weight: 600; color: var(--color-neutral-90); font-size: 0.875rem; margin: 0 0 var(--spacing-4) 0;">
+                        Campaign Targets (Optional)
+                      </p>
+                      <p style="font-size: 0.75rem; color: var(--color-neutral-60); margin: 0;">
+                        Retrieve keywords and products targeted by this campaign to enrich configuration
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      id="retrieve-targets-btn"
+                      disabled
+                      style="width: 100%; padding: var(--spacing-14); background: var(--color-neutral-20); color: var(--color-neutral-50); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-weight: 700; font-size: 0.9375rem; cursor: not-allowed; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: var(--spacing-12);"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                      <span id="retrieve-targets-btn-text">Retrieve Campaign Targets</span>
+                    </button>
+                    
+                    <!-- Container for retrieved targets (hidden by default) -->
+                    <div id="retrieved-targets-container" style="display: none; margin-top: var(--spacing-16); padding: var(--spacing-16); background: white; border-radius: var(--radius-small); border: 1px solid var(--color-neutral-30);">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-12);">
+                        <p style="margin: 0; font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-90);">Retrieved Targets</p>
+                        <span id="targets-count" style="padding: 4px 12px; background: var(--color-primary-10); color: var(--color-primary-70); border-radius: var(--radius-small); font-size: 0.75rem; font-weight: 700;">0 items</span>
+                      </div>
+                      <div id="targets-list" style="max-height: 500px; overflow-y: auto;">
+                        <!-- Targets will be populated here -->
+                      </div>
+                    </div>
+                  </div>
+                  <!-- END RIGHT COLUMN -->
+
                 </div>
+                <!-- END TWO COLUMN LAYOUT -->
               </div>
 
               <!-- Submit Button -->
@@ -1117,6 +1156,7 @@ const userLanguage = '<?php echo $user_language; ?>';
 let currentCampaigns = [];
 let currentConfigurations = [];
 let editingConfigAdGroupId = null;
+let specialHandlingRules = []; // Array to store ALWAYS_ON targets
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -2284,13 +2324,29 @@ document.addEventListener('DOMContentLoaded', function() {
           renderConfigurationsList(userId, kdpProfile);
 
           // Populate campaign name dropdown
-          const campaignNames = [...new Set(currentCampaigns.map(c => c.campaignName))].sort();
+          // Group campaigns by name and get unique campaigns with their IDs
+          const uniqueCampaigns = [];
+          const seenCampaigns = new Set();
+          
+          currentCampaigns.forEach(c => {
+            if (!seenCampaigns.has(c.campaignName)) {
+              seenCampaigns.add(c.campaignName);
+              uniqueCampaigns.push({
+                id: c.campaignId,
+                name: c.campaignName
+              });
+            }
+          });
+          
+          // Sort by name
+          uniqueCampaigns.sort((a, b) => a.name.localeCompare(b.name));
+          
           const campaignNameSelect = document.getElementById('config-campaign-name');
           campaignNameSelect.innerHTML = '<option value="">Select a campaign...</option>';
-          campaignNames.forEach(name => {
+          uniqueCampaigns.forEach(campaign => {
             const option = document.createElement('option');
-            option.value = name;
-            option.textContent = name;
+            option.value = campaign.id;
+            option.textContent = campaign.name;
             campaignNameSelect.appendChild(option);
           });
 
@@ -2771,14 +2827,103 @@ document.addEventListener('DOMContentLoaded', function() {
     const campaignNameSelect = document.getElementById('config-campaign-name');
     const adGroupSelect = document.getElementById('config-ad-group');
 
+    // Function to check and update retrieve targets button state
+    function updateRetrieveTargetsButtonState() {
+      const campaignValue = campaignNameSelect?.value;
+      const adGroupValue = adGroupSelect?.value;
+      const retrieveBtn = document.getElementById('retrieve-targets-btn');
+      
+      if (campaignValue && adGroupValue && retrieveBtn) {
+        // Enable button
+        retrieveBtn.disabled = false;
+        retrieveBtn.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
+        retrieveBtn.style.color = 'white';
+        retrieveBtn.style.cursor = 'pointer';
+        retrieveBtn.style.borderColor = '#4CAF50';
+        retrieveBtn.onmouseover = function() {
+          this.style.transform = 'translateY(-2px)';
+          this.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.4)';
+        };
+        retrieveBtn.onmouseout = function() {
+          this.style.transform = 'translateY(0)';
+          this.style.boxShadow = 'none';
+        };
+      } else if (retrieveBtn) {
+        // Disable button
+        retrieveBtn.disabled = true;
+        retrieveBtn.style.background = 'var(--color-neutral-20)';
+        retrieveBtn.style.color = 'var(--color-neutral-50)';
+        retrieveBtn.style.cursor = 'not-allowed';
+        retrieveBtn.style.borderColor = 'var(--color-neutral-30)';
+        retrieveBtn.style.transform = 'translateY(0)';
+        retrieveBtn.style.boxShadow = 'none';
+        retrieveBtn.onmouseover = null;
+        retrieveBtn.onmouseout = null;
+      }
+    }
+
+    // Function to toggle ALWAYS_ON status for a target
+    window.toggleAlwaysOn = function(targetId, targetText, matchType, targetType) {
+      const uniqueId = `${targetType}-${targetId}`;
+      const button = document.getElementById(uniqueId);
+      
+      if (!button) return;
+      
+      // Check if already in the array
+      const existingIndex = specialHandlingRules.findIndex(rule => rule.target_id === targetId);
+      
+      if (existingIndex > -1) {
+        // Remove from array
+        specialHandlingRules.splice(existingIndex, 1);
+        
+        // Update button style to inactive
+        button.classList.remove('active');
+        button.style.background = 'var(--color-neutral-10)';
+        button.style.color = 'var(--color-neutral-60)';
+        button.style.borderColor = 'var(--color-neutral-30)';
+      } else {
+        // Add to array
+        specialHandlingRules.push({
+          target_id: targetId,
+          target_text: targetText,
+          match_type: matchType,
+          action: 'ALWAYS_ON'
+        });
+        
+        // Update button style to active
+        button.classList.add('active');
+        button.style.background = '#4CAF50';
+        button.style.color = 'white';
+        button.style.borderColor = '#4CAF50';
+      }
+      
+      console.log('Special Handling Rules:', specialHandlingRules);
+    };
+
+    // Function to toggle special rules visibility in configuration list
+    window.toggleSpecialRules = function(adGroupId) {
+      const rulesDiv = document.getElementById(`special-rules-${adGroupId}`);
+      const chevron = document.getElementById(`chevron-${adGroupId}`);
+      
+      if (!rulesDiv || !chevron) return;
+      
+      if (rulesDiv.style.display === 'none') {
+        rulesDiv.style.display = 'block';
+        chevron.style.transform = 'rotate(180deg)';
+      } else {
+        rulesDiv.style.display = 'none';
+        chevron.style.transform = 'rotate(0deg)';
+      }
+    };
+
     campaignNameSelect.addEventListener('change', function() {
-      const selectedCampaign = this.value;
+      const selectedCampaignId = this.value;
       adGroupSelect.innerHTML = '<option value="">Select an ad group...</option>';
 
-      if (!selectedCampaign) return;
+      if (!selectedCampaignId) return;
 
       // Get all ad groups for this campaign
-      const campaignAdGroups = currentCampaigns.filter(c => c.campaignName === selectedCampaign);
+      const campaignAdGroups = currentCampaigns.filter(c => c.campaignId === selectedCampaignId);
 
       // Filter out ad groups that already have configurations (unless editing)
       const configuredAdGroupIds = currentConfigurations.map(c => c.ad_group_id);
@@ -2809,7 +2954,235 @@ document.addEventListener('DOMContentLoaded', function() {
           adGroupSelect.appendChild(option);
         }
       });
+
+      // Update retrieve targets button state when campaign changes
+      updateRetrieveTargetsButtonState();
+      
+      // Reset targets list and special handling rules when campaign changes
+      resetTargetsAndRules();
     });
+
+    // Handle ad group selection change
+    if (adGroupSelect) {
+      adGroupSelect.addEventListener('change', function() {
+        // Update retrieve targets button state when ad group changes
+        updateRetrieveTargetsButtonState();
+        
+        // Reset targets list and special handling rules when ad group changes
+        resetTargetsAndRules();
+      });
+    }
+
+    // Handle retrieve targets button click
+    const retrieveTargetsBtn = document.getElementById('retrieve-targets-btn');
+    if (retrieveTargetsBtn) {
+      retrieveTargetsBtn.addEventListener('click', async function() {
+        const campaignId = campaignNameSelect.value; // This is now the campaign ID
+        const adGroupValue = adGroupSelect.value;
+        const userId = currentUserId;
+        const account = document.getElementById('campaign-account').value;
+        const region = document.getElementById('campaign-region').value;
+
+        if (!campaignId || !adGroupValue) {
+          return;
+        }
+
+        // Show loading state
+        const btnText = document.getElementById('retrieve-targets-btn-text');
+        const originalText = btnText.textContent;
+        btnText.textContent = 'Retrieving targets...';
+        this.disabled = true;
+        this.style.cursor = 'not-allowed';
+        this.style.opacity = '0.7';
+
+        try {
+          // Build the KDP profile from account and region
+          const kdpProfile = `${account}-${region}`;
+          
+          // Prepare the payload
+          const payload = {
+            user_id: userId,
+            kdp_profile: kdpProfile,
+            campaign_id: campaignId,
+            adgroups: [adGroupValue]
+          };
+
+          console.log('Sending campaign targets request:', payload);
+          
+          // Make AJAX call to get campaign targets
+          const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_campaign_targets', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const result = await response.json();
+          console.log('Campaign targets API response:', result);
+
+          if (result.success && result.data && result.data.targets) {
+            const targets = result.data.targets;
+            const targetsContainer = document.getElementById('retrieved-targets-container');
+            const targetsList = document.getElementById('targets-list');
+            const targetsCount = document.getElementById('targets-count');
+
+            // Update count
+            targetsCount.textContent = targets.length;
+
+            // Build targets list HTML
+            let targetsHTML = '';
+            
+            // Separate products and keywords
+            const products = targets.filter(t => t.target_type === 'product');
+            const keywords = targets.filter(t => t.target_type === 'keyword');
+
+            // Display products section if any
+            if (products.length > 0) {
+              targetsHTML += `
+                <div style="margin-bottom: var(--spacing-12);">
+                  <div style="font-size: 0.75rem; font-weight: 600; color: var(--color-neutral-60); margin-bottom: var(--spacing-6); text-transform: uppercase; letter-spacing: 0.5px;">
+                    Products (${products.length})
+                  </div>
+                  <div style="display: grid; gap: var(--spacing-4);">
+              `;
+              
+              products.forEach(target => {
+                const matchType = target.match_type_display || target.match_type || '';
+                const targetId = target.target_id || '';
+                const uniqueId = `product-${targetId}`;
+                targetsHTML += `
+                  <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-6) var(--spacing-8); background: white; border: 1px solid var(--color-neutral-20); border-radius: var(--radius-small);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-10); flex: 1;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                        <polyline points="17 2 12 7 7 2"></polyline>
+                      </svg>
+                      <span style="font-size: 0.75rem; color: var(--color-neutral-80);">${target.target_text || ''}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: var(--spacing-8);">
+                      <span style="font-size: 0.625rem; font-weight: 600; color: var(--color-primary-60); background: var(--color-primary-05); padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">
+                        ${matchType}
+                      </span>
+                      <button
+                        type="button"
+                        id="${uniqueId}"
+                        onclick="toggleAlwaysOn('${targetId}', '${target.target_text?.replace(/'/g, "\\'") || ''}', '${target.match_type || ''}', 'product')"
+                        style="padding: 4px 10px; background: var(--color-neutral-10); color: var(--color-neutral-60); border: 1px solid var(--color-neutral-30); border-radius: 4px; font-size: 0.625rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;"
+                        onmouseover="if(!this.classList.contains('active')) { this.style.background='var(--color-neutral-20)'; }"
+                        onmouseout="if(!this.classList.contains('active')) { this.style.background='var(--color-neutral-10)'; }"
+                      >
+                        ALWAYS ON
+                      </button>
+                    </div>
+                  </div>
+                `;
+              });
+              
+              targetsHTML += `
+                  </div>
+                </div>
+              `;
+            }
+
+            // Display keywords section if any
+            if (keywords.length > 0) {
+              targetsHTML += `
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 600; color: var(--color-neutral-60); margin-bottom: var(--spacing-6); text-transform: uppercase; letter-spacing: 0.5px;">
+                    Keywords (${keywords.length})
+                  </div>
+                  <div style="display: grid; gap: var(--spacing-4);">
+              `;
+              
+              keywords.forEach(target => {
+                const matchType = target.match_type_display || target.match_type || '';
+                const targetId = target.target_id || '';
+                const uniqueId = `keyword-${targetId}`;
+                targetsHTML += `
+                  <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-6) var(--spacing-8); background: white; border: 1px solid var(--color-neutral-20); border-radius: var(--radius-small);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-10); flex: 1;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                      </svg>
+                      <span style="font-size: 0.75rem; color: var(--color-neutral-80);">${target.target_text || ''}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: var(--spacing-8);">
+                      <span style="font-size: 0.625rem; font-weight: 600; color: var(--color-neutral-60); background: var(--color-neutral-10); padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">
+                        ${matchType}
+                      </span>
+                      <button
+                        type="button"
+                        id="${uniqueId}"
+                        onclick="toggleAlwaysOn('${targetId}', '${target.target_text?.replace(/'/g, "\\'") || ''}', '${target.match_type || ''}', 'keyword')"
+                        style="padding: 4px 10px; background: var(--color-neutral-10); color: var(--color-neutral-60); border: 1px solid var(--color-neutral-30); border-radius: 4px; font-size: 0.625rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;"
+                        onmouseover="if(!this.classList.contains('active')) { this.style.background='var(--color-neutral-20)'; }"
+                        onmouseout="if(!this.classList.contains('active')) { this.style.background='var(--color-neutral-10)'; }"
+                      >
+                        ALWAYS ON
+                      </button>
+                    </div>
+                  </div>
+                `;
+              });
+              
+              targetsHTML += `
+                  </div>
+                </div>
+              `;
+            }
+
+            // If no targets found
+            if (targets.length === 0) {
+              targetsHTML = `
+                <div style="text-align: center; padding: var(--spacing-16); color: var(--color-neutral-50);">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-8);">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <div style="font-size: 0.875rem;">No targets found for this campaign</div>
+                </div>
+              `;
+            }
+
+            targetsList.innerHTML = targetsHTML;
+            targetsContainer.style.display = 'block';
+
+            // Success notification
+            const successDiv = document.createElement('div');
+            successDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;';
+            successDiv.textContent = `\u2713 Retrieved ${targets.length} target${targets.length !== 1 ? 's' : ''}`;
+            document.body.appendChild(successDiv);
+
+            setTimeout(() => {
+              successDiv.remove();
+            }, 3000);
+            
+            // Dispatch event to signal that targets have been retrieved
+            window.dispatchEvent(new CustomEvent('targetsRetrieved', { detail: { targets } }));
+          } else {
+            throw new Error(result.data?.message || 'Failed to retrieve targets');
+          }
+
+        } catch (error) {
+          console.error('Error retrieving targets:', error);
+          
+          const errorDiv = document.createElement('div');
+          errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #FF6B6B; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;';
+          errorDiv.textContent = '\u2717 Failed to retrieve targets';
+          document.body.appendChild(errorDiv);
+
+          setTimeout(() => {
+            errorDiv.remove();
+          }, 3000);
+        } finally {
+          // Restore button state
+          btnText.textContent = originalText;
+          updateRetrieveTargetsButtonState();
+        }
+      });
+    }
 
     // Handle form submission (create or update)
     const campaignConfigForm = document.getElementById('campaign-config-form');
@@ -2823,51 +3196,82 @@ document.addEventListener('DOMContentLoaded', function() {
         const userId = currentUserId; // Use current WordPress user ID
         const account = campaignAccountSelect.value;
         const region = campaignRegionSelect.value;
-        const selectedCampaignName = document.getElementById('config-campaign-name').value;
+        const selectedCampaignId = document.getElementById('config-campaign-name').value; // This is campaign ID
         const selectedAdGroupId = document.getElementById('config-ad-group').value;
         const royaltiesInput = document.getElementById('config-royalties').value.trim();
         const bookPriceInput = document.getElementById('config-book-price').value.trim();
         const bidUpdateStrategy = document.getElementById('config-bid-strategy').value;
-        const targetTosis = parseFloat(document.getElementById('config-target-tosis').value);
+        const targetTosisInput = document.getElementById('config-target-tosis').value.trim();
 
         const royaltiesError = document.getElementById('config-royalties-error');
         const bookPriceError = document.getElementById('config-book-price-error');
+
+        // Validate required fields
+        if (!selectedCampaignId) {
+          alert('Please select a campaign');
+          return;
+        }
 
         if (!selectedAdGroupId) {
           alert('Please select an ad group');
           return;
         }
 
-        // Validate royalties and book price - must be provided together or both empty
-        const hasRoyalties = royaltiesInput !== '';
-        const hasBookPrice = bookPriceInput !== '';
+        if (!bidUpdateStrategy) {
+          alert('Please select a bid update strategy');
+          return;
+        }
 
         // Hide errors first
         royaltiesError.style.display = 'none';
         bookPriceError.style.display = 'none';
 
-        if (hasRoyalties !== hasBookPrice) {
-          if (!hasRoyalties) {
-            royaltiesError.textContent = 'Royalties is required when Book Price is provided';
-            royaltiesError.style.display = 'block';
-          }
-          if (!hasBookPrice) {
-            bookPriceError.textContent = 'Book Price is required when Royalties is provided';
-            bookPriceError.style.display = 'block';
-          }
+        // Validate royalties and book price - both are required
+        if (!royaltiesInput || royaltiesInput === '') {
+          royaltiesError.textContent = 'Royalties is required';
+          royaltiesError.style.display = 'block';
           return;
         }
 
-        // Parse values if provided
-        const royalties = hasRoyalties ? parseFloat(royaltiesInput) : null;
-        const bookPrice = hasBookPrice ? parseFloat(bookPriceInput) : null;
+        if (!bookPriceInput || bookPriceInput === '') {
+          bookPriceError.textContent = 'Book Price is required';
+          bookPriceError.style.display = 'block';
+          return;
+        }
+
+        // Parse values
+        const royalties = parseFloat(royaltiesInput);
+        const bookPrice = parseFloat(bookPriceInput);
+        
+        // Validate that they are valid numbers
+        if (isNaN(royalties) || royalties < 0) {
+          royaltiesError.textContent = 'Royalties must be a valid positive number';
+          royaltiesError.style.display = 'block';
+          return;
+        }
+
+        if (isNaN(bookPrice) || bookPrice < 0) {
+          bookPriceError.textContent = 'Book Price must be a valid positive number';
+          bookPriceError.style.display = 'block';
+          return;
+        }
+        
+        // Parse target_tosis - only exclude if empty string, include if 0 or any other number
+        let targetTosis = null;
+        if (targetTosisInput !== '') {
+          targetTosis = parseFloat(targetTosisInput);
+          // If parsing fails (NaN), set to null
+          if (isNaN(targetTosis)) {
+            targetTosis = null;
+          }
+        }
 
         // Build kdp_profile
         const kdpProfile = account + '-' + region;
 
         // Find the selected campaign data
         const selectedCampaign = currentCampaigns.find(c =>
-          c.campaignName === selectedCampaignName && c.adGroupId === selectedAdGroupId
+          c.campaignId === selectedCampaignId && c.adGroupId === selectedAdGroupId
         );
 
         if (!selectedCampaign) {
@@ -2879,29 +3283,35 @@ document.addEventListener('DOMContentLoaded', function() {
         const configObj = {
           asin: selectedCampaign.asin || [],
           campaign_name: selectedCampaign.campaignName,
-          campaign_id: selectedCampaign.campaignId,
-          ad_group_id: selectedCampaign.adGroupId,
+          campaign_id: String(selectedCampaign.campaignId), // Ensure string
+          ad_group_id: String(selectedCampaign.adGroupId), // Ensure string
           ad_group_name: selectedCampaign.adGroupName || null,
           bid_update_strategy: bidUpdateStrategy,
-          target_tosis: targetTosis
+          royalties: royalties,
+          book_price: bookPrice
         };
 
         // Add optional fields only if provided
-        if (royalties !== null) {
-          configObj.royalties = royalties;
+        if (targetTosis !== null) {
+          configObj.target_tosis = targetTosis;
         }
-        if (bookPrice !== null) {
-          configObj.book_price = bookPrice;
+
+        // Add special handling rules if any targets are marked as ALWAYS_ON
+        if (specialHandlingRules.length > 0) {
+          configObj.special_handling_rules = specialHandlingRules;
+          console.log('Including special handling rules:', specialHandlingRules);
         }
 
         const configuration = [configObj];
 
         // Build final payload
         const payload = {
-          user_id: userId,
+          user_id: String(userId), // Ensure string
           kdp_profile: kdpProfile,
           configuration: configuration
         };
+
+        console.log('Submitting campaign configuration payload:', JSON.stringify(payload, null, 2));
 
         // Determine if creating or updating
         const isUpdate = editingConfigAdGroupId !== null;
@@ -2925,6 +3335,8 @@ document.addEventListener('DOMContentLoaded', function() {
           });
 
           const data = await response.json();
+          
+          console.log('Campaign configuration response:', data);
 
           if (data.success) {
             // Show success message
@@ -3048,14 +3460,13 @@ function renderConfigurationsList(userId, kdpProfile) {
         </div>
         <div>
           <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Target TOSIS</p>
-          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.target_tosis}%</p>
+          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.target_tosis ? config.target_tosis + '%' : 'Default'}</p>
         </div>
         <div>
           <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">ASINs</p>
           <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.asin ? config.asin.join(', ') : 'N/A'}</p>
         </div>
       </div>
-      ${config.royalties && config.book_price ? `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); padding: var(--spacing-12); margin-top: var(--spacing-8); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-20); border-radius: var(--radius-small);">
         <div>
           <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Royalties</p>
@@ -3064,6 +3475,37 @@ function renderConfigurationsList(userId, kdpProfile) {
         <div>
           <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Book Price</p>
           <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">$${config.book_price}</p>
+        </div>
+      </div>
+      ${config.special_handling_rules && config.special_handling_rules.length > 0 ? `
+      <div style="margin-top: var(--spacing-12);">
+        <button
+          type="button"
+          onclick="toggleSpecialRules('${config.ad_group_id}')"
+          style="width: 100%; padding: var(--spacing-10); background: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.875rem; display: flex; align-items: center; justify-content: space-between;"
+          onmouseover="this.style.background='#FFE0B2'"
+          onmouseout="this.style.background='#FFF3E0'"
+        >
+          <span style="display: flex; align-items: center; gap: var(--spacing-6);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            Special Rules: ${config.special_handling_rules.length} ALWAYS ON target${config.special_handling_rules.length !== 1 ? 's' : ''}
+          </span>
+          <svg id="chevron-${config.ad_group_id}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s;">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div id="special-rules-${config.ad_group_id}" style="display: none; margin-top: var(--spacing-8); padding: var(--spacing-12); background: var(--color-neutral-00); border: 1px solid #FFE0B2; border-radius: var(--radius-small);">
+          <p style="margin: 0 0 var(--spacing-8) 0; font-size: 0.75rem; font-weight: 600; color: var(--color-neutral-70); text-transform: uppercase; letter-spacing: 0.5px;">Always-On Targets</p>
+          <div style="display: grid; gap: var(--spacing-6);">
+            ${config.special_handling_rules.map(rule => `
+              <div style="padding: var(--spacing-6) var(--spacing-8); background: #FFFAF0; border: 1px solid #FFE0B2; border-radius: var(--radius-small); display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 0.75rem; color: var(--color-neutral-80); flex: 1;">${rule.target_text}</span>
+                <span style="font-size: 0.625rem; font-weight: 600; color: #E65100; background: #FFF3E0; padding: 2px 8px; border-radius: 4px; margin-left: var(--spacing-8);">${rule.match_type}</span>
+              </div>
+            `).join('')}
+          </div>
         </div>
       </div>
       ` : ''}
@@ -3088,6 +3530,33 @@ function cancelConfigEdit() {
   document.getElementById('config-submit-button-text').textContent = 'Create Configuration';
   document.getElementById('cancel-campaign-config').style.display = 'none';
   editingConfigAdGroupId = null;
+  
+  // Reset targets and special handling rules
+  resetTargetsAndRules();
+}
+
+// Helper function to reset targets (needs to be global)
+function resetTargetsAndRules() {
+  // Clear special handling rules array
+  specialHandlingRules = [];
+  
+  // Hide targets container
+  const targetsContainer = document.getElementById('retrieved-targets-container');
+  if (targetsContainer) {
+    targetsContainer.style.display = 'none';
+  }
+  
+  // Clear targets list
+  const targetsList = document.getElementById('targets-list');
+  if (targetsList) {
+    targetsList.innerHTML = '';
+  }
+  
+  // Reset count
+  const targetsCount = document.getElementById('targets-count');
+  if (targetsCount) {
+    targetsCount.textContent = '0 items';
+  }
 }
 
 async function editCampaignConfig(adGroupId) {
@@ -3103,15 +3572,28 @@ async function editCampaignConfig(adGroupId) {
   editingConfigAdGroupId = adGroupId;
   document.getElementById('config-editing-ad-group-id').value = adGroupId;
 
+  // Store special handling rules temporarily if they exist
+  const savedSpecialRules = config.special_handling_rules || [];
+  
+  // Reset targets display initially
+  const targetsContainer = document.getElementById('retrieved-targets-container');
+  if (targetsContainer) {
+    targetsContainer.style.display = 'none';
+  }
+
   // Populate form fields
   document.getElementById('config-royalties').value = config.royalties || '';
   document.getElementById('config-book-price').value = config.book_price || '';
   document.getElementById('config-bid-strategy').value = config.bid_update_strategy;
-  document.getElementById('config-target-tosis').value = config.target_tosis;
+  document.getElementById('config-target-tosis').value = config.target_tosis !== undefined && config.target_tosis !== null ? config.target_tosis : '';
 
   // Select campaign - this will trigger the ad group dropdown population
   const campaignSelect = document.getElementById('config-campaign-name');
-  campaignSelect.value = config.campaign_name;
+  // Campaign dropdown now uses campaign_id as value, so we need to find and set it
+  const campaignToEdit = currentCampaigns.find(c => c.adGroupId === adGroupId);
+  if (campaignToEdit) {
+    campaignSelect.value = campaignToEdit.campaignId;
+  }
 
   // Trigger ad group dropdown population
   const event = new Event('change');
@@ -3124,12 +3606,69 @@ async function editCampaignConfig(adGroupId) {
   const adGroupSelect = document.getElementById('config-ad-group');
   adGroupSelect.value = adGroupId;
 
+  // Trigger change event to update button state
+  const adGroupChangeEvent = new Event('change');
+  adGroupSelect.dispatchEvent(adGroupChangeEvent);
+
   // Verify the selection worked
   if (adGroupSelect.value !== adGroupId) {
     console.warn('Failed to select ad group:', adGroupId, 'Available options:',
       Array.from(adGroupSelect.options).map(o => o.value));
   } else {
     console.log('Successfully selected ad group:', adGroupId);
+  }
+
+  // If there are targets to retrieve (either special rules exist or we want to show targets)
+  // Automatically trigger the retrieve targets button
+  await new Promise(resolve => setTimeout(resolve, 100));
+  const retrieveBtn = document.getElementById('retrieve-targets-btn');
+  if (retrieveBtn && !retrieveBtn.disabled) {
+    console.log('Auto-retrieving targets for edit mode...');
+    
+    // Temporarily store the special rules to restore after retrieval
+    const rulesToRestore = [...savedSpecialRules];
+    
+    // Create a promise that waits for targets to be retrieved
+    const waitForTargets = new Promise(resolve => {
+      // Create a one-time event listener for target retrieval completion
+      window.addEventListener('targetsRetrieved', function handler() {
+        window.removeEventListener('targetsRetrieved', handler);
+        resolve();
+      }, { once: true });
+    });
+    
+    // Trigger the retrieve button click
+    retrieveBtn.click();
+    
+    // Wait for targets to be retrieved and rendered
+    await waitForTargets;
+    
+    // Additional small delay to ensure DOM is fully updated
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Restore special handling rules and mark buttons as active
+    if (rulesToRestore.length > 0) {
+      console.log('Restoring special handling rules:', rulesToRestore);
+      specialHandlingRules = [...rulesToRestore];
+      
+      // Mark the corresponding buttons as active
+      rulesToRestore.forEach(rule => {
+        // Try to find the button by target_id
+        const productBtn = document.getElementById(`product-${rule.target_id}`);
+        const keywordBtn = document.getElementById(`keyword-${rule.target_id}`);
+        const button = productBtn || keywordBtn;
+        
+        if (button) {
+          console.log('Activating button for target:', rule.target_id);
+          button.classList.add('active');
+          button.style.background = 'var(--color-success-50)';
+          button.style.color = 'white';
+          button.style.borderColor = 'var(--color-success-50)';
+        } else {
+          console.warn('Button not found for target_id:', rule.target_id);
+        }
+      });
+    }
   }
 
   // Update UI
@@ -3212,6 +3751,102 @@ async function deleteCampaignConfig(userId, kdpProfile, adGroupId) {
     console.error('Error deleting configuration:', error);
   }
 }
+
+// Global function to download PDF report for an optimization run
+window.downloadRunPDF = async function(userId, runId, buttonElement) {
+  const originalHTML = buttonElement.innerHTML;
+  const originalBg = buttonElement.style.background;
+
+  try {
+    // Show loading state
+    buttonElement.disabled = true;
+    buttonElement.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;">
+        <line x1="12" y1="2" x2="12" y2="6"></line>
+        <line x1="12" y1="18" x2="12" y2="22"></line>
+        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+        <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+        <line x1="2" y1="12" x2="6" y2="12"></line>
+        <line x1="18" y1="12" x2="22" y2="12"></line>
+        <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+        <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+      </svg>
+    `;
+    buttonElement.style.background = 'var(--color-neutral-50)';
+
+    // Call WordPress AJAX to get the signed download URL
+    const url = new URL('<?php echo admin_url('admin-ajax.php'); ?>');
+    url.searchParams.append('action', 'get_pdf_download_url');
+    url.searchParams.append('user_id', userId);
+    url.searchParams.append('run_id', runId);
+    url.searchParams.append('language', userLanguage);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      credentials: 'same-origin'
+    });
+
+    if (!response.ok) {
+      const responseText = await response.text();
+      console.error('PDF Download error:', responseText);
+      throw new Error(`Failed to get download URL (${response.status})`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success || !data.data || !data.data.download_url) {
+      throw new Error(data.message || 'Invalid response from server');
+    }
+
+    // Use the signed URL to download the PDF directly from GCS
+    const downloadUrl = data.data.download_url;
+    const filename = data.data.filename || `optimization-report-${runId}.pdf`;
+
+    // Create a temporary link and trigger download
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    // Show success state briefly
+    buttonElement.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      Done
+    `;
+    buttonElement.style.background = '#10B981';
+
+    setTimeout(() => {
+      buttonElement.innerHTML = originalHTML;
+      buttonElement.style.background = originalBg;
+      buttonElement.disabled = false;
+    }, 2000);
+
+  } catch (error) {
+    console.error('Error downloading PDF:', error);
+
+    // Show error state
+    buttonElement.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      </svg>
+      Error
+    `;
+    buttonElement.style.background = '#EF4444';
+
+    setTimeout(() => {
+      buttonElement.innerHTML = originalHTML;
+      buttonElement.style.background = originalBg;
+      buttonElement.disabled = false;
+    }, 2000);
+  }
+};
 
 // Global function to toggle run details display
 window.toggleRunDetails = async function(userId, runId, containerId) {
@@ -3561,21 +4196,37 @@ window.fetchOptimizationRuns = async function(userId, accountName, region = null
 
               return `
                 <div>
-                  <div
-                    data-kdp-profile="${run.kdp_profile}"
-                    data-run-id="${run.run_id}"
-                    onclick="window.toggleRunDetails('${userId}', '${run.run_id}', '${runContainerId}')"
-                    style="padding: var(--spacing-10); background: white; border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small); display: flex; align-items: center; gap: var(--spacing-10); cursor: pointer; transition: all 0.2s;"
-                    onmouseover="this.style.background='var(--color-neutral-05)'; this.style.borderColor='var(--color-primary-60)';"
-                    onmouseout="this.style.background='white'; this.style.borderColor='var(--color-neutral-30)';"
-                  >
-                    <div style="width: 6px; height: 6px; background: #00C2A8; border-radius: 50%; flex-shrink: 0;"></div>
-                    <div style="font-size: 0.8125rem; color: var(--color-neutral-70); flex: 1;">
-                      ${formattedDate}
+                  <div style="padding: var(--spacing-10); background: white; border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small); display: flex; align-items: center; gap: var(--spacing-10); transition: all 0.2s;">
+                    <div
+                      data-kdp-profile="${run.kdp_profile}"
+                      data-run-id="${run.run_id}"
+                      onclick="window.toggleRunDetails('${userId}', '${run.run_id}', '${runContainerId}')"
+                      style="flex: 1; display: flex; align-items: center; gap: var(--spacing-10); cursor: pointer;"
+                      onmouseover="this.parentElement.style.background='var(--color-neutral-05)'; this.parentElement.style.borderColor='var(--color-primary-60)';"
+                      onmouseout="this.parentElement.style.background='white'; this.parentElement.style.borderColor='var(--color-neutral-30)';"
+                    >
+                      <div style="width: 6px; height: 6px; background: #00C2A8; border-radius: 50%; flex-shrink: 0;"></div>
+                      <div style="font-size: 0.8125rem; color: var(--color-neutral-70); flex: 1;">
+                        ${formattedDate}
+                      </div>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
                     </div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
+                    <button
+                      onclick="event.stopPropagation(); window.downloadRunPDF('${userId}', '${run.run_id}', this);"
+                      title="Download PDF Report"
+                      style="padding: var(--spacing-6) var(--spacing-10); background: var(--color-primary-60); color: white; border: none; border-radius: var(--radius-small); font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: var(--spacing-4); transition: all 0.2s; flex-shrink: 0;"
+                      onmouseover="this.style.background='var(--color-primary-70)';"
+                      onmouseout="this.style.background='var(--color-primary-60)';"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                      PDF
+                    </button>
                   </div>
                   <div id="${runContainerId}" style="display: none; margin-top: var(--spacing-8); padding: var(--spacing-12); background: var(--color-neutral-05); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small);"></div>
                 </div>
