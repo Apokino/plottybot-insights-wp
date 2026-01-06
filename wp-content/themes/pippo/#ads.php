@@ -65,7 +65,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <line x1="3" y1="15" x2="21" y2="15"></line>
           </svg>
         </span>
-        <span>⚠️ Campaign Configuration - WIP DO NOT TOUCH</span>
+        <span>⚠️(TESTING) Campaign Configuration </span>
       </button>
 
       <!-- Create Campaign Nav Item -->
@@ -543,7 +543,6 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
               Create New Configuration
             </h2>
             <form id="campaign-config-form">
-              <input type="hidden" id="config-editing-ad-group-id" />
 
               <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-32); margin-bottom: var(--spacing-24);">
                 <!-- Two Column Layout: Form Fields (Left) and Targets (Right) -->
@@ -700,23 +699,15 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
               </div>
 
               <!-- Submit Button -->
-              <div style="display: flex; gap: var(--spacing-12);">
+              <div>
                 <button
                   type="submit"
                   id="submit-campaign-config"
-                  style="flex: 1; padding: 14px; background: linear-gradient(135deg, #00C2A8, #00A890); color: var(--color-neutral-00); border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0, 194, 168, 0.3);"
+                  style="width: 100%; padding: 14px; background: linear-gradient(135deg, #00C2A8, #00A890); color: var(--color-neutral-00); border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0, 194, 168, 0.3);"
                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0, 194, 168, 0.4)'"
                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 194, 168, 0.3)'"
                 >
                   <span id="config-submit-button-text">Create Configuration</span>
-                </button>
-                <button
-                  type="button"
-                  id="cancel-campaign-config"
-                  style="padding: 14px 24px; background: var(--color-neutral-20); color: var(--color-neutral-70); border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; display: none;"
-                  onclick="cancelConfigEdit()"
-                >
-                  Cancel
                 </button>
               </div>
             </form>
@@ -1155,7 +1146,6 @@ const userLanguage = '<?php echo $user_language; ?>';
 // Global variables for campaign configuration
 let currentCampaigns = [];
 let currentConfigurations = [];
-let editingConfigAdGroupId = null;
 let specialHandlingRules = []; // Array to store ALWAYS_ON targets
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -2300,7 +2290,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (campaignsData.success && campaignsData.data && campaignsData.data.campaigns) {
-          currentCampaigns = campaignsData.data.campaigns;
+          // Filter out PAUSED, ARCHIVED ad groups and AUTO campaigns
+          currentCampaigns = campaignsData.data.campaigns.filter(c => 
+            c.state !== 'PAUSED' && 
+            c.state !== 'ARCHIVED' && 
+            c.campaignType !== 'AUTO' &&
+            c.adGroupState !== 'PAUSED' &&
+            c.adGroupState !== 'ARCHIVED'
+          );
 
           // Extract configurations - handle both cases
           if (configsData.success && configsData.data) {
@@ -2325,6 +2322,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
           // Populate campaign name dropdown
           // Group campaigns by name and get unique campaigns with their IDs
+          // Only include campaigns that have at least one valid ad group
           const uniqueCampaigns = [];
           const seenCampaigns = new Set();
           
@@ -2925,15 +2923,19 @@ document.addEventListener('DOMContentLoaded', function() {
       // Get all ad groups for this campaign
       const campaignAdGroups = currentCampaigns.filter(c => c.campaignId === selectedCampaignId);
 
-      // Filter out ad groups that already have configurations (unless editing)
+      // Filter out ad groups that already have configurations
       const configuredAdGroupIds = currentConfigurations.map(c => c.ad_group_id);
+
+      // Use a Set to track unique ad group IDs to avoid duplicates
+      const addedAdGroupIds = new Set();
 
       campaignAdGroups.forEach(campaign => {
         const isConfigured = configuredAdGroupIds.includes(campaign.adGroupId);
-        const isEditing = editingConfigAdGroupId === campaign.adGroupId;
 
-        // Show if not configured OR if we're editing this specific one
-        if (!isConfigured || isEditing) {
+        // Only show ad groups that don't have configurations yet and haven't been added already
+        if (!isConfigured && !addedAdGroupIds.has(campaign.adGroupId)) {
+          addedAdGroupIds.add(campaign.adGroupId);
+          
           const option = document.createElement('option');
           option.value = campaign.adGroupId;
 
@@ -3313,19 +3315,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         console.log('Submitting campaign configuration payload:', JSON.stringify(payload, null, 2));
 
-        // Determine if creating or updating
-        const isUpdate = editingConfigAdGroupId !== null;
-        const action = isUpdate ? 'update_campaign_config' : 'create_campaign_config';
-        const actionText = isUpdate ? 'Updating...' : 'Creating...';
-        const successText = isUpdate ? 'Configuration updated successfully!' : 'Configuration created successfully!';
-
         // Show loading state
         submitButton.disabled = true;
-        submitButtonText.textContent = actionText;
+        submitButtonText.textContent = 'Creating...';
         submitButton.style.opacity = '0.7';
 
         try {
-          const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=' + action, {
+          const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=create_campaign_config', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -3342,15 +3338,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show success message
             const successDiv = document.createElement('div');
             successDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;';
-            successDiv.textContent = '✓ ' + successText;
+            successDiv.textContent = '✓ Configuration created successfully!';
             document.body.appendChild(successDiv);
 
             setTimeout(() => {
               successDiv.remove();
             }, 3000);
 
-            // Reset form and editing state
-            cancelConfigEdit();
+            // Reset form
+            campaignConfigForm.reset();
+            resetTargetsAndRules();
 
             // Reload only configurations (campaigns data is unchanged)
             await reloadConfigurationsOnly(userId, kdpProfile);
@@ -3358,7 +3355,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show error
             const errorDiv = document.createElement('div');
             errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #FF6B6B; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;';
-            errorDiv.textContent = '✗ ' + (data.data?.message || 'Operation failed');
+            errorDiv.textContent = '✗ ' + (data.data?.message || 'Failed to create configuration');
             document.body.appendChild(errorDiv);
 
             setTimeout(() => {
@@ -3371,7 +3368,7 @@ document.addEventListener('DOMContentLoaded', function() {
           // Show error
           const errorDiv = document.createElement('div');
           errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #FF6B6B; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;';
-          errorDiv.textContent = '✗ Operation failed';
+          errorDiv.textContent = '✗ Failed to create configuration';
           document.body.appendChild(errorDiv);
 
           setTimeout(() => {
@@ -3379,7 +3376,7 @@ document.addEventListener('DOMContentLoaded', function() {
           }, 5000);
         } finally {
           submitButton.disabled = false;
-          submitButtonText.textContent = isUpdate ? 'Update Configuration' : 'Create Configuration';
+          submitButtonText.textContent = 'Create Configuration';
           submitButton.style.opacity = '1';
         }
       });
@@ -3424,91 +3421,209 @@ function renderConfigurationsList(userId, kdpProfile) {
         : `Ad Group ${config.ad_group_id}`;
 
       return `
-    <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-12);">
-        <div>
-          <h3 style="margin: 0 0 var(--spacing-4) 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
-            ${config.campaign_name}
-          </h3>
-          <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-            ${adGroupDisplayName}
-          </p>
+    <div id="config-card-${config.ad_group_id}" style="padding: var(--spacing-20); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <!-- VIEW MODE -->
+      <div id="config-view-${config.ad_group_id}">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-12);">
+          <div>
+            <h3 style="margin: 0 0 var(--spacing-4) 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
+              ${config.campaign_name}
+            </h3>
+            <p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60);">
+              ${adGroupDisplayName}
+            </p>
+          </div>
+          <div style="display: flex; gap: var(--spacing-8);">
+            <button
+              onclick="editConfigInline('${config.ad_group_id}')"
+              style="padding: 8px 12px; background: #E3F2FD; color: #1976D2; border: 1px solid #BBDEFB; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.875rem;"
+              onmouseover="this.style.background='#BBDEFB'"
+              onmouseout="this.style.background='#E3F2FD'"
+            >
+              Edit
+            </button>
+            <button
+              onclick="deleteCampaignConfig('${userId}', '${kdpProfile}', '${config.ad_group_id}')"
+              style="padding: 8px 12px; background: #FFEBEE; color: #D32F2F; border: 1px solid #FFCDD2; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.875rem;"
+              onmouseover="this.style.background='#FFCDD2'"
+              onmouseout="this.style.background='#FFEBEE'"
+            >
+              Delete
+            </button>
+          </div>
         </div>
-        <div style="display: flex; gap: var(--spacing-8);">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-12); padding: var(--spacing-12); background: var(--color-neutral-05); border-radius: var(--radius-small);">
+          <div>
+            <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Strategy</p>
+            <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.bid_update_strategy}</p>
+          </div>
+          <div>
+            <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Target TOSIS</p>
+            <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.target_tosis ? config.target_tosis + '%' : 'Default'}</p>
+          </div>
+          <div>
+            <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">ASINs</p>
+            <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.asin ? config.asin.join(', ') : 'N/A'}</p>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); padding: var(--spacing-12); margin-top: var(--spacing-8); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-20); border-radius: var(--radius-small);">
+          <div>
+            <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Royalties</p>
+            <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">$${config.royalties}</p>
+          </div>
+          <div>
+            <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Book Price</p>
+            <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">$${config.book_price}</p>
+          </div>
+        </div>
+        ${config.special_handling_rules && config.special_handling_rules.length > 0 ? `
+        <div style="margin-top: var(--spacing-12);">
           <button
-            onclick="editCampaignConfig('${config.ad_group_id}')"
-            style="padding: 8px 12px; background: #E3F2FD; color: #1976D2; border: 1px solid #BBDEFB; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.875rem;"
-            onmouseover="this.style.background='#BBDEFB'"
-            onmouseout="this.style.background='#E3F2FD'"
+            type="button"
+            onclick="toggleSpecialRules('${config.ad_group_id}')"
+            style="width: 100%; padding: var(--spacing-10); background: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.875rem; display: flex; align-items: center; justify-content: space-between;"
+            onmouseover="this.style.background='#FFE0B2'"
+            onmouseout="this.style.background='#FFF3E0'"
           >
-            Edit
-          </button>
-          <button
-            onclick="deleteCampaignConfig('${userId}', '${kdpProfile}', '${config.ad_group_id}')"
-            style="padding: 8px 12px; background: #FFEBEE; color: #D32F2F; border: 1px solid #FFCDD2; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.875rem;"
-            onmouseover="this.style.background='#FFCDD2'"
-            onmouseout="this.style.background='#FFEBEE'"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-12); padding: var(--spacing-12); background: var(--color-neutral-05); border-radius: var(--radius-small);">
-        <div>
-          <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Strategy</p>
-          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.bid_update_strategy}</p>
-        </div>
-        <div>
-          <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Target TOSIS</p>
-          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.target_tosis ? config.target_tosis + '%' : 'Default'}</p>
-        </div>
-        <div>
-          <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">ASINs</p>
-          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.asin ? config.asin.join(', ') : 'N/A'}</p>
-        </div>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); padding: var(--spacing-12); margin-top: var(--spacing-8); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-20); border-radius: var(--radius-small);">
-        <div>
-          <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Royalties</p>
-          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">$${config.royalties}</p>
-        </div>
-        <div>
-          <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Book Price</p>
-          <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">$${config.book_price}</p>
-        </div>
-      </div>
-      ${config.special_handling_rules && config.special_handling_rules.length > 0 ? `
-      <div style="margin-top: var(--spacing-12);">
-        <button
-          type="button"
-          onclick="toggleSpecialRules('${config.ad_group_id}')"
-          style="width: 100%; padding: var(--spacing-10); background: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.875rem; display: flex; align-items: center; justify-content: space-between;"
-          onmouseover="this.style.background='#FFE0B2'"
-          onmouseout="this.style.background='#FFF3E0'"
-        >
-          <span style="display: flex; align-items: center; gap: var(--spacing-6);">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <span style="display: flex; align-items: center; gap: var(--spacing-6);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              Special Rules: ${config.special_handling_rules.length} ALWAYS ON target${config.special_handling_rules.length !== 1 ? 's' : ''}
+            </span>
+            <svg id="chevron-${config.ad_group_id}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s;">
+              <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
-            Special Rules: ${config.special_handling_rules.length} ALWAYS ON target${config.special_handling_rules.length !== 1 ? 's' : ''}
-          </span>
-          <svg id="chevron-${config.ad_group_id}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s;">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </button>
-        <div id="special-rules-${config.ad_group_id}" style="display: none; margin-top: var(--spacing-8); padding: var(--spacing-12); background: var(--color-neutral-00); border: 1px solid #FFE0B2; border-radius: var(--radius-small);">
-          <p style="margin: 0 0 var(--spacing-8) 0; font-size: 0.75rem; font-weight: 600; color: var(--color-neutral-70); text-transform: uppercase; letter-spacing: 0.5px;">Always-On Targets</p>
-          <div style="display: grid; gap: var(--spacing-6);">
-            ${config.special_handling_rules.map(rule => `
-              <div style="padding: var(--spacing-6) var(--spacing-8); background: #FFFAF0; border: 1px solid #FFE0B2; border-radius: var(--radius-small); display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 0.75rem; color: var(--color-neutral-80); flex: 1;">${rule.target_text}</span>
-                <span style="font-size: 0.625rem; font-weight: 600; color: #E65100; background: #FFF3E0; padding: 2px 8px; border-radius: 4px; margin-left: var(--spacing-8);">${rule.match_type}</span>
+          </button>
+          <div id="special-rules-${config.ad_group_id}" style="display: none; margin-top: var(--spacing-8); padding: var(--spacing-12); background: var(--color-neutral-00); border: 1px solid #FFE0B2; border-radius: var(--radius-small);">
+            <p style="margin: 0 0 var(--spacing-8) 0; font-size: 0.75rem; font-weight: 600; color: var(--color-neutral-70); text-transform: uppercase; letter-spacing: 0.5px;">Always-On Targets</p>
+            <div style="display: grid; gap: var(--spacing-6);">
+              ${config.special_handling_rules.map(rule => `
+                <div style="padding: var(--spacing-6) var(--spacing-8); background: #FFFAF0; border: 1px solid #FFE0B2; border-radius: var(--radius-small); display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 0.75rem; color: var(--color-neutral-80); flex: 1;">${rule.target_text}</span>
+                  <span style="font-size: 0.625rem; font-weight: 600; color: #E65100; background: #FFF3E0; padding: 2px 8px; border-radius: 4px; margin-left: var(--spacing-8);">${rule.match_type}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+        ` : ''}
+      </div>
+      
+      <!-- EDIT MODE (hidden by default) -->
+      <div id="config-edit-${config.ad_group_id}" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-16);">
+          <h3 style="margin: 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
+            Editing: ${config.campaign_name} - ${adGroupDisplayName}
+          </h3>
+          <button
+            onclick="cancelConfigInlineEdit('${config.ad_group_id}')"
+            style="padding: 6px 12px; background: var(--color-neutral-20); color: var(--color-neutral-70); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small); cursor: pointer; font-size: 0.875rem;"
+          >
+            Cancel
+          </button>
+        </div>
+        
+        <!-- Edit Form Fields -->
+        <div style="display: grid; gap: var(--spacing-16);">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12);">
+            <div>
+              <label style="display: block; margin-bottom: var(--spacing-6); font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-80);">
+                Royalties <span style="color: #D32F2F;">*</span>
+              </label>
+              <input
+                type="number"
+                id="edit-royalties-${config.ad_group_id}"
+                value="${config.royalties || ''}"
+                step="0.01"
+                required
+                style="width: 100%; padding: var(--spacing-10); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.9375rem; transition: border-color 0.2s;"
+              />
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: var(--spacing-6); font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-80);">
+                Book Price <span style="color: #D32F2F;">*</span>
+              </label>
+              <input
+                type="number"
+                id="edit-book-price-${config.ad_group_id}"
+                value="${config.book_price || ''}"
+                step="0.01"
+                required
+                style="width: 100%; padding: var(--spacing-10); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.9375rem; transition: border-color 0.2s;"
+              />
+            </div>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12);">
+            <div>
+              <label style="display: block; margin-bottom: var(--spacing-6); font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-80);">Bid Update Strategy</label>
+              <select
+                id="edit-bid-strategy-${config.ad_group_id}"
+                style="width: 100%; padding: var(--spacing-10); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.9375rem;"
+              >
+                <option value="aggressive" ${config.bid_update_strategy === 'aggressive' ? 'selected' : ''}>Aggressive</option>
+                <option value="moderate" ${config.bid_update_strategy === 'moderate' ? 'selected' : ''}>Moderate</option>
+                <option value="conservative" ${config.bid_update_strategy === 'conservative' ? 'selected' : ''}>Conservative</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: var(--spacing-6); font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-80);">Target TOSIS (%)</label>
+              <input
+                type="number"
+                id="edit-target-tosis-${config.ad_group_id}"
+                value="${config.target_tosis !== undefined && config.target_tosis !== null ? config.target_tosis : ''}"
+                step="0.1"
+                style="width: 100%; padding: var(--spacing-10); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.9375rem;"
+              />
+            </div>
+          </div>
+          
+          <!-- Targets Section -->
+          <div style="margin-top: var(--spacing-12); padding: var(--spacing-16); background: var(--color-neutral-05); border: 1px solid var(--color-neutral-20); border-radius: var(--radius-medium);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-12);">
+              <h4 style="margin: 0; font-size: 1rem; font-weight: 600; color: var(--color-neutral-80);">Campaign Targets</h4>
+              <button
+                type="button"
+                id="edit-retrieve-btn-${config.ad_group_id}"
+                onclick="retrieveTargetsForEdit('${config.ad_group_id}')"
+                disabled
+                style="padding: 8px 16px; background: var(--color-neutral-20); color: var(--color-neutral-50); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small); cursor: not-allowed; font-weight: 600; font-size: 0.875rem;"
+              >
+                <span id="edit-retrieve-text-${config.ad_group_id}">Retrieve Targets</span>
+              </button>
+            </div>
+            <div id="edit-targets-container-${config.ad_group_id}" style="display: none; margin-top: var(--spacing-12);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-12); padding: var(--spacing-10); background: var(--color-primary-05); border-left: 3px solid var(--color-primary-50); border-radius: var(--radius-small);">
+                <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-primary-70);">
+                  <span id="edit-targets-count-${config.ad_group_id}">0</span> targets retrieved
+                </span>
               </div>
-            `).join('')}
+              <div id="edit-targets-list-${config.ad_group_id}" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+          </div>
+          
+          <!-- Update Button -->
+          <div style="display: flex; justify-content: flex-end; gap: var(--spacing-12); margin-top: var(--spacing-12);">
+            <button
+              type="button"
+              onclick="cancelConfigInlineEdit('${config.ad_group_id}')"
+              style="padding: 12px 24px; background: var(--color-neutral-20); color: var(--color-neutral-70); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small); cursor: pointer; font-weight: 600;"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onclick="updateConfigInline('${config.ad_group_id}')"
+              style="padding: 12px 24px; background: linear-gradient(135deg, #1976D2, #1565C0); color: white; border: none; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
+              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(25, 118, 210, 0.4)';"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
+            >
+              Update Configuration
+            </button>
           </div>
         </div>
       </div>
-      ` : ''}
     </div>
   `;
     }).join('');
@@ -3524,12 +3639,7 @@ function renderConfigurationsList(userId, kdpProfile) {
 }
 
 function cancelConfigEdit() {
-  document.getElementById('config-editing-ad-group-id').value = '';
   document.getElementById('campaign-config-form').reset();
-  document.getElementById('config-form-title').textContent = 'Create New Configuration';
-  document.getElementById('config-submit-button-text').textContent = 'Create Configuration';
-  document.getElementById('cancel-campaign-config').style.display = 'none';
-  editingConfigAdGroupId = null;
   
   // Reset targets and special handling rules
   resetTargetsAndRules();
@@ -3556,6 +3666,357 @@ function resetTargetsAndRules() {
   const targetsCount = document.getElementById('targets-count');
   if (targetsCount) {
     targetsCount.textContent = '0 items';
+  }
+}
+
+// Inline edit functions for configuration cards
+let editingInlineConfigs = {}; // Store special handling rules per config being edited
+
+async function editConfigInline(adGroupId) {
+  console.log('Editing config inline:', adGroupId);
+  
+  const config = currentConfigurations.find(c => c.ad_group_id === adGroupId);
+  if (!config) {
+    console.error('Configuration not found');
+    return;
+  }
+  
+  // Hide view mode, show edit mode
+  const viewMode = document.getElementById(`config-view-${adGroupId}`);
+  const editMode = document.getElementById(`config-edit-${adGroupId}`);
+  
+  if (viewMode) viewMode.style.display = 'none';
+  if (editMode) editMode.style.display = 'block';
+  
+  // Initialize special handling rules for this config
+  editingInlineConfigs[adGroupId] = {
+    specialHandlingRules: config.special_handling_rules ? [...config.special_handling_rules] : [],
+    campaignId: config.campaign_id,
+    account: currentUserId // will be set from context
+  };
+  
+  // Enable retrieve button
+  const retrieveBtn = document.getElementById(`edit-retrieve-btn-${adGroupId}`);
+  if (retrieveBtn) {
+    retrieveBtn.disabled = false;
+    retrieveBtn.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
+    retrieveBtn.style.color = 'white';
+    retrieveBtn.style.cursor = 'pointer';
+  }
+  
+  // Auto-retrieve targets if there are special handling rules
+  if (config.special_handling_rules && config.special_handling_rules.length > 0) {
+    await retrieveTargetsForEdit(adGroupId);
+  }
+}
+
+function cancelConfigInlineEdit(adGroupId) {
+  console.log('Canceling inline edit:', adGroupId);
+  
+  // Show view mode, hide edit mode
+  const viewMode = document.getElementById(`config-view-${adGroupId}`);
+  const editMode = document.getElementById(`config-edit-${adGroupId}`);
+  
+  if (viewMode) viewMode.style.display = 'block';
+  if (editMode) editMode.style.display = 'none';
+  
+  // Clear stored data
+  delete editingInlineConfigs[adGroupId];
+  
+  // Hide targets
+  const targetsContainer = document.getElementById(`edit-targets-container-${adGroupId}`);
+  if (targetsContainer) {
+    targetsContainer.style.display = 'none';
+  }
+}
+
+async function retrieveTargetsForEdit(adGroupId) {
+  console.log('Retrieving targets for edit:', adGroupId);
+  
+  const config = currentConfigurations.find(c => c.ad_group_id === adGroupId);
+  if (!config) return;
+  
+  const matchingCampaign = currentCampaigns.find(c => c.adGroupId === adGroupId);
+  if (!matchingCampaign) {
+    console.error('Campaign not found for ad group:', adGroupId);
+    return;
+  }
+  
+  const retrieveBtn = document.getElementById(`edit-retrieve-btn-${adGroupId}`);
+  const retrieveText = document.getElementById(`edit-retrieve-text-${adGroupId}`);
+  
+  // Show loading state
+  if (retrieveText) retrieveText.textContent = 'Retrieving...';
+  if (retrieveBtn) {
+    retrieveBtn.disabled = true;
+    retrieveBtn.style.cursor = 'not-allowed';
+    retrieveBtn.style.opacity = '0.7';
+  }
+  
+  try {
+    const account = document.getElementById('campaign-account').value;
+    const region = document.getElementById('campaign-region').value;
+    const kdpProfile = `${account}-${region}`;
+    
+    const payload = {
+      user_id: currentUserId,
+      kdp_profile: kdpProfile,
+      campaign_id: String(matchingCampaign.campaignId),
+      adgroups: [String(adGroupId)]
+    };
+    
+    console.log('Fetching targets with payload:', payload);
+    
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_campaign_targets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    const result = await response.json();
+    console.log('Targets response:', result);
+    
+    if (result.success && result.data && result.data.targets) {
+      const targets = result.data.targets;
+      const targetsContainer = document.getElementById(`edit-targets-container-${adGroupId}`);
+      const targetsList = document.getElementById(`edit-targets-list-${adGroupId}`);
+      const targetsCount = document.getElementById(`edit-targets-count-${adGroupId}`);
+      
+      if (targetsCount) targetsCount.textContent = targets.length;
+      
+      // Separate products and keywords
+      const products = targets.filter(t => t.target_type === 'product');
+      const keywords = targets.filter(t => t.target_type === 'keyword');
+      
+      let targetsHTML = '';
+      
+      // Render products
+      if (products.length > 0) {
+        targetsHTML += `
+          <div style="margin-bottom: var(--spacing-12);">
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--color-neutral-60); margin-bottom: var(--spacing-6); text-transform: uppercase;">
+              Products (${products.length})
+            </div>
+            <div style="display: grid; gap: var(--spacing-4);">
+        `;
+        products.forEach(target => {
+          const targetId = target.target_id || '';
+          const isActive = editingInlineConfigs[adGroupId]?.specialHandlingRules?.some(r => r.target_id === targetId);
+          targetsHTML += `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-6) var(--spacing-8); background: white; border: 1px solid var(--color-neutral-20); border-radius: var(--radius-small);">
+              <div style="display: flex; align-items: center; gap: var(--spacing-10); flex: 1;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-50)" stroke-width="2">
+                  <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                  <polyline points="17 2 12 7 7 2"></polyline>
+                </svg>
+                <span style="font-size: 0.75rem; color: var(--color-neutral-80);">${target.target_text || ''}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--spacing-8);">
+                <span style="font-size: 0.625rem; font-weight: 600; color: var(--color-primary-60); background: var(--color-primary-05); padding: 2px 8px; border-radius: 4px;">${target.match_type_display || target.match_type || ''}</span>
+                <button
+                  type="button"
+                  id="edit-target-${adGroupId}-${targetId}"
+                  onclick="toggleAlwaysOnInline('${adGroupId}', '${targetId}', '${(target.target_text || '').replace(/'/g, "\\'")}', '${target.match_type || ''}')"
+                  class="${isActive ? 'active' : ''}"
+                  style="padding: 4px 10px; background: ${isActive ? 'var(--color-success-50)' : 'var(--color-neutral-10)'}; color: ${isActive ? 'white' : 'var(--color-neutral-60)'}; border: 1px solid ${isActive ? 'var(--color-success-50)' : 'var(--color-neutral-30)'}; border-radius: 4px; font-size: 0.625rem; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+                >
+                  ALWAYS ON
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        targetsHTML += `</div></div>`;
+      }
+      
+      // Render keywords
+      if (keywords.length > 0) {
+        targetsHTML += `
+          <div>
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--color-neutral-60); margin-bottom: var(--spacing-6); text-transform: uppercase;">
+              Keywords (${keywords.length})
+            </div>
+            <div style="display: grid; gap: var(--spacing-4);">
+        `;
+        keywords.forEach(target => {
+          const targetId = target.target_id || '';
+          const isActive = editingInlineConfigs[adGroupId]?.specialHandlingRules?.some(r => r.target_id === targetId);
+          targetsHTML += `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-6) var(--spacing-8); background: white; border: 1px solid var(--color-neutral-20); border-radius: var(--radius-small);">
+              <div style="display: flex; align-items: center; gap: var(--spacing-10); flex: 1;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                </svg>
+                <span style="font-size: 0.75rem; color: var(--color-neutral-80);">${target.target_text || ''}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--spacing-8);">
+                <span style="font-size: 0.625rem; font-weight: 600; color: var(--color-neutral-60); background: var(--color-neutral-10); padding: 2px 8px; border-radius: 4px;">${target.match_type_display || target.match_type || ''}</span>
+                <button
+                  type="button"
+                  id="edit-target-${adGroupId}-${targetId}"
+                  onclick="toggleAlwaysOnInline('${adGroupId}', '${targetId}', '${(target.target_text || '').replace(/'/g, "\\'")}', '${target.match_type || ''}')"
+                  class="${isActive ? 'active' : ''}"
+                  style="padding: 4px 10px; background: ${isActive ? 'var(--color-success-50)' : 'var(--color-neutral-10)'}; color: ${isActive ? 'white' : 'var(--color-neutral-60)'}; border: 1px solid ${isActive ? 'var(--color-success-50)' : 'var(--color-neutral-30)'}; border-radius: 4px; font-size: 0.625rem; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+                >
+                  ALWAYS ON
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        targetsHTML += `</div></div>`;
+      }
+      
+      if (targetsList) targetsList.innerHTML = targetsHTML;
+      if (targetsContainer) targetsContainer.style.display = 'block';
+      
+    } else {
+      throw new Error('Failed to retrieve targets');
+    }
+    
+  } catch (error) {
+    console.error('Error retrieving targets:', error);
+  } finally {
+    if (retrieveText) retrieveText.textContent = 'Retrieve Targets';
+    if (retrieveBtn) {
+      retrieveBtn.disabled = false;
+      retrieveBtn.style.cursor = 'pointer';
+      retrieveBtn.style.opacity = '1';
+    }
+  }
+}
+
+function toggleAlwaysOnInline(adGroupId, targetId, targetText, matchType) {
+  if (!editingInlineConfigs[adGroupId]) {
+    editingInlineConfigs[adGroupId] = { specialHandlingRules: [] };
+  }
+  
+  const rules = editingInlineConfigs[adGroupId].specialHandlingRules;
+  const existingIndex = rules.findIndex(r => r.target_id === targetId);
+  const button = document.getElementById(`edit-target-${adGroupId}-${targetId}`);
+  
+  if (existingIndex >= 0) {
+    // Remove from rules
+    rules.splice(existingIndex, 1);
+    if (button) {
+      button.classList.remove('active');
+      button.style.background = 'var(--color-neutral-10)';
+      button.style.color = 'var(--color-neutral-60)';
+      button.style.borderColor = 'var(--color-neutral-30)';
+    }
+  } else {
+    // Add to rules
+    rules.push({
+      target_id: targetId,
+      target_text: targetText,
+      match_type: matchType,
+      action: 'ALWAYS_ON'
+    });
+    if (button) {
+      button.classList.add('active');
+      button.style.background = 'var(--color-success-50)';
+      button.style.color = 'white';
+      button.style.borderColor = 'var(--color-success-50)';
+    }
+  }
+  
+  console.log('Updated special handling rules for', adGroupId, ':', rules);
+}
+
+async function updateConfigInline(adGroupId) {
+  console.log('Updating config inline:', adGroupId);
+  
+  const royalties = document.getElementById(`edit-royalties-${adGroupId}`).value.trim();
+  const bookPrice = document.getElementById(`edit-book-price-${adGroupId}`).value.trim();
+  const bidStrategy = document.getElementById(`edit-bid-strategy-${adGroupId}`).value;
+  const targetTosis = document.getElementById(`edit-target-tosis-${adGroupId}`).value.trim();
+  
+  // Validation
+  if (!royalties || isNaN(parseFloat(royalties))) {
+    alert('Please enter a valid royalties value');
+    return;
+  }
+  if (!bookPrice || isNaN(parseFloat(bookPrice))) {
+    alert('Please enter a valid book price');
+    return;
+  }
+  
+  const config = currentConfigurations.find(c => c.ad_group_id === adGroupId);
+  if (!config) return;
+  
+  const account = document.getElementById('campaign-account').value;
+  const region = document.getElementById('campaign-region').value;
+  const kdpProfile = `${account}-${region}`;
+  
+  // Build the configuration object
+  const configuration = {
+    asin: config.asin || [],
+    campaign_name: config.campaign_name,
+    campaign_id: String(config.campaign_id),
+    ad_group_id: String(adGroupId),
+    ad_group_name: config.ad_group_name || '',
+    royalties: parseFloat(royalties),
+    book_price: parseFloat(bookPrice),
+    bid_update_strategy: bidStrategy
+  };
+  
+  // Only include target_tosis if it's set
+  if (targetTosis && targetTosis.trim() !== '') {
+    configuration.target_tosis = parseFloat(targetTosis);
+  }
+  
+  // Add special handling rules if any
+  if (editingInlineConfigs[adGroupId]?.specialHandlingRules?.length > 0) {
+    configuration.special_handling_rules = editingInlineConfigs[adGroupId].specialHandlingRules;
+  }
+  
+  // Wrap in the expected payload structure
+  const payload = {
+    user_id: String(currentUserId),
+    kdp_profile: kdpProfile,
+    configuration: [configuration]
+  };
+  
+  console.log('Updating configuration with payload:', payload);
+  
+  try {
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=create_campaign_config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    const result = await response.json();
+    console.log('Update response:', result);
+    console.log('Response details:', JSON.stringify(result, null, 2));
+    
+    if (result.success) {
+      // Success notification
+      const successDiv = document.createElement('div');
+      successDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;';
+      successDiv.textContent = '✓ Configuration updated successfully';
+      document.body.appendChild(successDiv);
+      setTimeout(() => successDiv.remove(), 3000);
+      
+      // Cancel edit mode
+      cancelConfigInlineEdit(adGroupId);
+      
+      // Reload configurations
+      await reloadConfigurationsOnly(currentUserId, kdpProfile);
+      
+    } else {
+      const errorMessage = result.data?.message || result.data?.error || 'Failed to update configuration';
+      console.error('Backend error:', errorMessage);
+      throw new Error(errorMessage);
+    }
+    
+  } catch (error) {
+    console.error('Error updating configuration:', error);
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #FF6B6B; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;';
+    errorDiv.textContent = '✗ ' + error.message;
+    document.body.appendChild(errorDiv);
+    setTimeout(() => errorDiv.remove(), 5000);
   }
 }
 
