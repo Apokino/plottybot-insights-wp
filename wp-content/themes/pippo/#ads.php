@@ -54,6 +54,17 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
         <span>Optimization Schedule</span>
       </button>
 
+      <!-- Books Nav Item -->
+      <button class="service-nav-btn" data-service="placeholder-books" <?php echo !$ads_enabled ? 'disabled' : ''; ?> style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-50); font-weight: 600; font-size: 1rem; cursor: <?php echo $ads_enabled ? 'pointer' : 'not-allowed'; ?>; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4); opacity: <?php echo $ads_enabled ? '1' : '0.5'; ?>;">
+        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </span>
+        <span>⚠️ Books - WIP DO NOT TOUCH</span>
+      </button>
+
       <!-- Campaign Configuration Nav Item -->
       <button class="service-nav-btn" data-service="placeholder-3" <?php echo !$ads_enabled ? 'disabled' : ''; ?> style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-50); font-weight: 600; font-size: 1rem; cursor: <?php echo $ads_enabled ? 'pointer' : 'not-allowed'; ?>; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4); opacity: <?php echo $ads_enabled ? '1' : '0.5'; ?>;">
         <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
@@ -439,6 +450,144 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <div style="text-align: center; padding: var(--spacing-48);">
               <div style="width: 80px; height: 80px; margin: 0 auto var(--spacing-24); background: linear-gradient(135deg, #FF6B6B, #FF5252); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <h1 style="font-size: 2rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-16) 0;">
+                Access Denied
+              </h1>
+              <p style="font-size: 1.125rem; color: var(--color-neutral-70); margin: 0;">
+                You don't have access to the Ads features.
+              </p>
+            </div>
+          <?php endif; ?>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Books Section -->
+    <div id="service-placeholder-books" class="service-section" style="display: none;">
+      <div style="max-width: 1400px; margin: 0 auto;">
+        <div style="background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40);">
+
+          <?php if ($ads_enabled): ?>
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: var(--spacing-40);">
+              <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">
+                📚 Books Management
+              </h1>
+              <p class="text--body-lg" style="color: var(--color-neutral-70);">
+                Manage your book catalog and royalty settings
+              </p>
+            </div>
+
+            <!-- Account and Region Selection -->
+            <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-24); margin-bottom: var(--spacing-32);">
+              <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--spacing-16); align-items: end;">
+                <!-- Account Selection -->
+                <div>
+                  <label for="books-account" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                    Account <span style="color: #FF6B6B;">*</span>
+                  </label>
+                  <select
+                    id="books-account"
+                    style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
+                  >
+                    <option value="">Select an account...</option>
+                  </select>
+                </div>
+
+                <!-- Region Selection -->
+                <div>
+                  <label for="books-region" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                    Region <span style="color: #FF6B6B;">*</span>
+                  </label>
+                  <select
+                    id="books-region"
+                    style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
+                  >
+                    <option value="">Select a region...</option>
+                    <option value="AU">Australia (AU)</option>
+                    <option value="CA">Canada (CA)</option>
+                    <option value="DE">Germany (DE)</option>
+                    <option value="ES">Spain (ES)</option>
+                    <option value="FR">France (FR)</option>
+                    <option value="IN">India (IN)</option>
+                    <option value="IT">Italy (IT)</option>
+                    <option value="JP">Japan (JP)</option>
+                    <option value="MX">Mexico (MX)</option>
+                    <option value="NL">Netherlands (NL)</option>
+                    <option value="UK">United Kingdom (UK)</option>
+                    <option value="US">United States (US)</option>
+                  </select>
+                </div>
+
+                <!-- Load Books Button -->
+                <button
+                  id="load-books-btn"
+                  onclick="loadBooks()"
+                  style="height: 44px; padding: 0 var(--spacing-24); background: linear-gradient(135deg, #00C2A8, #00A890); color: white; border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 0.9375rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0, 194, 168, 0.3); white-space: nowrap;"
+                  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0, 194, 168, 0.4)'"
+                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 194, 168, 0.3)'"
+                >
+                  Load Books
+                </button>
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="books-loading" style="text-align: center; padding: var(--spacing-40); display: none;">
+              <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+              <p style="margin-top: var(--spacing-16); color: var(--color-neutral-70);">Loading books...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="books-error" style="display: none; background: #FFF5F5; border: 1px solid #FEB2B2; border-radius: var(--radius-medium); padding: var(--spacing-16); margin-bottom: var(--spacing-24);">
+              <p style="color: #C53030; margin: 0;" id="books-error-message"></p>
+            </div>
+
+            <!-- Success Message -->
+            <div id="books-success" style="display: none; background: #F0FDF4; border: 1px solid #86EFAC; border-radius: var(--radius-medium); padding: var(--spacing-16); margin-bottom: var(--spacing-24);">
+              <p style="color: #16A34A; margin: 0;" id="books-success-message"></p>
+            </div>
+
+            <!-- Books List Container -->
+            <div id="books-container" style="display: none;">
+              <!-- Action Buttons (Sticky) -->
+              <div style="position: sticky; top: 32px; z-index: 100; display: flex; justify-content: flex-end; gap: var(--spacing-16); margin-bottom: var(--spacing-24); padding: var(--spacing-12) 0; background: linear-gradient(to bottom, #f8f9fa 0%, #f8f9fa 85%, rgba(248, 249, 250, 0) 100%);">
+                <button
+                  id="save-books-btn"
+                  onclick="saveBooks()"
+                  style="padding: 12px var(--spacing-24); background: linear-gradient(135deg, #00C2A8, #00A890); color: white; border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 0.9375rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0, 194, 168, 0.3);"
+                  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0, 194, 168, 0.4)'"
+                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 194, 168, 0.3)'"
+                >
+                  💾 Save All Royalties
+                </button>
+              </div>
+
+              <!-- Books Grid -->
+              <div id="books-list" style="display: grid; gap: var(--spacing-16);"></div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="books-empty" style="display: none; text-align: center; padding: var(--spacing-60);">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-40)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-24);">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <h3 style="color: var(--color-neutral-70); margin: 0 0 var(--spacing-8) 0;">No books found</h3>
+              <p style="color: var(--color-neutral-60); margin: 0;">Select an account and region to load your books.</p>
+            </div>
+
+          <?php else: ?>
+            <!-- Access Denied Message -->
+            <div style="text-align: center; padding: var(--spacing-60);">
+              <div style="width: 80px; height: 80px; margin: 0 auto var(--spacing-32); background: #FEE; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C53030" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="15" y1="9" x2="9" y2="15"></line>
                   <line x1="9" y1="9" x2="15" y2="15"></line>
@@ -4842,6 +4991,444 @@ async function deleteOptimization(userId, kdpProfile) {
     }, 3000);
   }
 }
+
+// ===========================================
+// BOOKS MANAGEMENT FUNCTIONS
+// ===========================================
+
+let currentBooksData = [];
+let currentKdpProfile = '';
+
+// Load books for selected account and region
+async function loadBooks() {
+  const accountSelect = document.getElementById('books-account');
+  const regionSelect = document.getElementById('books-region');
+  const account = accountSelect.value;
+  const region = regionSelect.value;
+
+  if (!account || !region) {
+    showBooksError('Please select both account and region');
+    return;
+  }
+
+  currentKdpProfile = `${account}-${region}`;
+
+  // Debug logging
+  console.log('Loading books with:', {
+    user_id: String(currentUserId),
+    kdp_profile: currentKdpProfile,
+    account: account,
+    region: region
+  });
+
+  // Show loading state
+  document.getElementById('books-loading').style.display = 'block';
+  document.getElementById('books-container').style.display = 'none';
+  document.getElementById('books-empty').style.display = 'none';
+  document.getElementById('books-error').style.display = 'none';
+  document.getElementById('books-success').style.display = 'none';
+
+  try {
+    // First call: Get books from Amazon Ads API
+    const listResponse = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=list_books', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_id: String(currentUserId),
+        kdp_profile: currentKdpProfile
+      })
+    });
+
+    const listData = await listResponse.json();
+    console.log('List books response:', listData);
+
+    if (!listData.success || !listData.data || !listData.data.books) {
+      throw new Error(listData.data?.error || 'Failed to load books from API');
+    }
+
+    // Second call: Get saved royalties data
+    const getResponse = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_books', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_id: String(currentUserId),
+        kdp_profile: currentKdpProfile
+      })
+    });
+
+    const getData = await getResponse.json();
+    const savedBooks = (getData.success && getData.data && getData.data.books) ? getData.data.books : [];
+
+    // Filter and merge data: exclude books without price, without availability, or OUT_OF_STOCK
+    currentBooksData = listData.data.books
+      .filter(book => book.price && book.availability && book.availability !== 'OUT_OF_STOCK')
+      .map(apiBook => {
+        const savedBook = savedBooks.find(sb => sb.asin === apiBook.asin);
+        return {
+          ...apiBook,
+          royalties: savedBook?.royalties || null
+        };
+      });
+
+    // Hide loading, show books
+    document.getElementById('books-loading').style.display = 'none';
+
+    if (currentBooksData.length === 0) {
+      document.getElementById('books-empty').style.display = 'block';
+    } else {
+      document.getElementById('books-container').style.display = 'block';
+      renderBooksList();
+    }
+
+  } catch (error) {
+    console.error('Error loading books:', error);
+    document.getElementById('books-loading').style.display = 'none';
+    showBooksError(error.message || 'Failed to load books. Please try again.');
+  }
+}
+
+// Calculate break-even ACoS
+function calculateBreakEvenAcos(bookPrice, royalties) {
+  if (!bookPrice || bookPrice <= 0) return 0;
+  return (royalties / bookPrice) * 100;
+}
+
+// Calculate profit margin (1/3 of break-even ACoS)
+function calculateProfitMargin(bookPrice, royalties) {
+  return calculateBreakEvenAcos(bookPrice, royalties) / 3;
+}
+
+// Calculate target ACoS (break-even ACoS - profit margin)
+function calculateTargetAcos(bookPrice, royalties) {
+  const breakEven = calculateBreakEvenAcos(bookPrice, royalties);
+  const margin = calculateProfitMargin(bookPrice, royalties);
+  return breakEven - margin;
+}
+
+// Render the books list
+function renderBooksList() {
+  const booksListDiv = document.getElementById('books-list');
+  
+  if (currentBooksData.length === 0) {
+    booksListDiv.innerHTML = '';
+    return;
+  }
+
+  // Group books by clean_title
+  const groupedBooks = currentBooksData.reduce((groups, book, index) => {
+    const key = book.clean_title || book.title;
+    if (!groups[key]) {
+      groups[key] = [];
+    }
+    groups[key].push({ ...book, originalIndex: index });
+    return groups;
+  }, {});
+
+  // Render grouped books
+  booksListDiv.innerHTML = Object.entries(groupedBooks).map(([title, variants]) => {
+    // Use the first variant's image, upgrade quality
+    const firstBook = variants[0];
+    const imageUrl = firstBook.image_url ? firstBook.image_url.replace('_SS60_', '_SS200_') : null;
+    const author = firstBook.author || 'N/A';
+    
+    return `
+      <div style="background: white; border: 1px solid var(--color-neutral-20); border-radius: var(--radius-medium); padding: var(--spacing-20); box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+        <div style="display: flex; gap: var(--spacing-20); margin-bottom: var(--spacing-16);">
+          <!-- Book Image -->
+          <div style="flex-shrink: 0; width: 90px; height: 135px; background: var(--color-neutral-10); border-radius: var(--radius-small); overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+            ${imageUrl
+              ? `<img src="${imageUrl}" alt="${title}" style="width: 100%; height: 100%; object-fit: cover;">` 
+              : `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-40)" stroke-width="2" style="margin: 48px auto; display: block;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
+            }
+          </div>
+
+          <!-- Book Info & Variants -->
+          <div style="flex: 1; min-width: 0;">
+            <!-- Title & Author -->
+            <h3 style="margin: 0 0 var(--spacing-4) 0; font-size: 1rem; font-weight: 600; color: var(--color-neutral-90); line-height: 1.3;">
+              ${title}
+            </h3>
+            <div style="font-size: 0.8125rem; color: var(--color-neutral-60); margin-bottom: var(--spacing-12);">
+              ${author} • ${variants.length} format${variants.length > 1 ? 's' : ''}
+            </div>
+
+            <!-- Variants Table -->
+            <div style="border: 1px solid var(--color-neutral-20); border-radius: var(--radius-small); overflow: hidden;">
+              ${variants.map((book, idx) => {
+                const price = book.price ? `${book.price.currency} ${book.price.amount.toFixed(2)}` : 'N/A';
+                const royaltyAmount = book.royalties?.amount || 0;
+                const royaltyCurrency = book.royalties?.currency || (book.price?.currency || 'USD');
+                
+                // Calculate metrics if royalties and price are available
+                const bookPrice = book.price?.amount || 0;
+                const hasMetrics = royaltyAmount > 0 && bookPrice > 0;
+                const breakEvenAcos = hasMetrics ? calculateBreakEvenAcos(bookPrice, royaltyAmount) : 0;
+                const profitMargin = hasMetrics ? calculateProfitMargin(bookPrice, royaltyAmount) : 0;
+                const targetAcos = hasMetrics ? calculateTargetAcos(bookPrice, royaltyAmount) : 0;
+                
+                return `
+                  <div style="background: ${idx % 2 === 0 ? 'white' : 'var(--color-neutral-05)'}; border-top: ${idx > 0 ? '1px solid var(--color-neutral-20)' : 'none'};">
+                    <div style="display: grid; grid-template-columns: 100px 120px 100px 140px 1fr; gap: var(--spacing-12); padding: var(--spacing-10) var(--spacing-12); align-items: center;">
+                      <!-- Format Badge -->
+                      <div>
+                        ${book.format ? `<span style="display: inline-block; padding: 3px 10px; background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: white; border-radius: 3px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">${book.format}</span>` : '<span style="color: var(--color-neutral-40); font-size: 0.75rem;">—</span>'}
+                      </div>
+                      
+                      <!-- ASIN -->
+                      <div style="font-size: 0.8125rem; color: var(--color-neutral-70); font-family: monospace;">
+                        ${book.asin}
+                      </div>
+                      
+                      <!-- Price -->
+                      <div style="font-size: 0.8125rem; color: var(--color-neutral-70); font-weight: 500;">
+                        ${price}
+                      </div>
+                      
+                      <!-- Created Date -->
+                      <div style="font-size: 0.75rem; color: var(--color-neutral-60);">
+                        ${book.created_date || '—'}
+                      </div>
+                      
+                      <!-- Royalties Input -->
+                      <div style="display: flex; gap: var(--spacing-6); align-items: center;">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value="${royaltyAmount}"
+                          data-book-index="${book.originalIndex}"
+                          data-field="royalty-amount"
+                          onchange="updateRoyalty(${book.originalIndex}, this.value, document.querySelector('[data-book-index=&quot;${book.originalIndex}&quot;][data-field=&quot;royalty-currency&quot;]').value)"
+                          style="width: 80px; height: 28px; padding: 0 6px; border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.8125rem;"
+                          placeholder="0.00"
+                        />
+                        <select
+                          data-book-index="${book.originalIndex}"
+                          data-field="royalty-currency"
+                          onchange="updateRoyalty(${book.originalIndex}, document.querySelector('[data-book-index=&quot;${book.originalIndex}&quot;][data-field=&quot;royalty-amount&quot;]').value, this.value)"
+                          style="width: 60px; height: 28px; padding: 0 4px; border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.8125rem; cursor: pointer;"
+                        >
+                          <option value="USD" ${royaltyCurrency === 'USD' ? 'selected' : ''}>USD</option>
+                          <option value="EUR" ${royaltyCurrency === 'EUR' ? 'selected' : ''}>EUR</option>
+                          <option value="GBP" ${royaltyCurrency === 'GBP' ? 'selected' : ''}>GBP</option>
+                          <option value="CAD" ${royaltyCurrency === 'CAD' ? 'selected' : ''}>CAD</option>
+                          <option value="AUD" ${royaltyCurrency === 'AUD' ? 'selected' : ''}>AUD</option>
+                          <option value="JPY" ${royaltyCurrency === 'JPY' ? 'selected' : ''}>JPY</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <!-- Metrics Row (only shown when royalties are set) -->
+                    ${hasMetrics ? `
+                      <div style="padding: var(--spacing-8) var(--spacing-12); display: flex; gap: var(--spacing-12); border-top: 1px dashed var(--color-neutral-20);">
+                        <div style="flex: 1; display: flex; align-items: center; gap: var(--spacing-6);">
+                          <span style="font-size: 0.6875rem; color: var(--color-neutral-60); text-transform: uppercase; font-weight: 600;">Break-even ACoS:</span>
+                          <span style="font-size: 0.75rem; color: var(--color-neutral-90); font-weight: 700; padding: 2px 8px; background: linear-gradient(135deg, #FFE5E5, #FFD5D5); border-radius: 3px;">${breakEvenAcos.toFixed(2)}%</span>
+                        </div>
+                        <div style="flex: 1; display: flex; align-items: center; gap: var(--spacing-6);">
+                          <span style="font-size: 0.6875rem; color: var(--color-neutral-60); text-transform: uppercase; font-weight: 600;">Profit Margin:</span>
+                          <span style="font-size: 0.75rem; color: var(--color-neutral-90); font-weight: 700; padding: 2px 8px; background: linear-gradient(135deg, #E5F5FF, #D5EBFF); border-radius: 3px;">${profitMargin.toFixed(2)}%</span>
+                        </div>
+                        <div style="flex: 1; display: flex; align-items: center; gap: var(--spacing-6);">
+                          <span style="font-size: 0.6875rem; color: var(--color-neutral-60); text-transform: uppercase; font-weight: 600;">Target ACoS:</span>
+                          <span style="font-size: 0.75rem; color: white; font-weight: 700; padding: 2px 8px; background: linear-gradient(135deg, #00C2A8, #00A890); border-radius: 3px;">${targetAcos.toFixed(2)}%</span>
+                        </div>
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Update royalty for a specific book
+function updateRoyalty(index, amount, currency) {
+  const amountValue = parseFloat(amount) || 0;
+  
+  if (currentBooksData[index]) {
+    currentBooksData[index].royalties = {
+      amount: amountValue,
+      currency: currency
+    };
+    
+    // Re-render to update metrics in real-time
+    renderBooksList();
+  }
+}
+
+// Save all books with royalties
+async function saveBooks() {
+  if (!currentUserId || !currentKdpProfile) {
+    showBooksError('Please load books first');
+    return;
+  }
+
+  const saveBtn = document.getElementById('save-books-btn');
+  const originalText = saveBtn.innerHTML;
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '💾 Saving...';
+
+  try {
+    // Prepare books data - ensure royalties are properly formatted
+    const booksToSave = currentBooksData.map(book => {
+      const bookData = {
+        asin: book.asin,
+        title: book.title,
+        clean_title: book.clean_title,
+        format: book.format,
+        author: book.author,
+        availability: book.availability,
+        image_url: book.image_url,
+        price: book.price,
+        created_date: book.created_date,
+        variation_list: book.variation_list
+      };
+
+      // Only include royalties if amount is positive
+      if (book.royalties && book.royalties.amount > 0) {
+        bookData.royalties = {
+          amount: parseFloat(book.royalties.amount),
+          currency: book.royalties.currency
+        };
+      }
+
+      return bookData;
+    });
+
+    console.log('Saving books:', booksToSave);
+
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=save_books', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_id: String(currentUserId),
+        kdp_profile: currentKdpProfile,
+        books: booksToSave
+      })
+    });
+
+    const data = await response.json();
+    console.log('Save response:', data);
+
+    if (!data.success) {
+      throw new Error(data.data?.error || 'Failed to save books');
+    }
+
+    // Update current books data with saved data
+    if (data.data && data.data.books) {
+      currentBooksData = data.data.books.map(savedBook => {
+        const currentBook = currentBooksData.find(b => b.asin === savedBook.asin);
+        return {
+          ...currentBook,
+          ...savedBook
+        };
+      });
+    }
+
+    showBooksSuccess(`Successfully saved ${data.data.saved_count} book(s)`);
+    renderBooksList(); // Refresh the list with updated data
+
+  } catch (error) {
+    console.error('Error saving books:', error);
+    showBooksError(error.message || 'Failed to save books. Please try again.');
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = originalText;
+  }
+}
+
+// Show error message
+function showBooksError(message) {
+  const errorDiv = document.getElementById('books-error');
+  const errorMsg = document.getElementById('books-error-message');
+  errorMsg.textContent = message;
+  errorDiv.style.display = 'block';
+  
+  // Hide success message
+  document.getElementById('books-success').style.display = 'none';
+  
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    errorDiv.style.display = 'none';
+  }, 5000);
+}
+
+// Show success message
+function showBooksSuccess(message) {
+  const successDiv = document.getElementById('books-success');
+  const successMsg = document.getElementById('books-success-message');
+  successMsg.textContent = message;
+  successDiv.style.display = 'block';
+  
+  // Hide error message
+  document.getElementById('books-error').style.display = 'none';
+  
+  // Auto-hide after 3 seconds
+  setTimeout(() => {
+    successDiv.style.display = 'none';
+  }, 3000);
+}
+
+// Populate books account dropdown when service is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  const booksAccountSelect = document.getElementById('books-account');
+  if (booksAccountSelect) {
+    // Load KDP accounts for books dropdown
+    (async function() {
+      try {
+        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: currentUserId
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.data && data.data.account_names) {
+          const accounts = data.data.account_names;
+
+          // Clear and populate account dropdown
+          booksAccountSelect.innerHTML = '<option value="">Select an account...</option>';
+
+          accounts.forEach(account => {
+            const option = document.createElement('option');
+            option.value = account;
+            option.textContent = account;
+            booksAccountSelect.appendChild(option);
+          });
+
+          // Enable the dropdown
+          booksAccountSelect.disabled = false;
+        } else {
+          // No accounts found
+          booksAccountSelect.innerHTML = '<option value="">No accounts found</option>';
+          booksAccountSelect.disabled = true;
+        }
+      } catch (error) {
+        console.error('Error loading accounts for books:', error);
+        booksAccountSelect.innerHTML = '<option value="">Error loading accounts</option>';
+        booksAccountSelect.disabled = true;
+      }
+    })();
+  }
+});
+
 </script>
 
 <?php
