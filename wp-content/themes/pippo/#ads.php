@@ -1327,6 +1327,13 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                   <div style="font-size: 0.75rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-8);">ROAS</div>
                   <div id="pulse-metric-roas" style="font-size: 1.75rem; font-weight: 700; color: #4CAF50;">—</div>
                 </div>
+
+                <!-- Money Wasted (Zero Sales) -->
+                <div style="background: white; border-radius: var(--radius-medium); padding: var(--spacing-20); box-shadow: var(--shadow-low); border-top: 3px solid #FF6B6B;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-8);">Money Wasted</div>
+                  <div id="pulse-metric-money-wasted" style="font-size: 1.75rem; font-weight: 700; color: #FF6B6B;">—</div>
+                  <div style="font-size: 0.65rem; color: var(--color-neutral-60); margin-top: var(--spacing-4);">Search terms with zero sales</div>
+                </div>
               </div>
             </div>
             </div>
@@ -1405,6 +1412,11 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
 
               <!-- Results Table -->
               <div id="pulse-results" style="display: none;">
+                <!-- Totals Breakdown -->
+                <div id="pulse-totals-breakdown" style="margin-bottom: var(--spacing-32); padding: var(--spacing-24); background: linear-gradient(135deg, #FFF5F5, #FFE5E5); border-radius: var(--radius-medium); border-left: 4px solid #FF6B6B;">
+                  <!-- Will be populated dynamically -->
+                </div>
+
                 <div style="overflow-x: auto;">
                   <table id="pulse-money-wasters-table" style="width: 100%; border-collapse: separate; border-spacing: 0;">
                     <tbody id="pulse-table-body">
@@ -6047,7 +6059,9 @@ document.addEventListener('DOMContentLoaded', function() {
           throw new Error(data.data?.error || 'Failed to load money wasters');
         }
 
-        const moneyWasters = data.data || [];
+        const responseData = data.data || {};
+        const moneyWasters = responseData.data || [];
+        const totals = responseData.totals || {};
 
         if (moneyWasters.length === 0) {
           // Show empty state
@@ -6060,6 +6074,9 @@ document.addEventListener('DOMContentLoaded', function() {
           
           // Populate table
           populateMoneyWastersTable(moneyWasters);
+          
+          // Display totals breakdown
+          displayMoneyWastersTotals(totals);
         }
 
       } catch (error) {
@@ -6077,6 +6094,84 @@ document.addEventListener('DOMContentLoaded', function() {
     pulseExportBtn.addEventListener('click', exportMoneyWastersCSV);
   }
 });
+
+// Function to display money wasters totals
+function displayMoneyWastersTotals(totals) {
+  const container = document.getElementById('pulse-totals-breakdown');
+  if (!container) return;
+
+  const accountTotal = totals.account_total || 0;
+  const byCampaign = totals.by_campaign || [];
+
+  // Format currency
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value || 0);
+  };
+
+  let html = `
+    <div style="margin-bottom: var(--spacing-16);">
+      <h3 style="font-size: 1.125rem; font-weight: 700; color: #FF6B6B; margin: 0 0 var(--spacing-8) 0; display: flex; align-items: center; gap: var(--spacing-8);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        Total Money Wasted on Zero-Sale Search Terms
+      </h3>
+      <div style="font-size: 2rem; font-weight: 700; color: #FF6B6B; margin-bottom: var(--spacing-4);">${formatCurrency(accountTotal)}</div>
+      <p style="font-size: 0.875rem; color: var(--color-neutral-60); margin: 0;">This is the total amount spent on search terms that generated zero sales across all campaigns.</p>
+    </div>
+  `;
+
+  if (byCampaign.length > 0) {
+    html += `
+      <div style="margin-top: var(--spacing-24);">
+        <h4 style="font-size: 0.875rem; font-weight: 700; color: var(--color-neutral-70); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 var(--spacing-12) 0;">Breakdown by Campaign</h4>
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-12);">
+    `;
+
+    byCampaign.forEach(campaign => {
+      const percentage = accountTotal > 0 ? ((campaign.total_wasted / accountTotal) * 100).toFixed(1) : 0;
+      const barWidth = percentage;
+      
+      html += `
+        <div style="background: white; border-radius: var(--radius-small); padding: var(--spacing-12); box-shadow: var(--shadow-low);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-8);">
+            <div style="font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${campaign.campaign_name}">
+              ${campaign.campaign_name}
+            </div>
+            <div style="font-size: 1rem; font-weight: 700; color: #FF6B6B; margin-left: var(--spacing-16);">${formatCurrency(campaign.total_wasted)}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: var(--spacing-8);">
+            <div style="flex: 1; background: #FFE5E5; border-radius: var(--radius-full); height: 8px; overflow: hidden;">
+              <div style="background: #FF6B6B; height: 100%; width: ${barWidth}%; transition: width 0.3s ease;"></div>
+            </div>
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--color-neutral-60); min-width: 45px; text-align: right;">${percentage}%</div>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+  container.style.display = 'block';
+
+  // Store account total for use in account summary
+  window.pulseMoneyWastedTotal = accountTotal;
+  
+  // Update account summary metric if it exists
+  updateMoneyWastedMetric(accountTotal);
+}
 
 // Function to populate the money wasters table with grouped display
 function populateMoneyWastersTable(data) {
@@ -6433,6 +6528,23 @@ function displayPulseAccountSummary(data) {
     jQuery('#pulse-metric-sales').text(formatCurrency(totals.sales));
     jQuery('#pulse-metric-acos').text(formatPercentage(totals.acos));
     jQuery('#pulse-metric-roas').text(formatRatio(totals.roas));
+  }
+  
+  // Update money wasted metric if available
+  if (window.pulseMoneyWastedTotal !== undefined) {
+    updateMoneyWastedMetric(window.pulseMoneyWastedTotal);
+  }
+}
+
+// Update Money Wasted Metric
+function updateMoneyWastedMetric(amount) {
+  const formatCurrency = (num) => {
+    return num !== null && num !== undefined ? '$' + Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+  };
+  
+  const metricElement = document.getElementById('pulse-metric-money-wasted');
+  if (metricElement) {
+    metricElement.textContent = formatCurrency(amount);
   }
 }
 
