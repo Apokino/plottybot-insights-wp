@@ -3011,3 +3011,194 @@ if (!function_exists('save_books_handler')) {
     }
 }
 
+/**
+ * AJAX handler for getting money wasters from Pulse endpoint
+ */
+add_action('wp_ajax_pulse_money_wasters', 'pulse_money_wasters_handler');
+add_action('wp_ajax_nopriv_pulse_money_wasters', 'pulse_money_wasters_handler');
+
+if (!function_exists('pulse_money_wasters_handler')) {
+    function pulse_money_wasters_handler() {
+        // Get JSON input
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        $user_id = isset($data['user_id']) ? sanitize_text_field($data['user_id']) : '';
+        $kdp_profile = isset($data['kdp_profile']) ? sanitize_text_field($data['kdp_profile']) : '';
+        
+        if (empty($user_id) || empty($kdp_profile)) {
+            wp_send_json_error(['error' => 'Missing required parameters: user_id and kdp_profile']);
+            wp_die();
+        }
+        
+        try {
+            // Call the Pulse API endpoint
+            $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/pulse/search-terms/money-wasters';
+            $response = wp_remote_post($api_url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode([
+                    'user_id' => $user_id,
+                    'kdp_profile' => $kdp_profile
+                ]),
+                'timeout' => 60
+            ]);
+            
+            if (is_wp_error($response)) {
+                wp_send_json_error(['error' => 'API request failed: ' . $response->get_error_message()]);
+                wp_die();
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $result = json_decode($body, true);
+            
+            // Check if the response contains an error
+            if (isset($result['error'])) {
+                wp_send_json_error(['error' => $result['error']]);
+                wp_die();
+            }
+            
+            // Return the money wasters data (expecting an array)
+            wp_send_json_success($result);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['error' => 'Failed to fetch money wasters: ' . $e->getMessage()]);
+        }
+        wp_die();
+    }
+}
+
+/**
+ * AJAX handler for getting account summary from Pulse endpoint
+ */
+add_action('wp_ajax_pulse_account_summary', 'pulse_account_summary_handler');
+add_action('wp_ajax_nopriv_pulse_account_summary', 'pulse_account_summary_handler');
+
+if (!function_exists('pulse_account_summary_handler')) {
+    function pulse_account_summary_handler() {
+        // Get JSON input
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        $user_id = isset($data['user_id']) ? sanitize_text_field($data['user_id']) : '';
+        $kdp_profile = isset($data['kdp_profile']) ? sanitize_text_field($data['kdp_profile']) : '';
+        $language = isset($data['language']) ? sanitize_text_field($data['language']) : 'EN';
+        
+        if (empty($user_id) || empty($kdp_profile)) {
+            wp_send_json_error(['error' => 'Missing required parameters: user_id and kdp_profile']);
+            wp_die();
+        }
+        
+        try {
+            // Call the Pulse API endpoint
+            $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/pulse/account-summary';
+            
+            $request_body = [
+                'user_id' => $user_id,
+                'kdp_profile' => $kdp_profile,
+                'language' => $language
+            ];
+            
+            // Add optional date filters if provided
+            if (isset($data['date_from']) && !empty($data['date_from'])) {
+                $request_body['date_from'] = sanitize_text_field($data['date_from']);
+            }
+            if (isset($data['date_to']) && !empty($data['date_to'])) {
+                $request_body['date_to'] = sanitize_text_field($data['date_to']);
+            }
+            
+            $response = wp_remote_post($api_url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode($request_body),
+                'timeout' => 60
+            ]);
+            
+            if (is_wp_error($response)) {
+                wp_send_json_error(['error' => 'API request failed: ' . $response->get_error_message()]);
+                wp_die();
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $result = json_decode($body, true);
+            
+            // Check if the response contains an error
+            if (isset($result['error'])) {
+                wp_send_json_error(['error' => $result['error']]);
+                wp_die();
+            }
+            
+            // Return the account summary data
+            wp_send_json_success($result);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['error' => 'Failed to fetch account summary: ' . $e->getMessage()]);
+        }
+        wp_die();
+    }
+}
+
+/**
+ * AJAX handler for getting spend effectiveness from Pulse endpoint
+ */
+add_action('wp_ajax_pulse_spend_effectiveness', 'pulse_spend_effectiveness_handler');
+add_action('wp_ajax_nopriv_pulse_spend_effectiveness', 'pulse_spend_effectiveness_handler');
+
+if (!function_exists('pulse_spend_effectiveness_handler')) {
+    function pulse_spend_effectiveness_handler() {
+        // Get JSON input
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        $user_id = isset($data['user_id']) ? sanitize_text_field($data['user_id']) : '';
+        $kdp_profile = isset($data['kdp_profile']) ? sanitize_text_field($data['kdp_profile']) : '';
+        $language = isset($data['language']) ? sanitize_text_field($data['language']) : 'EN';
+        
+        if (empty($user_id) || empty($kdp_profile)) {
+            wp_send_json_error(['error' => 'Missing required parameters: user_id and kdp_profile']);
+            wp_die();
+        }
+        
+        try {
+            // Call the Pulse API endpoint
+            $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/pulse/spend-effectiveness';
+            
+            $request_body = [
+                'user_id' => $user_id,
+                'kdp_profile' => $kdp_profile,
+                'language' => $language
+            ];
+            
+            $response = wp_remote_post($api_url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode($request_body),
+                'timeout' => 60
+            ]);
+            
+            if (is_wp_error($response)) {
+                wp_send_json_error(['error' => 'API request failed: ' . $response->get_error_message()]);
+                wp_die();
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $result = json_decode($body, true);
+            
+            // Check if the response contains an error
+            if (isset($result['error'])) {
+                wp_send_json_error(['error' => $result['error']]);
+                wp_die();
+            }
+            
+            // Return the spend effectiveness data
+            wp_send_json_success($result);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['error' => 'Failed to fetch spend effectiveness: ' . $e->getMessage()]);
+        }
+        wp_die();
+    }
+}

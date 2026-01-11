@@ -89,6 +89,16 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
         </span>
         <span>⚠️ Create Campaign - WIP DO NOT TOUCH</span>
       </button>
+
+      <!-- Pulse Nav Item -->
+      <button class="service-nav-btn" data-service="placeholder-pulse" <?php echo !$ads_enabled ? 'disabled' : ''; ?> style="width: 100%; padding: var(--spacing-20) var(--spacing-24); background: transparent; border: none; border-left: 4px solid transparent; color: var(--color-neutral-50); font-weight: 600; font-size: 1rem; cursor: <?php echo $ads_enabled ? 'pointer' : 'not-allowed'; ?>; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; display: flex; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-4); opacity: <?php echo $ads_enabled ? '1' : '0.5'; ?>;">
+        <span style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #E0E0E0; border-radius: var(--radius-small);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-50)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+        </span>
+        <span>⚠️ Pulse - WIP DO NOT TOUCH</span>
+      </button>
     </nav>
 
   </aside>
@@ -347,7 +357,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
 
             <!-- Schedule New Optimization -->
             <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-24); margin-bottom: var(--spacing-40);">
-              <h2 style="font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-20) 0; display: flex; align-items: center; gap: var(--spacing-8);">
+              <h2 style="font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90); margin: 0; display: flex; align-items: center; gap: var(--spacing-8);">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="12" y1="8" x2="12" y2="16"></line>
@@ -767,40 +777,54 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                       </p>
                     </div>
 
-                    <!-- Royalties and Book Price -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-20);">
-                      <div>
-                        <label for="config-royalties" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                          Royalties <span style="color: #FF6B6B;">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          id="config-royalties"
-                          name="royalties"
-                          step="0.01"
-                          min="0"
-                          placeholder="0.00"
-                          required
-                          style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
-                        />
-                        <p id="config-royalties-error" style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: #FF6B6B; display: none;"></p>
-                      </div>
+                    <!-- ASIN Selection -->
+                    <div>
+                      <label for="config-asin" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                        Book ASIN <span style="color: #FF6B6B;">*</span>
+                      </label>
+                      <select
+                        id="config-asin"
+                        name="asin"
+                        required
+                        style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; line-height: 1.5; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
+                      >
+                        <option value="">First select an ad group...</option>
+                      </select>
+                      <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: var(--color-neutral-60);">
+                        Price and royalties will be fetched automatically from the book data
+                      </p>
+                    </div>
 
-                      <div>
-                        <label for="config-book-price" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                          Book Price <span style="color: #FF6B6B;">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          id="config-book-price"
-                          name="book_price"
-                          step="0.01"
-                          min="0"
-                          placeholder="0.00"
-                          required
-                          style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
-                        />
-                        <p id="config-book-price-error" style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: #FF6B6B; display: none;"></p>
+                    <!-- Book Preview (shown when ASIN is selected) -->
+                    <div id="book-preview" style="display: none; padding: var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20);">
+                      <div style="display: flex; gap: var(--spacing-16); align-items: flex-start;">
+                        <img id="book-preview-image" src="" alt="Book cover" style="width: 60px; height: 90px; object-fit: cover; border-radius: var(--radius-small); box-shadow: 0 2px 8px rgba(0,0,0,0.15); flex-shrink: 0;" />
+                        <div style="flex: 1;">
+                          <div id="book-preview-title" style="font-weight: 600; color: var(--color-neutral-90); margin-bottom: var(--spacing-4); font-size: 0.875rem;"></div>
+                          <div id="book-preview-asin" style="font-size: 0.75rem; color: var(--color-neutral-60); font-family: monospace; margin-bottom: var(--spacing-8);"></div>
+                          <div id="book-preview-pricing" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-8); margin-top: var(--spacing-8); padding-top: var(--spacing-8); border-top: 1px solid var(--color-neutral-20);">
+                            <div>
+                              <div style="font-size: 0.625rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Price</div>
+                              <div id="book-preview-price" style="font-size: 0.875rem; font-weight: 600; color: var(--color-neutral-90);">-</div>
+                            </div>
+                            <div>
+                              <div style="font-size: 0.625rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Royalties</div>
+                              <div id="book-preview-royalties" style="font-size: 0.875rem; font-weight: 600; color: var(--color-neutral-90);">-</div>
+                            </div>
+                          </div>
+                          <div id="book-preview-missing-data" style="display: none; margin-top: var(--spacing-12); padding: var(--spacing-8); background: #FFF3E0; border: 1px solid #FFE0B2; border-radius: var(--radius-small);">
+                            <div style="display: flex; align-items: center; gap: var(--spacing-6);">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                              </svg>
+                              <span style="font-size: 0.75rem; color: #E65100; line-height: 1.4;">
+                                Missing price or royalties. Please <a href="#" onclick="event.preventDefault(); switchService('placeholder-books');" style="color: #E65100; font-weight: 600; text-decoration: underline;">update in Books tab</a> before creating configuration.
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1078,6 +1102,353 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
       </div>
     </div>
 
+    <!-- Pulse Section -->
+    <div id="service-placeholder-pulse" class="service-section" style="display: none;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="background: var(--color-neutral-00); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-large); box-shadow: 0 8px 32px rgba(0,0,0,0.06); padding: var(--spacing-40);">
+
+          <?php if ($ads_enabled): ?>
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: var(--spacing-40);">
+              <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">
+                ⚠️ Pulse - WIP DO NOT TOUCH
+              </h1>
+              <p class="text--body-lg" style="color: var(--color-neutral-70);">
+                Real-time insights and analytics for your advertising campaigns
+              </p>
+            </div>
+
+            <!-- Warning Banner -->
+            <div style="margin-bottom: var(--spacing-32); padding: var(--spacing-20); background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.05)); border-radius: var(--radius-medium); border: 2px solid rgba(255, 152, 0, 0.3);">
+              <p style="margin: 0; color: var(--color-neutral-80); font-weight: 600; text-align: center;">
+                ⚠️ This section is a work in progress. The functionality is not yet implemented.
+              </p>
+            </div>
+
+            <!-- Filters Section -->
+            <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-32); margin-bottom: var(--spacing-32);">
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-24) 0; display: flex; align-items: center; gap: var(--spacing-12);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+                Filters
+              </h2>
+
+              <form id="pulse-filters-form" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--spacing-20); align-items: end;">
+                <!-- KDP Account Dropdown -->
+                <div>
+                  <label for="pulse-kdp-account" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                    KDP Account <span style="color: #FF6B6B;">*</span>
+                  </label>
+                  <select
+                    id="pulse-kdp-account"
+                    name="kdp_account"
+                    required
+                    disabled
+                    style="width: 100%; padding: 12px 40px 12px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; font-weight: 500; color: #000; transition: border-color 0.2s; background-color: white; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 18px; line-height: normal; display: block; min-height: 44px;"
+                    onfocus="this.style.borderColor='var(--color-primary-60)'"
+                    onblur="this.style.borderColor='var(--color-neutral-30)'"
+                  >
+                    <option value="">Loading accounts...</option>
+                  </select>
+                </div>
+
+                <!-- Region Dropdown -->
+                <div>
+                  <label for="pulse-region" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                    Region <span style="color: #FF6B6B;">*</span>
+                  </label>
+                  <select
+                    id="pulse-region"
+                    name="region"
+                    required
+                    style="width: 100%; padding: 12px 40px 12px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; font-weight: 500; color: #000; transition: border-color 0.2s; background-color: white; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 18px; line-height: normal; display: block; min-height: 44px;"
+                    onfocus="this.style.borderColor='var(--color-primary-60)'"
+                    onblur="this.style.borderColor='var(--color-neutral-30)'"
+                  >
+                    <option value="">Select a region...</option>
+                    <option value="AU">Australia (AU)</option>
+                    <option value="CA">Canada (CA)</option>
+                    <option value="DE">Germany (DE)</option>
+                    <option value="ES">Spain (ES)</option>
+                    <option value="FR">France (FR)</option>
+                    <option value="IN">India (IN)</option>
+                    <option value="IT">Italy (IT)</option>
+                    <option value="JP">Japan (JP)</option>
+                    <option value="MX">Mexico (MX)</option>
+                    <option value="NL">Netherlands (NL)</option>
+                    <option value="UK">United Kingdom (UK)</option>
+                    <option value="US">United States (US)</option>
+                  </select>
+                </div>
+
+                <!-- Analyze Button -->
+                <button
+                  type="submit"
+                  id="pulse-analyze-btn"
+                  style="padding: 12px 32px; background: linear-gradient(135deg, #00C2A8, #00A890); color: white; border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0, 194, 168, 0.3); height: 44px; display: flex; align-items: center; gap: var(--spacing-8); white-space: nowrap;"
+                  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0, 194, 168, 0.4)'"
+                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 194, 168, 0.3)'"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                  Analyze
+                </button>
+              </form>
+            </div>
+
+            <!-- Account Summary Section -->
+            <div id="pulse-account-summary" style="display: none; margin-bottom: var(--spacing-32);">
+              <!-- Error State -->
+              <div id="pulse-account-summary-error" style="display: none; background: linear-gradient(135deg, #FFF3E0, #FFFBF5); border-radius: var(--radius-medium); padding: var(--spacing-24); text-align: center; border: 1px solid #FFB74D;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto var(--spacing-12) auto;">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--color-neutral-80); margin: 0 0 var(--spacing-8) 0;">No Data Available</h3>
+                <p id="pulse-account-summary-error-message" style="font-size: 0.9375rem; color: var(--color-neutral-60); margin: 0;">No account data found for the selected profile.</p>
+              </div>
+
+              <!-- Date Range Header -->
+              <div id="pulse-account-summary-content">
+                <div style="background: linear-gradient(135deg, #E8F5F3, #F7FCFB); border-radius: var(--radius-medium); padding: var(--spacing-16) var(--spacing-24); margin-bottom: var(--spacing-24); border: 1px solid var(--color-primary-20);">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-12);">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                      <span style="font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-80);">Data Period:</span>
+                      <span id="pulse-date-range" style="font-size: 0.9375rem; color: var(--color-neutral-70);"></span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: var(--spacing-12);">
+                      <span style="font-size: 0.8125rem; color: var(--color-neutral-60); font-style: italic;">Updated to last optimization</span>
+                      <span id="pulse-optimization-runs" style="display: none; padding: 4px 12px; background: var(--color-primary-10); border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; color: var(--color-primary-70);"></span>
+                    </div>
+                  </div>
+                </div>
+
+              <!-- Status Cards -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-20); margin-bottom: var(--spacing-32);">
+                <!-- Efficiency Trend Card -->
+                <div style="background: white; border-radius: var(--radius-large); padding: var(--spacing-24); box-shadow: var(--shadow-low); border-left: 4px solid #4CAF50; min-height: 160px; display: flex; flex-direction: column;">
+                  <div style="display: flex; align-items: center; gap: var(--spacing-12); margin-bottom: var(--spacing-8);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                      <polyline points="17 6 23 6 23 12"></polyline>
+                    </svg>
+                    <h3 style="font-size: 0.8125rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Efficiency Trend</h3>
+                  </div>
+                  <p style="font-size: 0.75rem; color: var(--color-neutral-60); margin: 0 0 var(--spacing-12) 0; font-style: italic;">Are clicks converting better or worse over time?</p>
+                  <p id="pulse-efficiency-trend" style="font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90); margin: 0; line-height: 1.5; flex-grow: 1;">—</p>
+                </div>
+
+                <!-- Cost Pressure Card -->
+                <div style="background: white; border-radius: var(--radius-large); padding: var(--spacing-24); box-shadow: var(--shadow-low); border-left: 4px solid #FF9800; min-height: 160px; display: flex; flex-direction: column;">
+                  <div style="display: flex; align-items: center; gap: var(--spacing-12); margin-bottom: var(--spacing-8);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <h3 style="font-size: 0.8125rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Cost Pressure</h3>
+                  </div>
+                  <p style="font-size: 0.75rem; color: var(--color-neutral-60); margin: 0 0 var(--spacing-12) 0; font-style: italic;">Are costs rising faster than sales?</p>
+                  <p id="pulse-cost-pressure" style="font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90); margin: 0; line-height: 1.5; flex-grow: 1;">—</p>
+                </div>
+
+                <!-- Growth Constraint Card -->
+                <div style="background: white; border-radius: var(--radius-large); padding: var(--spacing-24); box-shadow: var(--shadow-low); border-left: 4px solid #2196F3; min-height: 160px; display: flex; flex-direction: column;">
+                  <div style="display: flex; align-items: center; gap: var(--spacing-12); margin-bottom: var(--spacing-8);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="8 12 12 16 16 12"></polyline>
+                      <line x1="12" y1="8" x2="12" y2="16"></line>
+                    </svg>
+                    <h3 style="font-size: 0.8125rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Growth Constraint</h3>
+                  </div>
+                  <p style="font-size: 0.75rem; color: var(--color-neutral-60); margin: 0 0 var(--spacing-12) 0; font-style: italic;">What is currently limiting growth?</p>
+                  <p id="pulse-growth-constraint" style="font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90); margin: 0; line-height: 1.5; flex-grow: 1;">—</p>
+                </div>
+              </div>
+
+              <!-- Metrics Grid -->
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0; display: flex; align-items: center; gap: var(--spacing-12);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                Account Performance Metrics
+              </h2>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-16); margin-bottom: var(--spacing-32);">
+                <!-- Impressions -->
+                <div style="background: white; border-radius: var(--radius-medium); padding: var(--spacing-20); box-shadow: var(--shadow-low); border-top: 3px solid #9C27B0;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-8);">Impressions</div>
+                  <div id="pulse-metric-impressions" style="font-size: 1.75rem; font-weight: 700; color: var(--color-neutral-90);">—</div>
+                </div>
+
+                <!-- Clicks -->
+                <div style="background: white; border-radius: var(--radius-medium); padding: var(--spacing-20); box-shadow: var(--shadow-low); border-top: 3px solid #2196F3;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-8);">Clicks</div>
+                  <div id="pulse-metric-clicks" style="font-size: 1.75rem; font-weight: 700; color: var(--color-neutral-90);">—</div>
+                </div>
+
+                <!-- Cost -->
+                <div style="background: white; border-radius: var(--radius-medium); padding: var(--spacing-20); box-shadow: var(--shadow-low); border-top: 3px solid #FF6B6B;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-8);">Cost</div>
+                  <div id="pulse-metric-cost" style="font-size: 1.75rem; font-weight: 700; color: #FF6B6B;">—</div>
+                </div>
+
+                <!-- CPC -->
+                <div style="background: white; border-radius: var(--radius-medium); padding: var(--spacing-20); box-shadow: var(--shadow-low); border-top: 3px solid #FF9800;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-8);">CPC</div>
+                  <div id="pulse-metric-cpc" style="font-size: 1.75rem; font-weight: 700; color: var(--color-neutral-90);">—</div>
+                </div>
+
+                <!-- Sales -->
+                <div style="background: white; border-radius: var(--radius-medium); padding: var(--spacing-20); box-shadow: var(--shadow-low); border-top: 3px solid #4CAF50;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-8);">Sales</div>
+                  <div id="pulse-metric-sales" style="font-size: 1.75rem; font-weight: 700; color: #4CAF50;">—</div>
+                </div>
+
+                <!-- ACOS -->
+                <div style="background: white; border-radius: var(--radius-medium); padding: var(--spacing-20); box-shadow: var(--shadow-low); border-top: 3px solid #E91E63;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-8);">ACOS</div>
+                  <div id="pulse-metric-acos" style="font-size: 1.75rem; font-weight: 700; color: var(--color-neutral-90);">—</div>
+                </div>
+
+                <!-- ROAS -->
+                <div style="background: white; border-radius: var(--radius-medium); padding: var(--spacing-20); box-shadow: var(--shadow-low); border-top: 3px solid #4CAF50;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-8);">ROAS</div>
+                  <div id="pulse-metric-roas" style="font-size: 1.75rem; font-weight: 700; color: #4CAF50;">—</div>
+                </div>
+              </div>
+            </div>
+            </div>
+
+            <!-- Spend Effectiveness Section -->
+            <div id="pulse-spend-effectiveness" style="display: none; margin-bottom: var(--spacing-20);">
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-16) 0; display: flex; align-items: center; gap: var(--spacing-12);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-60)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 6v6l4 2"></path>
+                </svg>
+                Spend Effectiveness (Last 30 Days)
+              </h2>
+
+              <div style="background: white; border-radius: var(--radius-large); padding: var(--spacing-20); box-shadow: var(--shadow-low);">
+                <!-- Effectiveness Rating -->
+                <div style="display: flex; align-items: center; gap: var(--spacing-12); margin-bottom: var(--spacing-12);\">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C27B0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  <h3 style="font-size: 0.8125rem; font-weight: 700; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;\">Effectiveness Rating</h3>
+                </div>
+                <p id="pulse-effectiveness-text" style="font-size: 1.125rem; font-weight: 600; color: var(--color-neutral-90); margin: 0 0 var(--spacing-20) 0; line-height: 1.5;\">—</p>
+
+                <!-- Pie Chart -->
+                <div style="display: flex; justify-content: center;">
+                  <div style="position: relative; height: 240px; width: 100%; max-width: 240px;">
+                    <canvas id="pulse-effectiveness-chart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Money Wasters Section -->
+            <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-32);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-24);">
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0; display: flex; align-items: center; gap: var(--spacing-12);">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  Top Money Wasters - Search Terms
+                </h2>
+                <span id="pulse-results-count" style="padding: 6px 16px; background: var(--color-neutral-20); border-radius: var(--radius-full); font-size: 0.875rem; font-weight: 600; color: var(--color-neutral-70);">
+                  0 terms
+                </span>
+              </div>
+
+              <p style="color: var(--color-neutral-60); margin-bottom: var(--spacing-24); font-size: 0.9375rem;">
+                These are the search terms that generated <strong>zero sales</strong> but cost you the most. Review the matched keywords and consider adding these search terms as negative keywords to optimize your ad spend.
+              </p>
+
+              <!-- Loading State -->
+              <div id="pulse-loading" style="display: none; text-align: center; padding: var(--spacing-48);">
+                <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <p style="margin-top: var(--spacing-16); color: var(--color-neutral-60);">Analyzing your campaigns...</p>
+              </div>
+
+              <!-- Empty State -->
+              <div id="pulse-empty-state" style="text-align: center; padding: var(--spacing-48);">
+                <div style="width: 100px; height: 100px; margin: 0 auto var(--spacing-24); background: var(--color-neutral-10); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-40)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-70); margin: 0 0 var(--spacing-12) 0;">
+                  No Data Yet
+                </h3>
+                <p style="color: var(--color-neutral-60); max-width: 400px; margin: 0 auto;">
+                  Select a KDP account and region, then click "Analyze" to see your money-wasting search terms.
+                </p>
+              </div>
+
+              <!-- Results Table -->
+              <div id="pulse-results" style="display: none;">
+                <div style="overflow-x: auto;">
+                  <table id="pulse-money-wasters-table" style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                    <tbody id="pulse-table-body">
+                      <!-- Will be populated dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Export Button -->
+                <div style="margin-top: var(--spacing-24); text-align: right;">
+                  <button
+                    id="pulse-export-btn"
+                    style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.9375rem; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: var(--spacing-8);"
+                    onmouseover="this.style.background='#45a049'"
+                    onmouseout="this.style.background='#4CAF50'"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export as CSV
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          <?php else: ?>
+            <!-- Access Denied Message -->
+            <div style="text-align: center; padding: var(--spacing-64) var(--spacing-24);">
+              <div style="font-size: 4rem; margin-bottom: var(--spacing-24);">🔒</div>
+              <h2 style="font-size: 1.75rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-16) 0;">
+                Access Restricted
+              </h2>
+              <p style="color: var(--color-neutral-60); font-size: 1.125rem; max-width: 500px; margin: 0 auto;">
+                This feature is not available for your account. Please contact support for more information.
+              </p>
+            </div>
+          <?php endif; ?>
+
+        </div>
+      </div>
+    </div>
+
     </div> <!-- End main-sections-wrapper -->
   </div> <!-- End Main Content -->
 </div> <!-- End Main Container -->
@@ -1295,7 +1666,8 @@ const userLanguage = '<?php echo $user_language; ?>';
 // Global variables for campaign configuration
 let currentCampaigns = [];
 let currentConfigurations = [];
-let specialHandlingRules = []; // Array to store ALWAYS_ON targets
+let specialHandlingRules = [];
+let currentBooksData = []; // Array to store books data
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -1854,7 +2226,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const navButtons = document.querySelectorAll('.service-nav-btn');
   const serviceSections = document.querySelectorAll('.service-section');
 
-  function switchService(targetService) {
+  // Make switchService a global function so it can be called from inline onclick handlers
+  window.switchService = function(targetService) {
     // Don't allow navigation if ads are not enabled
     if (!adsEnabled) {
       return;
@@ -1920,7 +2293,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       const service = this.getAttribute('data-service');
-      switchService(service);
+      window.switchService(service);
     });
   });
 
@@ -2390,6 +2763,28 @@ document.addEventListener('DOMContentLoaded', function() {
       const emptyContainer = document.getElementById('campaign-config-empty');
       const listContainer = document.getElementById('campaign-configs-list-container');
 
+      // Reset form fields when account/region changes
+      const campaignSelect = document.getElementById('config-campaign-name');
+      const adGroupSelect = document.getElementById('config-ad-group');
+      const asinSelect = document.getElementById('config-asin');
+      const bookPreview = document.getElementById('book-preview');
+      const targetTosisInput = document.getElementById('config-target-tosis');
+      const bidStrategySelect = document.getElementById('config-bid-strategy');
+      
+      if (campaignSelect) campaignSelect.value = '';
+      if (adGroupSelect) {
+        adGroupSelect.innerHTML = '<option value="">Select an ad group...</option>';
+      }
+      if (asinSelect) {
+        asinSelect.innerHTML = '<option value="">Select a book...</option>';
+      }
+      if (bookPreview) bookPreview.style.display = 'none';
+      if (targetTosisInput) targetTosisInput.value = '';
+      if (bidStrategySelect) bidStrategySelect.value = 'conservative';
+      
+      // Reset targets and special rules
+      resetTargetsAndRules();
+
       // Check if all required fields are filled
       if (!userId || !account || !region) {
         formContainer.style.display = 'none';
@@ -2410,8 +2805,8 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         console.log('Fetching campaigns and configurations for:', { userId, account, region, kdpProfile });
 
-        // Fetch both campaigns and configurations in parallel
-        const [campaignsResponse, configsResponse] = await Promise.all([
+        // Fetch campaigns, configurations, and books in parallel
+        const [campaignsResponse, configsResponse, booksResponse] = await Promise.all([
           fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_campaign_list', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -2421,17 +2816,25 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ user_id: userId, kdp_profile: kdpProfile })
+          }),
+          fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=list_books', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ user_id: userId, kdp_profile: kdpProfile })
           })
         ]);
 
         console.log('Campaigns response status:', campaignsResponse.status);
         console.log('Configs response status:', configsResponse.status);
+        console.log('Books response status:', booksResponse.status);
 
         const campaignsData = await campaignsResponse.json();
         const configsData = await configsResponse.json();
+        const booksData = await booksResponse.json();
 
         console.log('Campaigns data:', campaignsData);
         console.log('Configs data:', configsData);
+        console.log('Books data:', booksData);
         console.log('configsData.success:', configsData.success);
         console.log('configsData.data:', configsData.data);
         if (configsData.data) {
@@ -2462,9 +2865,18 @@ document.addEventListener('DOMContentLoaded', function() {
             currentConfigurations = [];
           }
 
+          // Extract books data
+          if (booksData.success && booksData.data && Array.isArray(booksData.data.books)) {
+            currentBooksData = booksData.data.books;
+          } else {
+            currentBooksData = [];
+          }
+
           console.log('Current configurations:', currentConfigurations);
           console.log('Number of configurations:', currentConfigurations.length);
           console.log('Is array?', Array.isArray(currentConfigurations));
+          console.log('Current books:', currentBooksData);
+          console.log('Number of books:', currentBooksData.length);
 
           // Render existing configurations list
           renderConfigurationsList(userId, kdpProfile);
@@ -3088,17 +3500,12 @@ document.addEventListener('DOMContentLoaded', function() {
           const option = document.createElement('option');
           option.value = campaign.adGroupId;
 
-          // Build display text with ad group name, ID, and ASINs
+          // Build display text with ad group name or ID only
           let displayText = '';
           if (campaign.adGroupName) {
             displayText = campaign.adGroupName;
           } else {
             displayText = `Ad Group ${campaign.adGroupId}`;
-          }
-
-          // Add ASINs if available
-          if (campaign.asin && campaign.asin.length > 0) {
-            displayText += ` (${campaign.asin.join(', ')})`;
           }
 
           option.textContent = displayText;
@@ -3116,11 +3523,156 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle ad group selection change
     if (adGroupSelect) {
       adGroupSelect.addEventListener('change', function() {
+        const selectedAdGroupId = this.value;
+        const asinSelect = document.getElementById('config-asin');
+        const bookPreview = document.getElementById('book-preview');
+        
+        // Reset ASIN dropdown and hide preview
+        asinSelect.innerHTML = '<option value="">Select a book ASIN...</option>';
+        if (bookPreview) {
+          bookPreview.style.display = 'none';
+        }
+        
+        if (selectedAdGroupId) {
+          // Find the selected campaign/ad group to get its ASINs
+          const selectedCampaignId = document.getElementById('config-campaign-name').value;
+          const selectedCampaign = currentCampaigns.find(c => 
+            c.campaignId === selectedCampaignId && c.adGroupId === selectedAdGroupId
+          );
+          
+          if (selectedCampaign && selectedCampaign.asin && selectedCampaign.asin.length > 0) {
+            // Populate ASIN dropdown with the ad group's ASINs
+            selectedCampaign.asin.forEach(asin => {
+              const option = document.createElement('option');
+              option.value = asin;
+              option.textContent = asin;
+              asinSelect.appendChild(option);
+            });
+            
+            // If only one ASIN, auto-select it and trigger preview
+            if (selectedCampaign.asin.length === 1) {
+              asinSelect.value = selectedCampaign.asin[0];
+              // Trigger change event to show book preview
+              asinSelect.dispatchEvent(new Event('change'));
+            }
+          }
+        }
+        
         // Update retrieve targets button state when ad group changes
         updateRetrieveTargetsButtonState();
         
         // Reset targets list and special handling rules when ad group changes
         resetTargetsAndRules();
+      });
+    }
+
+    // Handle ASIN selection change to show book preview
+    const asinSelect = document.getElementById('config-asin');
+    if (asinSelect) {
+      asinSelect.addEventListener('change', async function() {
+        const selectedAsin = this.value;
+        const bookPreview = document.getElementById('book-preview');
+        
+        if (!selectedAsin) {
+          // Hide preview if no ASIN selected
+          if (bookPreview) {
+            bookPreview.style.display = 'none';
+          }
+          return;
+        }
+        
+        // Find the book in currentBooksData
+        const book = currentBooksData.find(b => b.asin === selectedAsin);
+        
+        if (book && bookPreview) {
+          // Update preview with book data
+          const bookImage = document.getElementById('book-preview-image');
+          const bookTitle = document.getElementById('book-preview-title');
+          const bookAsin = document.getElementById('book-preview-asin');
+          const bookPrice = document.getElementById('book-preview-price');
+          const bookRoyalties = document.getElementById('book-preview-royalties');
+          const missingDataWarning = document.getElementById('book-preview-missing-data');
+          
+          if (bookImage && book.image_url) {
+            // Upgrade image quality from _SS60_ to _SS200_
+            const highQualityImage = book.image_url.replace('_SS60_', '_SS200_');
+            bookImage.src = highQualityImage;
+            bookImage.alt = book.title || 'Book cover';
+          }
+          
+          if (bookTitle) {
+            bookTitle.textContent = book.title || 'Unknown Title';
+          }
+          
+          if (bookAsin) {
+            bookAsin.textContent = `ASIN: ${selectedAsin}`;
+          }
+          
+          // Fetch book details from backend to get saved price and royalties
+          try {
+            const account = document.getElementById('campaign-account').value;
+            const region = document.getElementById('campaign-region').value;
+            const kdpProfile = account + '-' + region;
+            
+            const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_books', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                user_id: String(currentUserId),
+                kdp_profile: kdpProfile
+              })
+            });
+            
+            const data = await response.json();
+            let savedBook = null;
+            
+            if (data.success && data.data && data.data.books) {
+              savedBook = data.data.books.find(b => b.asin === selectedAsin);
+            }
+            
+            // Display price from book list data
+            if (bookPrice) {
+              if (book.price && book.price.amount) {
+                bookPrice.textContent = `$${book.price.amount.toFixed(2)}`;
+              } else {
+                bookPrice.textContent = '-';
+              }
+            }
+            
+            // Display royalties from saved data
+            let hasMissingData = false;
+            if (bookRoyalties) {
+              if (savedBook && savedBook.royalties && savedBook.royalties.amount) {
+                bookRoyalties.textContent = `$${savedBook.royalties.amount.toFixed(2)}`;
+              } else {
+                bookRoyalties.textContent = '-';
+                hasMissingData = true;
+              }
+            }
+            
+            // Check if price is also missing
+            if (!book.price || !book.price.amount) {
+              hasMissingData = true;
+            }
+            
+            // Show/hide missing data warning
+            if (missingDataWarning) {
+              missingDataWarning.style.display = hasMissingData ? 'block' : 'none';
+            }
+            
+          } catch (error) {
+            console.error('Error fetching book details:', error);
+            if (bookPrice) bookPrice.textContent = '-';
+            if (bookRoyalties) bookRoyalties.textContent = '-';
+            if (missingDataWarning) missingDataWarning.style.display = 'block';
+          }
+          
+          // Show the preview
+          bookPreview.style.display = 'block';
+        } else if (bookPreview) {
+          // No book data found, hide preview
+          bookPreview.style.display = 'none';
+        }
       });
     }
 
@@ -3349,13 +3901,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const region = campaignRegionSelect.value;
         const selectedCampaignId = document.getElementById('config-campaign-name').value; // This is campaign ID
         const selectedAdGroupId = document.getElementById('config-ad-group').value;
-        const royaltiesInput = document.getElementById('config-royalties').value.trim();
-        const bookPriceInput = document.getElementById('config-book-price').value.trim();
         const bidUpdateStrategy = document.getElementById('config-bid-strategy').value;
         const targetTosisInput = document.getElementById('config-target-tosis').value.trim();
-
-        const royaltiesError = document.getElementById('config-royalties-error');
-        const bookPriceError = document.getElementById('config-book-price-error');
 
         // Validate required fields
         if (!selectedCampaignId) {
@@ -3370,40 +3917,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!bidUpdateStrategy) {
           alert('Please select a bid update strategy');
-          return;
-        }
-
-        // Hide errors first
-        royaltiesError.style.display = 'none';
-        bookPriceError.style.display = 'none';
-
-        // Validate royalties and book price - both are required
-        if (!royaltiesInput || royaltiesInput === '') {
-          royaltiesError.textContent = 'Royalties is required';
-          royaltiesError.style.display = 'block';
-          return;
-        }
-
-        if (!bookPriceInput || bookPriceInput === '') {
-          bookPriceError.textContent = 'Book Price is required';
-          bookPriceError.style.display = 'block';
-          return;
-        }
-
-        // Parse values
-        const royalties = parseFloat(royaltiesInput);
-        const bookPrice = parseFloat(bookPriceInput);
-        
-        // Validate that they are valid numbers
-        if (isNaN(royalties) || royalties < 0) {
-          royaltiesError.textContent = 'Royalties must be a valid positive number';
-          royaltiesError.style.display = 'block';
-          return;
-        }
-
-        if (isNaN(bookPrice) || bookPrice < 0) {
-          bookPriceError.textContent = 'Book Price must be a valid positive number';
-          bookPriceError.style.display = 'block';
           return;
         }
         
@@ -3430,16 +3943,22 @@ document.addEventListener('DOMContentLoaded', function() {
           return;
         }
 
+        // Get selected ASIN
+        const selectedAsin = document.getElementById('config-asin').value;
+        
+        if (!selectedAsin) {
+          alert('Please select a book ASIN');
+          return;
+        }
+
         // Build configuration array - single entry for selected ad group
         const configObj = {
-          asin: selectedCampaign.asin || [],
+          asin: selectedAsin,
           campaign_name: selectedCampaign.campaignName,
           campaign_id: String(selectedCampaign.campaignId), // Ensure string
           ad_group_id: String(selectedCampaign.adGroupId), // Ensure string
           ad_group_name: selectedCampaign.adGroupName || null,
-          bid_update_strategy: bidUpdateStrategy,
-          royalties: royalties,
-          book_price: bookPrice
+          bid_update_strategy: bidUpdateStrategy
         };
 
         // Add optional fields only if provided
@@ -3612,7 +4131,7 @@ function renderConfigurationsList(userId, kdpProfile) {
           </div>
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">ASINs</p>
-            <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.asin ? config.asin.join(', ') : 'N/A'}</p>
+            <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.asin ? (Array.isArray(config.asin) ? config.asin.join(', ') : config.asin) : 'N/A'}</p>
           </div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); padding: var(--spacing-12); margin-top: var(--spacing-8); background: var(--color-neutral-00); border: 1px solid var(--color-neutral-20); border-radius: var(--radius-small);">
@@ -4996,7 +5515,6 @@ async function deleteOptimization(userId, kdpProfile) {
 // BOOKS MANAGEMENT FUNCTIONS
 // ===========================================
 
-let currentBooksData = [];
 let currentKdpProfile = '';
 
 // Load books for selected account and region
@@ -5427,9 +5945,664 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     })();
   }
+
+  // Populate pulse account dropdown
+  const pulseAccountSelect = document.getElementById('pulse-kdp-account');
+  if (pulseAccountSelect) {
+    // Load KDP accounts for pulse dropdown
+    (async function() {
+      try {
+        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: currentUserId
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.data && data.data.account_names) {
+          const accounts = data.data.account_names;
+
+          // Clear and populate account dropdown
+          pulseAccountSelect.innerHTML = '<option value="">Select an account...</option>';
+
+          accounts.forEach(account => {
+            const option = document.createElement('option');
+            option.value = account;
+            option.textContent = account;
+            pulseAccountSelect.appendChild(option);
+          });
+
+          // Enable the dropdown
+          pulseAccountSelect.disabled = false;
+        } else {
+          // No accounts found
+          pulseAccountSelect.innerHTML = '<option value="">No accounts found</option>';
+          pulseAccountSelect.disabled = true;
+        }
+      } catch (error) {
+        console.error('Error loading accounts for pulse:', error);
+        pulseAccountSelect.innerHTML = '<option value="">Error loading accounts</option>';
+        pulseAccountSelect.disabled = true;
+      }
+    })();
+  }
+
+  // Pulse form submission handler
+  const pulseForm = document.getElementById('pulse-filters-form');
+  if (pulseForm) {
+    pulseForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const account = document.getElementById('pulse-kdp-account').value;
+      const region = document.getElementById('pulse-region').value;
+
+      if (!account || !region) {
+        alert('Please select both account and region');
+        return;
+      }
+
+      const kdpProfile = `${account}-${region}`;
+
+      console.log('Analyzing money wasters for:', {
+        user_id: String(currentUserId),
+        kdp_profile: kdpProfile
+      });
+
+      // Load account summary first
+      loadPulseAccountSummary(String(currentUserId), kdpProfile, userLanguage);
+
+      // Load spend effectiveness
+      loadPulseSpendEffectiveness(String(currentUserId), kdpProfile, userLanguage);
+
+      // Show loading state
+      document.getElementById('pulse-loading').style.display = 'block';
+      document.getElementById('pulse-empty-state').style.display = 'none';
+      document.getElementById('pulse-results').style.display = 'none';
+
+      try {
+        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=pulse_money_wasters', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: String(currentUserId),
+            kdp_profile: kdpProfile
+          })
+        });
+
+        const data = await response.json();
+        console.log('Money wasters response:', data);
+
+        // Hide loading
+        document.getElementById('pulse-loading').style.display = 'none';
+
+        if (!data.success) {
+          throw new Error(data.data?.error || 'Failed to load money wasters');
+        }
+
+        const moneyWasters = data.data || [];
+
+        if (moneyWasters.length === 0) {
+          // Show empty state
+          document.getElementById('pulse-empty-state').style.display = 'block';
+          document.getElementById('pulse-results-count').textContent = '0 terms';
+        } else {
+          // Show results
+          document.getElementById('pulse-results').style.display = 'block';
+          document.getElementById('pulse-results-count').textContent = `${moneyWasters.length} term${moneyWasters.length !== 1 ? 's' : ''}`;
+          
+          // Populate table
+          populateMoneyWastersTable(moneyWasters);
+        }
+
+      } catch (error) {
+        console.error('Error loading money wasters:', error);
+        document.getElementById('pulse-loading').style.display = 'none';
+        document.getElementById('pulse-empty-state').style.display = 'block';
+        alert(error.message || 'Failed to analyze money wasters. Please try again.');
+      }
+    });
+  }
+
+  // Export button handler
+  const pulseExportBtn = document.getElementById('pulse-export-btn');
+  if (pulseExportBtn) {
+    pulseExportBtn.addEventListener('click', exportMoneyWastersCSV);
+  }
 });
 
+// Function to populate the money wasters table with grouped display
+function populateMoneyWastersTable(data) {
+  const tbody = document.getElementById('pulse-table-body');
+  tbody.innerHTML = '';
+
+  // Group data by campaign and ad group
+  const grouped = {};
+  
+  data.forEach(item => {
+    const campaignKey = `${item.campaign_id}_${item.campaign_name}`;
+    const adGroupKey = `${item.ad_group_id}_${item.ad_group_name}`;
+    
+    if (!grouped[campaignKey]) {
+      grouped[campaignKey] = {
+        campaign_id: item.campaign_id,
+        campaign_name: item.campaign_name,
+        adGroups: {}
+      };
+    }
+    
+    if (!grouped[campaignKey].adGroups[adGroupKey]) {
+      grouped[campaignKey].adGroups[adGroupKey] = {
+        ad_group_id: item.ad_group_id,
+        ad_group_name: item.ad_group_name,
+        terms: []
+      };
+    }
+    
+    grouped[campaignKey].adGroups[adGroupKey].terms.push(item);
+  });
+
+  // Sort terms within each ad group by cost (descending)
+  Object.values(grouped).forEach(campaign => {
+    Object.values(campaign.adGroups).forEach(adGroup => {
+      adGroup.terms.sort((a, b) => (b.cost || 0) - (a.cost || 0));
+    });
+  });
+
+  // Format currency
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value || 0);
+  };
+
+  // Format numbers
+  const formatNumber = (value) => {
+    return new Intl.NumberFormat('en-US').format(value || 0);
+  };
+
+  // Render grouped data
+  Object.values(grouped).forEach((campaign, campaignIndex) => {
+    const campaignId = `campaign-${campaign.campaign_id}`;
+    
+    // Campaign header row (collapsible)
+    const campaignHeaderRow = document.createElement('tr');
+    campaignHeaderRow.style.background = 'linear-gradient(135deg, #E8F5F3, #D1EBE6)';
+    campaignHeaderRow.style.borderTop = campaignIndex > 0 ? '2px solid var(--color-primary-40)' : '1px solid var(--color-neutral-20)';
+    campaignHeaderRow.style.borderBottom = '1px solid var(--color-primary-30)';
+    campaignHeaderRow.style.cursor = 'pointer';
+    campaignHeaderRow.style.transition = 'background 0.2s';
+    campaignHeaderRow.dataset.campaignId = campaignId;
+    campaignHeaderRow.dataset.expanded = 'true';
+    
+    campaignHeaderRow.onmouseover = function() { 
+      this.style.background = 'linear-gradient(135deg, #D1EBE6, #B8E0D8)'; 
+    };
+    campaignHeaderRow.onmouseout = function() { 
+      this.style.background = 'linear-gradient(135deg, #E8F5F3, #D1EBE6)'; 
+    };
+    
+    campaignHeaderRow.innerHTML = `
+      <td colspan="6" style="padding: 14px 16px; font-weight: 700; font-size: 1rem; color: var(--color-primary-80);">
+        <div style="display: flex; align-items: center; gap: var(--spacing-12);">
+          <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s;">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+          </svg>
+          <span>Campaign: ${campaign.campaign_name}</span>
+          <span style="font-size: 0.75rem; font-weight: 500; color: var(--color-neutral-60); margin-left: auto;">ID: ${campaign.campaign_id}</span>
+        </div>
+      </td>
+    `;
+    
+    // Add click handler to toggle campaign
+    campaignHeaderRow.onclick = function() {
+      const isExpanded = this.dataset.expanded === 'true';
+      this.dataset.expanded = !isExpanded;
+      const icon = this.querySelector('.collapse-icon');
+      icon.style.transform = isExpanded ? 'rotate(-90deg)' : 'rotate(0deg)';
+      
+      // Toggle all ad groups and terms for this campaign
+      const allRows = tbody.querySelectorAll(`[data-parent-campaign="${campaignId}"]`);
+      allRows.forEach(row => {
+        row.style.display = isExpanded ? 'none' : '';
+      });
+    };
+    
+    tbody.appendChild(campaignHeaderRow);
+
+    // Ad groups within campaign
+    Object.values(campaign.adGroups).forEach((adGroup, adGroupIndex) => {
+      const adGroupId = `adgroup-${campaign.campaign_id}-${adGroup.ad_group_id}`;
+      
+      // Ad group header row (collapsible)
+      const adGroupHeaderRow = document.createElement('tr');
+      adGroupHeaderRow.dataset.parentCampaign = campaignId;
+      adGroupHeaderRow.dataset.adGroupId = adGroupId;
+      adGroupHeaderRow.dataset.expanded = 'true';
+      adGroupHeaderRow.style.background = 'linear-gradient(to right, #F7FCFB, #FFFFFF)';
+      adGroupHeaderRow.style.borderBottom = '2px solid var(--color-primary-20)';
+      adGroupHeaderRow.style.cursor = 'pointer';
+      adGroupHeaderRow.style.transition = 'all 0.2s';
+      
+      adGroupHeaderRow.onmouseover = function() { 
+        this.style.background = 'linear-gradient(to right, #E8F5F3, #F7FCFB)'; 
+      };
+      adGroupHeaderRow.onmouseout = function() { 
+        this.style.background = 'linear-gradient(to right, #F7FCFB, #FFFFFF)'; 
+      };
+      
+      adGroupHeaderRow.innerHTML = `
+        <td colspan="6" style="padding: 12px 16px 12px 40px; font-weight: 600; font-size: 0.9375rem; color: var(--color-neutral-80);">
+          <div style="display: flex; align-items: center; gap: var(--spacing-10);">
+            <svg class="collapse-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s;">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Ad Group: ${adGroup.ad_group_name}</span>
+            <span style="font-size: 0.75rem; font-weight: 400; color: var(--color-neutral-60); margin-left: auto;">${adGroup.terms.length} term${adGroup.terms.length !== 1 ? 's' : ''}</span>
+          </div>
+        </td>
+      `;
+      
+      // Add click handler to toggle ad group
+      adGroupHeaderRow.onclick = function(e) {
+        e.stopPropagation(); // Prevent campaign toggle
+        const isExpanded = this.dataset.expanded === 'true';
+        this.dataset.expanded = !isExpanded;
+        const icon = this.querySelector('.collapse-icon');
+        icon.style.transform = isExpanded ? 'rotate(-90deg)' : 'rotate(0deg)';
+        
+        // Toggle all terms for this ad group
+        const termRows = tbody.querySelectorAll(`[data-parent-adgroup="${adGroupId}"]`);
+        termRows.forEach(row => {
+          row.style.display = isExpanded ? 'none' : '';
+        });
+      };
+      
+      tbody.appendChild(adGroupHeaderRow);
+
+      // Table column headers (appears after each ad group header)
+      const columnHeaderRow = document.createElement('tr');
+      columnHeaderRow.dataset.parentCampaign = campaignId;
+      columnHeaderRow.dataset.parentAdgroup = adGroupId;
+      columnHeaderRow.style.background = 'var(--color-primary-10)';
+      columnHeaderRow.style.borderBottom = '2px solid var(--color-primary-30)';
+      columnHeaderRow.innerHTML = `
+        <th style="padding: 12px 16px 12px 64px; text-align: left; font-weight: 700; font-size: 0.8125rem; color: var(--color-primary-80); text-transform: uppercase; letter-spacing: 0.5px;">Search Term</th>
+        <th style="padding: 12px 16px; text-align: left; font-weight: 700; font-size: 0.8125rem; color: var(--color-primary-80); text-transform: uppercase; letter-spacing: 0.5px;">Keyword</th>
+        <th style="padding: 12px 16px; text-align: left; font-weight: 700; font-size: 0.8125rem; color: var(--color-primary-80); text-transform: uppercase; letter-spacing: 0.5px;">Match Type</th>
+        <th style="padding: 12px 16px; text-align: right; font-weight: 700; font-size: 0.8125rem; color: var(--color-primary-80); text-transform: uppercase; letter-spacing: 0.5px;">Impressions</th>
+        <th style="padding: 12px 16px; text-align: right; font-weight: 700; font-size: 0.8125rem; color: var(--color-primary-80); text-transform: uppercase; letter-spacing: 0.5px;">Clicks</th>
+        <th style="padding: 12px 16px; text-align: right; font-weight: 700; font-size: 0.8125rem; color: #FF6B6B; text-transform: uppercase; letter-spacing: 0.5px;">Cost</th>
+      `;
+      tbody.appendChild(columnHeaderRow);
+
+      // Search terms rows
+      adGroup.terms.forEach((item, termIndex) => {
+        const row = document.createElement('tr');
+        row.dataset.parentCampaign = campaignId;
+        row.dataset.parentAdgroup = adGroupId;
+        row.style.borderBottom = '1px solid var(--color-neutral-20)';
+        row.style.background = 'white';
+        row.style.transition = 'background 0.2s';
+        row.onmouseover = function() { this.style.background = 'var(--color-neutral-05)'; };
+        row.onmouseout = function() { this.style.background = 'white'; };
+
+        // Format keyword display - handle ASIN targeting
+        const keywordText = item.keyword_text || 'N/A';
+        const isAsinTargeting = keywordText.includes('asin=');
+        const displayKeyword = isAsinTargeting ? keywordText.replace(/asin="([^"]+)"/g, 'ASIN: $1') : keywordText;
+        
+        // Format match type
+        const matchType = item.keyword_type || 'N/A';
+        const displayMatchType = matchType === 'TARGETING_EXPRESSION' ? 'Product Targeting' : matchType;
+        
+        row.innerHTML = `
+          <td style="padding: 14px 16px 14px 64px; font-weight: 500; color: var(--color-neutral-90); font-size: 0.9375rem;">${item.search_term || 'N/A'}</td>
+          <td style="padding: 14px 16px; font-weight: 400; color: var(--color-neutral-70); font-size: 0.875rem; font-family: monospace;">${displayKeyword}</td>
+          <td style="padding: 14px 16px; font-weight: 400; color: var(--color-neutral-70); font-size: 0.875rem;">${displayMatchType}</td>
+          <td style="padding: 14px 16px; text-align: right; color: var(--color-neutral-70); font-size: 0.9375rem;">${formatNumber(item.impressions)}</td>
+          <td style="padding: 14px 16px; text-align: right; color: var(--color-neutral-70); font-size: 0.9375rem;">${formatNumber(item.clicks)}</td>
+          <td style="padding: 14px 16px; text-align: right; font-weight: 700; color: #FF6B6B; font-size: 0.9375rem;">${formatCurrency(item.cost)}</td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    });
+  });
+}
+
+// Function to add negative keyword (placeholder)
+function addNegativeKeyword(searchTerm, campaignId, adGroupId) {
+  console.log('Add negative keyword:', { searchTerm, campaignId, adGroupId });
+  alert(`This feature will block the search term: "${searchTerm}"\nCampaign ID: ${campaignId}\nAd Group ID: ${adGroupId}\n\nFunctionality coming soon!`);
+}
+
+// Function to export money wasters as CSV (placeholder)
+function exportMoneyWastersCSV() {
+  console.log('Export money wasters as CSV');
+  alert('CSV export functionality coming soon!');
+}
+
+// Global variable for effectiveness chart
+let effectivenessChart = null;
+
+// Load Account Summary
+async function loadPulseAccountSummary(userId, kdpProfile, language, dateFrom = null, dateTo = null) {
+  if (!userId || !kdpProfile) {
+    console.error('User ID and KDP Profile are required');
+    return;
+  }
+
+  // Show loading state
+  jQuery('#pulse-account-summary').show();
+  jQuery('#pulse-account-summary-error').hide();
+  jQuery('#pulse-account-summary-content').show();
+  jQuery('#pulse-date-range').text('Loading...');
+  jQuery('#pulse-efficiency-trend, #pulse-cost-pressure, #pulse-growth-constraint').text('Loading...');
+  jQuery('[id^="pulse-metric-"]').text('—');
+
+  const requestData = {
+    user_id: userId,
+    kdp_profile: kdpProfile,
+    language: language || 'EN'
+  };
+
+  if (dateFrom) requestData.date_from = dateFrom;
+  if (dateTo) requestData.date_to = dateTo;
+
+  try {
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=pulse_account_summary', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData)
+    });
+
+    const data = await response.json();
+    console.log('Account summary response:', data);
+
+    if (!data.success) {
+      throw new Error(data.data?.error || 'Failed to load account summary');
+    }
+
+    displayPulseAccountSummary(data.data);
+
+  } catch (error) {
+    console.error('Error loading account summary:', error);
+    // Show error state
+    jQuery('#pulse-account-summary').show();
+    jQuery('#pulse-account-summary-content').hide();
+    jQuery('#pulse-account-summary-error').show();
+    
+    // Set error message
+    const errorMessage = error.message || 'Unable to load account summary data.';
+    jQuery('#pulse-account-summary-error-message').text(errorMessage);
+  }
+}
+
+// Display Account Summary Data
+function displayPulseAccountSummary(data) {
+  // Display date range
+  if (data.meta && data.meta.date_from && data.meta.date_to) {
+    const dateFrom = new Date(data.meta.date_from).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    const dateTo = new Date(data.meta.date_to).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    jQuery('#pulse-date-range').text(`${dateFrom} - ${dateTo}`);
+  }
+
+  // Display optimization runs count if available and > 0
+  if (data.meta && data.meta.optimization_runs && data.meta.optimization_runs > 0) {
+    const runCount = data.meta.optimization_runs;
+    const runText = runCount === 1 ? '1 optimization run' : `${runCount} optimization runs`;
+    jQuery('#pulse-optimization-runs').text(runText).show();
+  } else {
+    jQuery('#pulse-optimization-runs').hide();
+  }
+
+  // Display status cards
+  if (data.cards) {
+    // Efficiency Trend
+    const efficiencyText = data.cards.efficiency_trend?.text || data.cards.efficiency_trend || 'N/A';
+    const efficiencySentiment = data.cards.efficiency_trend?.sentiment || 0;
+    jQuery('#pulse-efficiency-trend').text(efficiencyText);
+    
+    // Cost Pressure
+    const costPressureText = data.cards.cost_pressure?.text || data.cards.cost_pressure || 'N/A';
+    const costPressureSentiment = data.cards.cost_pressure?.sentiment || 0;
+    jQuery('#pulse-cost-pressure').text(costPressureText);
+    
+    // Growth Constraint
+    const growthConstraintText = data.cards.growth_constraint?.text || data.cards.growth_constraint || 'N/A';
+    const growthConstraintSentiment = data.cards.growth_constraint?.sentiment || 0;
+    jQuery('#pulse-growth-constraint').text(growthConstraintText);
+    
+    // Apply sentiment-based styling
+    applySentimentStyling('#pulse-efficiency-trend', efficiencySentiment);
+    applySentimentStyling('#pulse-cost-pressure', costPressureSentiment);
+    applySentimentStyling('#pulse-growth-constraint', growthConstraintSentiment);
+  }
+
+  // Display metrics
+  if (data.totals) {
+    const totals = data.totals;
+    
+    // Format numbers with thousands separators
+    const formatNumber = (num) => {
+      return num !== null && num !== undefined ? Number(num).toLocaleString('en-US', { maximumFractionDigits: 0 }) : '—';
+    };
+
+    // Format currency
+    const formatCurrency = (num) => {
+      return num !== null && num !== undefined ? '$' + Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+    };
+
+    // Format percentage
+    const formatPercentage = (num) => {
+      return num !== null && num !== undefined ? Number(num).toFixed(2) + '%' : '—';
+    };
+
+    // Format ratio
+    const formatRatio = (num) => {
+      return num !== null && num !== undefined ? Number(num).toFixed(2) + 'x' : '—';
+    };
+
+    jQuery('#pulse-metric-impressions').text(formatNumber(totals.impressions));
+    jQuery('#pulse-metric-clicks').text(formatNumber(totals.clicks));
+    jQuery('#pulse-metric-cost').text(formatCurrency(totals.cost));
+    jQuery('#pulse-metric-cpc').text(formatCurrency(totals.cpc));
+    jQuery('#pulse-metric-sales').text(formatCurrency(totals.sales));
+    jQuery('#pulse-metric-acos').text(formatPercentage(totals.acos));
+    jQuery('#pulse-metric-roas').text(formatRatio(totals.roas));
+  }
+}
+
+// Load Spend Effectiveness
+async function loadPulseSpendEffectiveness(userId, kdpProfile, language) {
+  if (!userId || !kdpProfile) {
+    console.error('User ID and KDP Profile are required');
+    return;
+  }
+
+  // Show section
+  jQuery('#pulse-spend-effectiveness').show();
+
+  const requestData = {
+    user_id: userId,
+    kdp_profile: kdpProfile,
+    language: language || 'EN'
+  };
+
+  try {
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=pulse_spend_effectiveness', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData)
+    });
+
+    const data = await response.json();
+    console.log('Spend effectiveness response:', data);
+
+    if (!data.success) {
+      throw new Error(data.data?.error || 'Failed to load spend effectiveness');
+    }
+
+    displayPulseSpendEffectiveness(data.data);
+
+  } catch (error) {
+    console.error('Error loading spend effectiveness:', error);
+    jQuery('#pulse-spend-effectiveness').hide();
+  }
+}
+
+// Display Spend Effectiveness Data
+function displayPulseSpendEffectiveness(data) {
+  if (!data) return;
+
+  // Format currency helper
+  const formatCurrency = (num) => {
+    return num !== null && num !== undefined ? '$' + Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+  };
+
+  // Format percentage helper
+  const formatPercentage = (num) => {
+    return num !== null && num !== undefined ? Number(num).toFixed(2) + '%' : '—';
+  };
+
+  // Display effectiveness text with sentiment
+  if (data.effectiveness) {
+    const effectivenessText = data.effectiveness.text || 'N/A';
+    const sentiment = data.effectiveness.sentiment || 0;
+    
+    jQuery('#pulse-effectiveness-text').text(effectivenessText);
+    applySentimentStyling('#pulse-effectiveness-text', sentiment);
+  }
+
+  // Create/update pie chart
+  if (data.breakdown) {
+    const ctx = document.getElementById('pulse-effectiveness-chart').getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (effectivenessChart) {
+      effectivenessChart.destroy();
+    }
+
+    const costWithSales = data.breakdown.cost_with_sales || 0;
+    const costNoSales = data.breakdown.cost_no_sales || 0;
+
+    const total = costWithSales + costNoSales;
+    const salesSharePercent = total > 0 ? ((costWithSales / total) * 100).toFixed(1) : 0;
+    const noSalesSharePercent = total > 0 ? ((costNoSales / total) * 100).toFixed(1) : 0;
+
+    effectivenessChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Sales Share', 'No Sales Share'],
+        datasets: [{
+          data: [costWithSales, costNoSales],
+          backgroundColor: ['#4CAF50', '#FF6B6B'],
+          borderColor: ['#fff', '#fff'],
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            align: 'center',
+            labels: {
+              padding: 12,
+              font: {
+                size: 13,
+                weight: '600'
+              },
+              color: '#424242',
+              boxWidth: 15,
+              boxHeight: 15,
+              usePointStyle: false
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            padding: 12,
+            titleFont: { size: 13, weight: 'bold' },
+            bodyFont: { size: 12 },
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed;
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+              }
+            }
+          },
+          datalabels: {
+            color: '#fff',
+            font: {
+              size: 18,
+              weight: 'bold'
+            },
+            formatter: function(value, context) {
+              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+              return percentage + '%';
+            }
+          }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+  }
+}
+
+// Apply sentiment-based styling to status cards
+function applySentimentStyling(elementSelector, sentiment) {
+  const element = jQuery(elementSelector);
+  
+  // Reset to default color
+  element.css('color', 'var(--color-neutral-90)');
+  
+  if (sentiment === 1) {
+    // Positive sentiment - green
+    element.css('color', '#4CAF50');
+    element.css('font-weight', '700');
+  } else if (sentiment === -1) {
+    // Negative sentiment - red
+    element.css('color', '#F44336');
+    element.css('font-weight', '700');
+  } else {
+    // Neutral - gray
+    element.css('color', '#757575');
+    element.css('font-weight', '600');
+  }
+}
+
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
 <?php
 get_footer();
