@@ -62,7 +62,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           </svg>
         </span>
-        <span>⚠️ Books - WIP DO NOT TOUCH</span>
+        <span>Books - WIP</span>
       </button>
 
       <!-- Campaign Configuration Nav Item -->
@@ -751,30 +751,8 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                         required
                         style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; line-height: 1.5; background: white; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;"
                       >
-                        <option value="">Select strategy...</option>
-                        <option value="aggressive">Aggressive</option>
                         <option value="conservative">Conservative</option>
                       </select>
-                    </div>
-
-                    <!-- Target TOSIS -->
-                    <div>
-                      <label for="config-target-tosis" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                        Target TOSIS (%)
-                      </label>
-                      <input
-                        type="number"
-                        id="config-target-tosis"
-                        name="target_tosis"
-                        step="0.1"
-                        min="0"
-                        max="100"
-                        placeholder="0.0"
-                        style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
-                      />
-                      <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: var(--color-neutral-60);">
-                        Optional - Leave empty to use default value
-                      </p>
                     </div>
 
                     <!-- ASIN Selection -->
@@ -2780,7 +2758,6 @@ document.addEventListener('DOMContentLoaded', function() {
       const adGroupSelect = document.getElementById('config-ad-group');
       const asinSelect = document.getElementById('config-asin');
       const bookPreview = document.getElementById('book-preview');
-      const targetTosisInput = document.getElementById('config-target-tosis');
       const bidStrategySelect = document.getElementById('config-bid-strategy');
       
       if (campaignSelect) campaignSelect.value = '';
@@ -2791,7 +2768,6 @@ document.addEventListener('DOMContentLoaded', function() {
         asinSelect.innerHTML = '<option value="">Select a book...</option>';
       }
       if (bookPreview) bookPreview.style.display = 'none';
-      if (targetTosisInput) targetTosisInput.value = '';
       if (bidStrategySelect) bidStrategySelect.value = 'conservative';
       
       // Reset targets and special rules
@@ -3914,7 +3890,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedCampaignId = document.getElementById('config-campaign-name').value; // This is campaign ID
         const selectedAdGroupId = document.getElementById('config-ad-group').value;
         const bidUpdateStrategy = document.getElementById('config-bid-strategy').value;
-        const targetTosisInput = document.getElementById('config-target-tosis').value.trim();
 
         // Validate required fields
         if (!selectedCampaignId) {
@@ -3930,16 +3905,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!bidUpdateStrategy) {
           alert('Please select a bid update strategy');
           return;
-        }
-        
-        // Parse target_tosis - only exclude if empty string, include if 0 or any other number
-        let targetTosis = null;
-        if (targetTosisInput !== '') {
-          targetTosis = parseFloat(targetTosisInput);
-          // If parsing fails (NaN), set to null
-          if (isNaN(targetTosis)) {
-            targetTosis = null;
-          }
         }
 
         // Build kdp_profile
@@ -3972,11 +3937,6 @@ document.addEventListener('DOMContentLoaded', function() {
           ad_group_name: selectedCampaign.adGroupName || null,
           bid_update_strategy: bidUpdateStrategy
         };
-
-        // Add optional fields only if provided
-        if (targetTosis !== null) {
-          configObj.target_tosis = targetTosis;
-        }
 
         // Add special handling rules if any targets are marked as ALWAYS_ON
         if (specialHandlingRules.length > 0) {
@@ -4132,14 +4092,10 @@ function renderConfigurationsList(userId, kdpProfile) {
             </button>
           </div>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-12); padding: var(--spacing-12); background: var(--color-neutral-05); border-radius: var(--radius-small);">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-12); padding: var(--spacing-12); background: var(--color-neutral-05); border-radius: var(--radius-small);">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Strategy</p>
             <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.bid_update_strategy}</p>
-          </div>
-          <div>
-            <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">Target TOSIS</p>
-            <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90);">${config.target_tosis ? config.target_tosis + '%' : 'Default'}</p>
           </div>
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: var(--color-neutral-60); text-transform: uppercase; letter-spacing: 0.5px;">ASINs</p>
@@ -4206,57 +4162,29 @@ function renderConfigurationsList(userId, kdpProfile) {
         
         <!-- Edit Form Fields -->
         <div style="display: grid; gap: var(--spacing-16);">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12);">
-            <div>
-              <label style="display: block; margin-bottom: var(--spacing-6); font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-80);">
-                Royalties <span style="color: #D32F2F;">*</span>
+          <!-- ASIN Display (Read-only) -->
+          <div style="padding: var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20);">
+            <div style="margin-bottom: var(--spacing-8);">
+              <label style="display: block; color: var(--color-neutral-60); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                Book ASIN
               </label>
-              <input
-                type="number"
-                id="edit-royalties-${config.ad_group_id}"
-                value="${config.royalties || ''}"
-                step="0.01"
-                required
-                style="width: 100%; padding: var(--spacing-10); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.9375rem; transition: border-color 0.2s;"
-              />
             </div>
-            <div>
-              <label style="display: block; margin-bottom: var(--spacing-6); font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-80);">
-                Book Price <span style="color: #D32F2F;">*</span>
-              </label>
-              <input
-                type="number"
-                id="edit-book-price-${config.ad_group_id}"
-                value="${config.book_price || ''}"
-                step="0.01"
-                required
-                style="width: 100%; padding: var(--spacing-10); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.9375rem; transition: border-color 0.2s;"
-              />
+            <div style="font-family: monospace; font-size: 1rem; font-weight: 600; color: var(--color-neutral-90);">
+              ${config.asin ? (Array.isArray(config.asin) ? config.asin[0] : config.asin) : 'N/A'}
             </div>
+            <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.75rem; color: var(--color-neutral-60);">
+              ASIN cannot be changed. Create a new configuration to use a different ASIN.
+            </p>
           </div>
           
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12);">
-            <div>
-              <label style="display: block; margin-bottom: var(--spacing-6); font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-80);">Bid Update Strategy</label>
-              <select
-                id="edit-bid-strategy-${config.ad_group_id}"
-                style="width: 100%; padding: var(--spacing-10); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.9375rem;"
-              >
-                <option value="aggressive" ${config.bid_update_strategy === 'aggressive' ? 'selected' : ''}>Aggressive</option>
-                <option value="moderate" ${config.bid_update_strategy === 'moderate' ? 'selected' : ''}>Moderate</option>
-                <option value="conservative" ${config.bid_update_strategy === 'conservative' ? 'selected' : ''}>Conservative</option>
-              </select>
-            </div>
-            <div>
-              <label style="display: block; margin-bottom: var(--spacing-6); font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-80);">Target TOSIS (%)</label>
-              <input
-                type="number"
-                id="edit-target-tosis-${config.ad_group_id}"
-                value="${config.target_tosis !== undefined && config.target_tosis !== null ? config.target_tosis : ''}"
-                step="0.1"
-                style="width: 100%; padding: var(--spacing-10); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.9375rem;"
-              />
-            </div>
+          <div>
+            <label style="display: block; margin-bottom: var(--spacing-6); font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-80);">Bid Update Strategy</label>
+            <select
+              id="edit-bid-strategy-${config.ad_group_id}"
+              style="width: 100%; padding: var(--spacing-10); border: 2px solid var(--color-neutral-30); border-radius: var(--radius-small); font-size: 0.9375rem;"
+            >
+              <option value="conservative" selected>Conservative</option>
+            </select>
           </div>
           
           <!-- Targets Section -->
@@ -4407,6 +4335,155 @@ function cancelConfigInlineEdit(adGroupId) {
   const targetsContainer = document.getElementById(`edit-targets-container-${adGroupId}`);
   if (targetsContainer) {
     targetsContainer.style.display = 'none';
+  }
+}
+
+// Populate ASIN dropdown for edit mode
+async function populateEditAsinDropdown(adGroupId, config) {
+  const asinSelect = document.getElementById(`edit-asin-${adGroupId}`);
+  if (!asinSelect) return;
+  
+  // Find the matching campaign
+  const matchingCampaign = currentCampaigns.find(c => c.adGroupId === adGroupId);
+  if (!matchingCampaign || !matchingCampaign.sponsoredAsins || matchingCampaign.sponsoredAsins.length === 0) {
+    asinSelect.innerHTML = '<option value="">No ASINs found for this ad group</option>';
+    return;
+  }
+  
+  // Get current user's books to show titles
+  const account = document.getElementById('campaign-account').value;
+  const region = document.getElementById('campaign-region').value;
+  const kdpProfile = `${account}-${region}`;
+  
+  let userBooks = [];
+  try {
+    const booksResponse = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_books', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: String(currentUserId),
+        kdp_profile: kdpProfile
+      })
+    });
+    const booksResult = await booksResponse.json();
+    if (booksResult.success && booksResult.data) {
+      userBooks = booksResult.data;
+    }
+  } catch (error) {
+    console.error('Error fetching books:', error);
+  }
+  
+  // Build options
+  let options = '<option value="">Select an ASIN...</option>';
+  matchingCampaign.sponsoredAsins.forEach(asin => {
+    const book = userBooks.find(b => b.asin === asin);
+    const displayText = book ? `${asin} - ${book.clean_title || book.title}` : asin;
+    const currentAsin = Array.isArray(config.asin) ? config.asin[0] : config.asin;
+    const selected = asin === currentAsin ? 'selected' : '';
+    options += `<option value="${asin}" ${selected}>${displayText}</option>`;
+  });
+  
+  asinSelect.innerHTML = options;
+  
+  // Add change event listener
+  asinSelect.addEventListener('change', async function() {
+    await handleEditAsinSelection(adGroupId, this.value);
+  });
+  
+  // If there's a current ASIN selected, show preview
+  const currentAsin = Array.isArray(config.asin) ? config.asin[0] : config.asin;
+  if (currentAsin) {
+    await handleEditAsinSelection(adGroupId, currentAsin);
+  }
+}
+
+// Handle ASIN selection in edit mode
+async function handleEditAsinSelection(adGroupId, selectedAsin) {
+  const bookPreview = document.getElementById(`edit-book-preview-${adGroupId}`);
+  const bookImage = document.getElementById(`edit-book-preview-image-${adGroupId}`);
+  const bookTitle = document.getElementById(`edit-book-preview-title-${adGroupId}`);
+  const bookAsinDisplay = document.getElementById(`edit-book-preview-asin-${adGroupId}`);
+  const bookPrice = document.getElementById(`edit-book-preview-price-${adGroupId}`);
+  const bookRoyalties = document.getElementById(`edit-book-preview-royalties-${adGroupId}`);
+  const missingDataWarning = document.getElementById(`edit-book-preview-missing-data-${adGroupId}`);
+  
+  if (!selectedAsin) {
+    if (bookPreview) bookPreview.style.display = 'none';
+    return;
+  }
+  
+  // Show preview container
+  if (bookPreview) bookPreview.style.display = 'block';
+  
+  // Get account/region
+  const account = document.getElementById('campaign-account').value;
+  const region = document.getElementById('campaign-region').value;
+  const kdpProfile = `${account}-${region}`;
+  
+  try {
+    // Fetch book details
+    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: String(currentUserId),
+        kdp_profile: kdpProfile,
+        asin: selectedAsin
+      })
+    });
+    
+    const result = await response.json();
+    if (result.success && result.data) {
+      const book = result.data;
+      
+      // Display book info
+      if (bookImage && book.image_url) {
+        bookImage.src = book.image_url;
+      }
+      if (bookTitle) {
+        bookTitle.textContent = book.clean_title || book.title || 'Unknown Title';
+      }
+      if (bookAsinDisplay) {
+        bookAsinDisplay.textContent = `ASIN: ${selectedAsin}`;
+      }
+      
+      // Display price
+      if (bookPrice) {
+        if (book.price && book.price.amount) {
+          bookPrice.textContent = `$${book.price.amount.toFixed(2)}`;
+        } else {
+          bookPrice.textContent = '-';
+        }
+      }
+      
+      // Display royalties
+      if (bookRoyalties) {
+        if (book.royalties && book.royalties.amount) {
+          bookRoyalties.textContent = `$${book.royalties.amount.toFixed(2)}`;
+        } else {
+          bookRoyalties.textContent = '-';
+        }
+      }
+      
+      // Show/hide missing data warning
+      const hasMissingData = !book.price?.amount || !book.royalties?.amount;
+      if (missingDataWarning) {
+        missingDataWarning.style.display = hasMissingData ? 'block' : 'none';
+      }
+    } else {
+      // Book not found or error
+      if (bookTitle) bookTitle.textContent = 'Book not found';
+      if (bookAsinDisplay) bookAsinDisplay.textContent = `ASIN: ${selectedAsin}`;
+      if (bookPrice) bookPrice.textContent = '-';
+      if (bookRoyalties) bookRoyalties.textContent = '-';
+      if (missingDataWarning) missingDataWarning.style.display = 'block';
+    }
+  } catch (error) {
+    console.error('Error loading book preview:', error);
+    if (bookTitle) bookTitle.textContent = 'Error loading book';
+    if (bookPrice) bookPrice.textContent = '-';
+    if (bookRoyalties) bookRoyalties.textContent = '-';
+    if (missingDataWarning) missingDataWarning.style.display = 'block';
   }
 }
 
@@ -4606,44 +4683,34 @@ function toggleAlwaysOnInline(adGroupId, targetId, targetText, matchType) {
 async function updateConfigInline(adGroupId) {
   console.log('Updating config inline:', adGroupId);
   
-  const royalties = document.getElementById(`edit-royalties-${adGroupId}`).value.trim();
-  const bookPrice = document.getElementById(`edit-book-price-${adGroupId}`).value.trim();
   const bidStrategy = document.getElementById(`edit-bid-strategy-${adGroupId}`).value;
-  const targetTosis = document.getElementById(`edit-target-tosis-${adGroupId}`).value.trim();
   
-  // Validation
-  if (!royalties || isNaN(parseFloat(royalties))) {
-    alert('Please enter a valid royalties value');
-    return;
-  }
-  if (!bookPrice || isNaN(parseFloat(bookPrice))) {
-    alert('Please enter a valid book price');
-    return;
-  }
-  
+  // Get config to access ASIN
   const config = currentConfigurations.find(c => c.ad_group_id === adGroupId);
   if (!config) return;
   
+  const selectedAsin = Array.isArray(config.asin) ? config.asin[0] : config.asin;
+  
+  // Validation
+  if (!selectedAsin) {
+    alert('ASIN is missing from configuration');
+    return;
+  }
+  
+  // Get account info for API call
   const account = document.getElementById('campaign-account').value;
   const region = document.getElementById('campaign-region').value;
   const kdpProfile = `${account}-${region}`;
   
-  // Build the configuration object
+  // Build the configuration object (only include fields that API accepts)
   const configuration = {
-    asin: config.asin || [],
+    asin: selectedAsin,  // String, not array
     campaign_name: config.campaign_name,
     campaign_id: String(config.campaign_id),
     ad_group_id: String(adGroupId),
     ad_group_name: config.ad_group_name || '',
-    royalties: parseFloat(royalties),
-    book_price: parseFloat(bookPrice),
     bid_update_strategy: bidStrategy
   };
-  
-  // Only include target_tosis if it's set
-  if (targetTosis && targetTosis.trim() !== '') {
-    configuration.target_tosis = parseFloat(targetTosis);
-  }
   
   // Add special handling rules if any
   if (editingInlineConfigs[adGroupId]?.specialHandlingRules?.length > 0) {
@@ -4726,7 +4793,6 @@ async function editCampaignConfig(adGroupId) {
   document.getElementById('config-royalties').value = config.royalties || '';
   document.getElementById('config-book-price').value = config.book_price || '';
   document.getElementById('config-bid-strategy').value = config.bid_update_strategy;
-  document.getElementById('config-target-tosis').value = config.target_tosis !== undefined && config.target_tosis !== null ? config.target_tosis : '';
 
   // Select campaign - this will trigger the ad group dropdown population
   const campaignSelect = document.getElementById('config-campaign-name');
