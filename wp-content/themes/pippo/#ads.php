@@ -62,7 +62,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
           </svg>
         </span>
-        <span>Books - WIP</span>
+        <span>Books</span>
       </button>
 
       <!-- Campaign Configuration Nav Item -->
@@ -97,7 +97,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
           </svg>
         </span>
-        <span>⚠️ Pulse - WIP DO NOT TOUCH</span>
+        <span>Pulse</span>
       </button>
     </nav>
 
@@ -1089,29 +1089,15 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <!-- Header -->
             <div style="text-align: center; margin-bottom: var(--spacing-40);">
               <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">
-                ⚠️ Pulse - WIP DO NOT TOUCH
+                Pulse
               </h1>
               <p class="text--body-lg" style="color: var(--color-neutral-70);">
-                Real-time insights and analytics for your advertising campaigns
-              </p>
-            </div>
-
-            <!-- Warning Banner -->
-            <div style="margin-bottom: var(--spacing-32); padding: var(--spacing-20); background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.05)); border-radius: var(--radius-medium); border: 2px solid rgba(255, 152, 0, 0.3);">
-              <p style="margin: 0; color: var(--color-neutral-80); font-weight: 600; text-align: center;">
-                ⚠️ This section is a work in progress. The functionality is not yet implemented.
+               Insights and analytics for your ADS campaigns
               </p>
             </div>
 
             <!-- Filters Section -->
             <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-32); margin-bottom: var(--spacing-32);">
-              <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-24) 0; display: flex; align-items: center; gap: var(--spacing-12);">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                </svg>
-                Filters
-              </h2>
-
               <form id="pulse-filters-form" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--spacing-20); align-items: end;">
                 <!-- KDP Account Dropdown -->
                 <div>
@@ -1401,23 +1387,6 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                       <!-- Will be populated dynamically -->
                     </tbody>
                   </table>
-                </div>
-
-                <!-- Export Button -->
-                <div style="margin-top: var(--spacing-24); text-align: right;">
-                  <button
-                    id="pulse-export-btn"
-                    style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: var(--radius-medium); font-weight: 600; font-size: 0.9375rem; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: var(--spacing-8);"
-                    onmouseover="this.style.background='#45a049'"
-                    onmouseout="this.style.background='#4CAF50'"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Export as CSV
-                  </button>
                 </div>
               </div>
             </div>
