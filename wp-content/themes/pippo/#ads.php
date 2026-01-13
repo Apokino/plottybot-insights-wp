@@ -907,91 +907,120 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                 Keyword Recommendations
               </h2>
 
-              <!-- Input Form -->
-              <form id="keyword-recommendations-form" style="display: grid; gap: var(--spacing-20); margin-bottom: var(--spacing-24);">
-                <!-- Book Title -->
-                <div>
-                  <label for="keyword-book-title" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                    Book Title <span style="color: #FF6B6B;">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="keyword-book-title"
-                    placeholder="Enter your book title"
-                    required
-                    style="width: 100%; padding: 12px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
-                  />
-                </div>
+              <!-- Input Form with 2-Column Layout -->
+              <form id="keyword-recommendations-form" style="margin-bottom: var(--spacing-24);">
+                <div style="display: grid; grid-template-columns: 400px 1fr; gap: var(--spacing-24);">
+                  
+                  <!-- LEFT COLUMN: Selectors and Options -->
+                  <div style="display: grid; gap: var(--spacing-20); align-content: start;">
+                    <!-- Account Selector -->
+                    <div>
+                      <label for="keyword-account" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                        KDP Account <span style="color: #FF6B6B;">*</span>
+                      </label>
+                      <select
+                        id="keyword-account"
+                        required
+                        style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; background: white; cursor: pointer;"
+                      >
+                        <option value="">Select account...</option>
+                      </select>
+                    </div>
 
-                <!-- Region Selector + ASINs -->
-                <div style="display: grid; grid-template-columns: 150px 1fr; gap: var(--spacing-20);">
-                  <div>
-                    <label for="keyword-region" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                      Region <span style="color: #FF6B6B;">*</span>
-                    </label>
-                    <select
-                      id="keyword-region"
-                      required
-                      style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; background: white; cursor: pointer;"
+                    <!-- Region Selector -->
+                    <div>
+                      <label for="keyword-region" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                        Region <span style="color: #FF6B6B;">*</span>
+                      </label>
+                      <select
+                        id="keyword-region"
+                        required
+                        style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; background: white; cursor: pointer;"
+                      >
+                        <option value="">Select region...</option>
+                        <option value="US">United States (US)</option>
+                        <option value="CA">Canada (CA)</option>
+                        <option value="UK">United Kingdom (UK)</option>
+                        <option value="DE">Germany (DE)</option>
+                        <option value="FR">France (FR)</option>
+                        <option value="ES">Spain (ES)</option>
+                        <option value="IT">Italy (IT)</option>
+                      </select>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="keyword-books-loading" style="display: none; padding: var(--spacing-12); background: var(--color-primary-05); border: 1px solid var(--color-primary-30); border-radius: var(--radius-medium);">
+                      <p style="margin: 0; font-size: 0.875rem; color: var(--color-primary-70); display: flex; align-items: center; gap: var(--spacing-8);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10"></circle></svg>
+                        Loading books...
+                      </p>
+                    </div>
+
+                    <!-- ASINs and Title (Auto-populated, hidden) -->
+                    <input type="hidden" id="keyword-asins" required />
+                    <input type="hidden" id="keyword-book-title-hidden" required />
+                    <input type="hidden" id="keyword-book-format-hidden" />
+
+                        <!-- Options -->
+                    <div>
+                      <div>
+                        <label style="display: flex; align-items: center; gap: var(--spacing-8); cursor: pointer; user-select: none;">
+                          <input
+                            type="checkbox"
+                            id="keyword-use-ai"
+                            checked
+                            style="width: 18px; height: 18px; cursor: pointer;"
+                          />
+                          <span style="font-size: 0.875rem; color: var(--color-neutral-90); font-weight: 600;">
+                            Use AI Filtering
+                          </span>
+                        </label>
+                        <p style="margin: var(--spacing-4) 0 0 24px; font-size: 0.75rem; color: var(--color-neutral-60);">
+                          Slower but more relevant results
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button
+                      type="submit"
+                      id="get-keywords-btn"
+                      style="width: 100%; height: 48px; padding: 0 24px; background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: white; border: none; border-radius: var(--radius-medium); font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); transition: all 0.2s;"
+                      onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(59, 130, 246, 0.3)'"
+                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.2)'"
                     >
-                      <option value="">Select...</option>
-                      <option value="US">US</option>
-                      <option value="DE">DE</option>
-                      <option value="UK">UK</option>
-                      <option value="ES">ES</option>
-                      <option value="FR">FR</option>
-                      <option value="IT">IT</option>
-                      <option value="CA">CA</option>
-                    </select>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                      </svg>
+                      Get Keyword Recommendations
+                    </button>
                   </div>
-
+                  
+                  <!-- RIGHT COLUMN: Scrollable Book List -->
                   <div>
-                    <label for="keyword-asins" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                      ASINs <span style="color: #FF6B6B;">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="keyword-asins"
-                      placeholder="Enter ASINs separated by commas (e.g., B0FP8VS5MF, B0DL7MQZBG)"
-                      required
-                      style="width: 100%; padding: 12px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem;"
-                    />
-                    <p style="margin: var(--spacing-4) 0 0 0; font-size: 0.75rem; color: var(--color-neutral-60);">
-                      Separate multiple ASINs with commas
-                    </p>
+                    <h3 style="margin: 0 0 var(--spacing-16) 0; font-size: 1rem; font-weight: 600; color: var(--color-neutral-90);">
+                      Select a Book
+                    </h3>
+                    
+                    <!-- Empty State -->
+                    <div id="keyword-books-empty" style="padding: var(--spacing-40); text-align: center; background: var(--color-neutral-05); border: 1px dashed var(--color-neutral-30); border-radius: var(--radius-medium);">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-40)" stroke-width="2" style="margin: 0 auto var(--spacing-16) auto;">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                      </svg>
+                      <p style="margin: 0; font-size: 0.9375rem; color: var(--color-neutral-60);">
+                        Select an account and region to load books
+                      </p>
+                    </div>
+                    
+                    <!-- Books List -->
+                    <div id="keyword-books-list" style="display: none; max-height: 600px; overflow-y: auto; border: 1px solid var(--color-neutral-30); border-radius: var(--radius-medium); background: white;">
+                      <!-- Books will be rendered here -->
+                    </div>
                   </div>
+                  
                 </div>
-
-                <!-- Options -->
-                <div style="width: 200px;">
-                  <div>
-                    <label style="display: flex; align-items: center; gap: var(--spacing-8); cursor: pointer; user-select: none;">
-                      <input
-                        type="checkbox"
-                        id="keyword-use-ai"
-                        checked
-                        style="width: 18px; height: 18px; cursor: pointer;"
-                      />
-                      <span style="font-size: 0.875rem; color: var(--color-neutral-90); font-weight: 600;">
-                        Use AI Filtering
-                      </span>
-                    </label>
-                    <p style="margin: var(--spacing-4) 0 0 24px; font-size: 0.75rem; color: var(--color-neutral-60);">
-                      Slower but more relevant results
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Submit Button -->
-                <button
-                  type="submit"
-                  id="get-keywords-btn"
-                  style="padding: 14px 24px; background: linear-gradient(135deg, #00C2A8, #00A890); color: white; border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0, 194, 168, 0.3); width: fit-content;"
-                  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0, 194, 168, 0.4)'"
-                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 194, 168, 0.3)'"
-                >
-                  Get Keyword Recommendations
-                </button>
               </form>
 
               <!-- Loading State -->
@@ -1038,24 +1067,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                 </div>
 
                 <!-- Filter Controls -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-20); padding: var(--spacing-16); background: white; border-radius: var(--radius-medium); border: 1px solid var(--color-neutral-20);">
-                  <div style="display: flex; align-items: center; gap: var(--spacing-16);">
-                    <label style="font-weight: 600; color: var(--color-neutral-90); font-size: 0.875rem;">Filter by Match Type:</label>
-                    <div style="display: flex; gap: var(--spacing-8);">
-                      <button class="match-type-filter active" data-match-type="all" style="padding: 6px 12px; border: 2px solid #00C2A8; background: #00C2A8; color: white; border-radius: var(--radius-small); font-size: 0.875rem; font-weight: 600; cursor: pointer;">
-                        All
-                      </button>
-                      <button class="match-type-filter" data-match-type="BROAD" style="padding: 6px 12px; border: 2px solid var(--color-neutral-30); background: white; color: var(--color-neutral-70); border-radius: var(--radius-small); font-size: 0.875rem; font-weight: 600; cursor: pointer;">
-                        Broad
-                      </button>
-                      <button class="match-type-filter" data-match-type="PHRASE" style="padding: 6px 12px; border: 2px solid var(--color-neutral-30); background: white; color: var(--color-neutral-70); border-radius: var(--radius-small); font-size: 0.875rem; font-weight: 600; cursor: pointer;">
-                        Phrase
-                      </button>
-                      <button class="match-type-filter" data-match-type="EXACT" style="padding: 6px 12px; border: 2px solid var(--color-neutral-30); background: white; color: var(--color-neutral-70); border-radius: var(--radius-small); font-size: 0.875rem; font-weight: 600; cursor: pointer;">
-                        Exact
-                      </button>
-                    </div>
-                  </div>
+                <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: var(--spacing-20); padding: var(--spacing-16); background: white; border-radius: var(--radius-medium); border: 1px solid var(--color-neutral-20);">
                   <div style="font-weight: 600; color: var(--color-neutral-70); font-size: 0.875rem;">
                     <span id="keywords-count">0</span> keywords
                   </div>
@@ -2900,14 +2912,216 @@ document.addEventListener('DOMContentLoaded', function() {
     campaignAccountSelect.addEventListener('change', loadCampaignData);
     campaignRegionSelect.addEventListener('change', loadCampaignData);
 
+    // Handle keyword recommendations - account and region loading
+    const keywordAccountSelect = document.getElementById('keyword-account');
+    const keywordRegionSelect = document.getElementById('keyword-region');
+    const keywordBooksLoading = document.getElementById('keyword-books-loading');
+    const keywordBooksEmpty = document.getElementById('keyword-books-empty');
+    const keywordBooksList = document.getElementById('keyword-books-list');
+    let keywordBooksData = [];
+    let selectedBookIndex = null;
+
+    // Load accounts on page load
+    if (keywordAccountSelect) {
+      fetch(ajaxUrl + '?action=get_kdp_accounts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: currentUserId
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.data && data.data.account_names && data.data.account_names.length > 0) {
+          data.data.account_names.forEach(account => {
+            const option = document.createElement('option');
+            option.value = account;
+            option.textContent = account;
+            keywordAccountSelect.appendChild(option);
+          });
+        }
+      })
+      .catch(error => console.error('Error loading accounts:', error));
+    }
+
+    // Handle account or region change to load books
+    function loadKeywordBooks() {
+      const selectedAccount = keywordAccountSelect.value;
+      const selectedRegion = keywordRegionSelect.value;
+      
+      if (!selectedAccount || !selectedRegion) {
+        keywordBooksEmpty.style.display = 'block';
+        keywordBooksList.style.display = 'none';
+        keywordBooksData = [];
+        selectedBookIndex = null;
+        return;
+      }
+
+      // Show loading state
+      keywordBooksLoading.style.display = 'block';
+      keywordBooksEmpty.style.display = 'none';
+      keywordBooksList.style.display = 'none';
+      keywordBooksData = [];
+      selectedBookIndex = null;
+
+      const kdpProfile = `${selectedAccount}-${selectedRegion}`;
+
+      console.log('=== LOADING BOOKS ===');
+      console.log('Selected Account:', selectedAccount);
+      console.log('Selected Region:', selectedRegion);
+      console.log('Built KDP Profile:', kdpProfile);
+      console.log('User ID:', currentUserId);
+
+      // Fetch books using WordPress AJAX handler
+      fetch(ajaxUrl + '?action=list_books', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: String(currentUserId),
+          kdp_profile: kdpProfile
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Books API Response:', data);
+        keywordBooksLoading.style.display = 'none';
+        
+        if (data.success && data.data && data.data.books && data.data.books.length > 0) {
+          console.log('Books found:', data.data.books.length);
+          keywordBooksData = data.data.books.map((book, index) => ({ ...book, originalIndex: index }));
+          renderKeywordBooks();
+          keywordBooksEmpty.style.display = 'none';
+          keywordBooksList.style.display = 'block';
+        } else {
+          console.log('No books found in response');
+          console.log('Response success:', data.success);
+          console.log('Response data:', data.data);
+          keywordBooksEmpty.innerHTML = `
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-40)" stroke-width="2" style="margin: 0 auto var(--spacing-16) auto;">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <p style="margin: 0; font-size: 0.9375rem; color: var(--color-neutral-60);">
+              No books found for this account and region
+            </p>
+            <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.75rem; color: var(--color-neutral-50); font-family: monospace;">
+              KDP Profile: ${kdpProfile}
+            </p>
+          `;
+          keywordBooksEmpty.style.display = 'block';
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching books:', error);
+        keywordBooksLoading.style.display = 'none';
+        keywordBooksEmpty.style.display = 'block';
+      });
+    }
+
+    if (keywordAccountSelect && keywordRegionSelect) {
+      keywordAccountSelect.addEventListener('change', loadKeywordBooks);
+      keywordRegionSelect.addEventListener('change', loadKeywordBooks);
+    }
+
+    // Render books list with variant grouping
+    function renderKeywordBooks() {
+      if (!keywordBooksList || keywordBooksData.length === 0) return;
+
+      // Group books by clean_title
+      const groupedBooks = keywordBooksData.reduce((groups, book) => {
+        const key = book.clean_title || book.title;
+        if (!groups[key]) {
+          groups[key] = [];
+        }
+        groups[key].push(book);
+        return groups;
+      }, {});
+
+      // Render grouped books
+      keywordBooksList.innerHTML = Object.entries(groupedBooks).map(([title, variants]) => {
+        const firstBook = variants[0];
+        const imageUrl = firstBook.image_url ? firstBook.image_url.replace('_SS60_', '_SS200_') : null;
+        const author = firstBook.author || 'N/A';
+        
+        return `
+          <div style="border-bottom: 1px solid var(--color-neutral-20); padding: var(--spacing-16);">
+            <div style="display: flex; gap: var(--spacing-16); margin-bottom: var(--spacing-12);">
+              <!-- Book Image -->
+              <div style="flex-shrink: 0; width: 70px; height: 105px; background: var(--color-neutral-10); border-radius: var(--radius-small); overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                ${imageUrl
+                  ? `<img src="${imageUrl}" alt="${title}" style="width: 100%; height: 100%; object-fit: cover;">` 
+                  : `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--color-neutral-40)" stroke-width="2" style="margin: 38px auto; display: block;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
+                }
+              </div>
+
+              <!-- Book Info -->
+              <div style="flex: 1; min-width: 0;">
+                <h4 style="margin: 0 0 var(--spacing-4) 0; font-size: 0.9375rem; font-weight: 600; color: var(--color-neutral-90); line-height: 1.3;">
+                  ${title}
+                </h4>
+                <div style="font-size: 0.8125rem; color: var(--color-neutral-60); margin-bottom: var(--spacing-8);">
+                  ${author} • ${variants.length} format${variants.length > 1 ? 's' : ''}
+                </div>
+              </div>
+            </div>
+
+            <!-- Variants List -->
+            <div style="display: grid; gap: var(--spacing-6);">
+              ${variants.map(book => {
+                const isSelected = selectedBookIndex === book.originalIndex;
+                return `
+                  <div
+                    onclick="selectKeywordBook(${book.originalIndex})"
+                    style="padding: var(--spacing-10) var(--spacing-12); background: ${isSelected ? 'var(--color-primary-05)' : 'var(--color-neutral-05)'}; border: 2px solid ${isSelected ? 'var(--color-primary-60)' : 'var(--color-neutral-20)'}; border-radius: var(--radius-small); cursor: pointer; transition: all 0.2s; display: grid; grid-template-columns: 80px 1fr; gap: var(--spacing-8); align-items: center;"
+                    onmouseover="if (${!isSelected}) { this.style.borderColor='var(--color-neutral-40)'; this.style.background='var(--color-neutral-10)'; }"
+                    onmouseout="if (${!isSelected}) { this.style.borderColor='var(--color-neutral-20)'; this.style.background='var(--color-neutral-05)'; }"
+                  >
+                    <!-- Format Badge -->
+                    <div>
+                      ${book.format ? `<span style="display: inline-block; padding: 3px 10px; background: linear-gradient(135deg, var(--color-primary-60), var(--color-primary-70)); color: white; border-radius: 3px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">${book.format}</span>` : '<span style="color: var(--color-neutral-40); font-size: 0.75rem;">—</span>'}
+                    </div>
+                    
+                    <!-- ASIN -->
+                    <div style="font-size: 0.8125rem; color: var(--color-neutral-70); font-family: monospace;">
+                      ${book.asin}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Handle book selection
+    window.selectKeywordBook = function(index) {
+      selectedBookIndex = index;
+      const selectedBook = keywordBooksData.find(b => b.originalIndex === index);
+      
+      if (selectedBook) {
+        // Update hidden form fields
+        document.getElementById('keyword-asins').value = selectedBook.asin || '';
+        document.getElementById('keyword-book-title-hidden').value = selectedBook.title || '';
+        document.getElementById('keyword-book-format-hidden').value = selectedBook.format || '';
+        
+        // Re-render to show selection
+        renderKeywordBooks();
+      }
+    };
+
     // Handle keyword recommendations form submission (in Create Campaign tab)
     const keywordForm = document.getElementById('keyword-recommendations-form');
     if (keywordForm) {
       keywordForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        const bookTitle = document.getElementById('keyword-book-title').value.trim();
+        const bookTitle = document.getElementById('keyword-book-title-hidden').value.trim();
         const region = document.getElementById('keyword-region').value;
+        const account = document.getElementById('keyword-account').value;
         const asinsInput = document.getElementById('keyword-asins').value.trim();
         const useAI = document.getElementById('keyword-use-ai').checked;
         const maxKeywords = 300; // Fixed default value
@@ -2915,8 +3129,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Parse ASINs (split by comma and trim)
         const asins = asinsInput.split(',').map(asin => asin.trim()).filter(asin => asin);
 
-        if (!bookTitle || !region || asins.length === 0) {
-          alert('Please fill in all required fields');
+        if (!bookTitle || !region || !account || asins.length === 0) {
+          alert('Please select an account, region, and book');
           return;
         }
 
@@ -2928,54 +3142,14 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         submitButton.style.opacity = '0.6';
         submitButton.style.cursor = 'not-allowed';
-        submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Fetching accounts...';
-
-        // Fetch first account for this user
-        let kdpProfile;
-        try {
-          const accountsResponse = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-              user_id: currentUserId
-            })
-          });
-
-          const accountsData = await accountsResponse.json();
-
-          if (!accountsData.success || !accountsData.data || !accountsData.data.account_names || accountsData.data.account_names.length === 0) {
-            alert('No KDP accounts found for your user. Please add a KDP account first.');
-            submitButton.disabled = false;
-            submitButton.style.opacity = '1';
-            submitButton.style.cursor = 'pointer';
-            submitButton.innerHTML = originalButtonText;
-            return;
-          }
-
-          // Use first account
-          const firstAccount = accountsData.data.account_names[0];
-          // Build kdp_profile from first account and region
-          // Account already includes "KDP-" prefix (e.g., "KDP-1"), just append region
-          kdpProfile = `${firstAccount}-${region}`;
-          currentMarket = region;
-
-          console.log('Using first account:', firstAccount);
-          console.log('Built KDP Profile:', kdpProfile);
-        } catch (error) {
-          console.error('Error fetching accounts:', error);
-          alert('Failed to fetch KDP accounts. Please try again.');
-          submitButton.disabled = false;
-          submitButton.style.opacity = '1';
-          submitButton.style.cursor = 'pointer';
-          submitButton.innerHTML = originalButtonText;
-          return;
-        }
-
-        // Update loading message
         submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Fetching keywords...';
+
+        // Build kdp_profile from selected account and region
+        const kdpProfile = `${account}-${region}`;
+        currentMarket = region;
+
+        console.log('Using account:', account);
+        console.log('Built KDP Profile:', kdpProfile);
 
         // Show loading state
         document.getElementById('keywords-loading').style.display = 'block';
@@ -2993,6 +3167,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('=== KEYWORD RECOMMENDATIONS REQUEST ===');
         console.log('Book Title:', bookTitle);
         console.log('Region:', region);
+        console.log('Account:', account);
         console.log('Built KDP Profile:', kdpProfile);
         console.log('Use AI Filtering:', useAI);
         console.log('Max Keywords:', maxKeywords);
@@ -3053,24 +3228,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Display keyword results
     let allKeywords = [];
-    let currentFilter = 'all';
     let currentMarket = '';
 
     function displayKeywordResults(keywords) {
       allKeywords = keywords;
-      currentFilter = 'all';
-
-      // Reset filter buttons
-      document.querySelectorAll('.match-type-filter').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.background = 'white';
-        btn.style.color = 'var(--color-neutral-70)';
-        btn.style.borderColor = 'var(--color-neutral-30)';
-      });
-      document.querySelector('.match-type-filter[data-match-type="all"]').classList.add('active');
-      document.querySelector('.match-type-filter[data-match-type="all"]').style.background = '#00C2A8';
-      document.querySelector('.match-type-filter[data-match-type="all"]').style.color = 'white';
-      document.querySelector('.match-type-filter[data-match-type="all"]').style.borderColor = '#00C2A8';
 
       filterAndRenderKeywords();
 
@@ -3078,9 +3239,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function filterAndRenderKeywords() {
-      const filteredKeywords = currentFilter === 'all'
-        ? allKeywords
-        : allKeywords.filter(k => k.match_types && k.match_types.includes(currentFilter));
+      const filteredKeywords = allKeywords;
 
       document.getElementById('keywords-count').textContent = filteredKeywords.length;
 
@@ -3137,28 +3296,6 @@ document.addEventListener('DOMContentLoaded', function() {
         default: return '#9E9E9E';
       }
     }
-
-    // Handle filter button clicks
-    document.querySelectorAll('.match-type-filter').forEach(button => {
-      button.addEventListener('click', function() {
-        currentFilter = this.getAttribute('data-match-type');
-
-        // Update button styles
-        document.querySelectorAll('.match-type-filter').forEach(btn => {
-          btn.classList.remove('active');
-          btn.style.background = 'white';
-          btn.style.color = 'var(--color-neutral-70)';
-          btn.style.borderColor = 'var(--color-neutral-30)';
-        });
-
-        this.classList.add('active');
-        this.style.background = '#00C2A8';
-        this.style.color = 'white';
-        this.style.borderColor = '#00C2A8';
-
-        filterAndRenderKeywords();
-      });
-    });
 
     // Global function to delete a keyword
     window.deleteKeyword = function(keyword) {
@@ -3337,10 +3474,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
-      // Get currently filtered keywords
-      const keywordsToExport = currentFilter === 'all'
-        ? allKeywords
-        : allKeywords.filter(k => k.match_types && k.match_types.includes(currentFilter));
+      // Get all keywords
+      const keywordsToExport = allKeywords;
 
       // Create CSV content with one row per keyword-match type combination
       let csvContent = 'Keyword,Match Type\n';
@@ -3353,11 +3488,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create one row for each match type
         const matchTypes = keyword.match_types || [];
         matchTypes.forEach(matchType => {
-          // Only include if filter matches or showing all
-          if (currentFilter === 'all' || matchType === currentFilter) {
-            csvContent += `"${escapedKeyword}","${matchType}"\n`;
-            totalRows++;
-          }
+          csvContent += `"${escapedKeyword}","${matchType}"\n`;
+          totalRows++;
         });
       });
 
@@ -3367,7 +3499,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const url = URL.createObjectURL(blob);
 
       link.setAttribute('href', url);
-      link.setAttribute('download', `keywords_${currentFilter}_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `keywords_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
@@ -3391,10 +3523,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
-      // Get currently filtered keywords
-      const keywordsToExport = currentFilter === 'all'
-        ? allKeywords
-        : allKeywords.filter(k => k.match_types && k.match_types.includes(currentFilter));
+      // Get all keywords
+      const keywordsToExport = allKeywords;
 
       // Create HTML table for Excel with one row per keyword-match type combination
       let tableHTML = '<table><thead><tr><th>Keyword</th><th>Match Type</th></tr></thead><tbody>';
@@ -3403,11 +3533,8 @@ document.addEventListener('DOMContentLoaded', function() {
       keywordsToExport.forEach(keyword => {
         const matchTypes = keyword.match_types || [];
         matchTypes.forEach(matchType => {
-          // Only include if filter matches or showing all
-          if (currentFilter === 'all' || matchType === currentFilter) {
-            tableHTML += `<tr><td>${keyword.keyword}</td><td>${matchType}</td></tr>`;
-            totalRows++;
-          }
+          tableHTML += `<tr><td>${keyword.keyword}</td><td>${matchType}</td></tr>`;
+          totalRows++;
         });
       });
       tableHTML += '</tbody></table>';
@@ -3418,7 +3545,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const url = URL.createObjectURL(blob);
 
       link.setAttribute('href', url);
-      link.setAttribute('download', `keywords_${currentFilter}_${currentFilter}_${new Date().toISOString().split('T')[0]}.xls`);
+      link.setAttribute('download', `keywords_${new Date().toISOString().split('T')[0]}.xls`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
