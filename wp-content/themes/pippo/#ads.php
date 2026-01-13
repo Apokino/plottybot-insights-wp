@@ -923,22 +923,25 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                   />
                 </div>
 
-                <!-- Market Selector & ASINs -->
-                <div style="display: grid; grid-template-columns: 200px 1fr; gap: var(--spacing-20);">
+                <!-- Region Selector + ASINs -->
+                <div style="display: grid; grid-template-columns: 150px 1fr; gap: var(--spacing-20);">
                   <div>
-                    <label for="keyword-market" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                      Market <span style="color: #FF6B6B;">*</span>
+                    <label for="keyword-region" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                      Region <span style="color: #FF6B6B;">*</span>
                     </label>
                     <select
-                      id="keyword-market"
+                      id="keyword-region"
                       required
                       style="width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.9375rem; background: white; cursor: pointer;"
                     >
+                      <option value="">Select...</option>
                       <option value="US">US</option>
                       <option value="DE">DE</option>
                       <option value="UK">UK</option>
                       <option value="ES">ES</option>
                       <option value="FR">FR</option>
+                      <option value="IT">IT</option>
+                      <option value="CA">CA</option>
                     </select>
                   </div>
 
@@ -959,6 +962,26 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                   </div>
                 </div>
 
+                <!-- Options -->
+                <div style="width: 200px;">
+                  <div>
+                    <label style="display: flex; align-items: center; gap: var(--spacing-8); cursor: pointer; user-select: none;">
+                      <input
+                        type="checkbox"
+                        id="keyword-use-ai"
+                        checked
+                        style="width: 18px; height: 18px; cursor: pointer;"
+                      />
+                      <span style="font-size: 0.875rem; color: var(--color-neutral-90); font-weight: 600;">
+                        Use AI Filtering
+                      </span>
+                    </label>
+                    <p style="margin: var(--spacing-4) 0 0 24px; font-size: 0.75rem; color: var(--color-neutral-60);">
+                      Slower but more relevant results
+                    </p>
+                  </div>
+                </div>
+
                 <!-- Submit Button -->
                 <button
                   type="submit"
@@ -974,26 +997,14 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
               <!-- Loading State -->
               <div id="keywords-loading" style="display: none; text-align: center; padding: var(--spacing-32);">
                 <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                <p style="margin-top: var(--spacing-16); color: var(--color-neutral-60);">Fetching keyword recommendations...</p>
+                <p style="margin-top: var(--spacing-16); color: var(--color-neutral-60); font-weight: 600;">Fetching keyword recommendations...</p>
+                <p style="margin-top: var(--spacing-8); color: var(--color-neutral-50); font-size: 0.875rem;">This process may take up to 3 minutes. Please wait...</p>
               </div>
 
               <!-- Results Section -->
               <div id="keywords-results" style="display: none;">
                 <!-- Action Buttons -->
-                <div style="display: flex; justify-content: space-between; gap: var(--spacing-12); margin-bottom: var(--spacing-16);">
-                  <button
-                    id="get-suggested-bid-btn"
-                    onclick="getSuggestedBids()"
-                    style="padding: 10px 20px; background: linear-gradient(135deg, #FF9800, #F57C00); color: white; border: none; border-radius: var(--radius-medium); font-weight: 700; font-size: 0.9375rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: var(--spacing-8); box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);"
-                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 152, 0, 0.4)'"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 152, 0, 0.3)'"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="12" y1="1" x2="12" y2="23"></line>
-                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
-                    Get Suggested Bid
-                  </button>
+                <div style="display: flex; justify-content: flex-end; gap: var(--spacing-12); margin-bottom: var(--spacing-16);">
                   <div style="display: flex; gap: var(--spacing-12);">
                     <button
                       id="export-csv-btn"
@@ -1370,7 +1381,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                   No Data Yet
                 </h3>
                 <p style="color: var(--color-neutral-60); max-width: 400px; margin: 0 auto;">
-                  Select a KDP account and region, then click "Analyze" to see your money-wasting search terms.
+                  Select a KDP account and region, then click "Analyze".
                 </p>
               </div>
 
@@ -1622,6 +1633,9 @@ const currentUserId = '<?php echo $current_user_id; ?>';
 // Global variable for user language preference
 const userLanguage = '<?php echo $user_language; ?>';
 
+// WordPress AJAX URL
+const ajaxUrl = '<?php echo admin_url('admin-ajax.php'); ?>';
+
 // Global variables for campaign configuration
 let currentCampaigns = [];
 let currentConfigurations = [];
@@ -1643,7 +1657,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Step 1: Check/Create user
       if (statusText) statusText.textContent = 'Verifying your account credentials...';
 
-      const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=ads_check_create_user', {
+      const response = await fetch(ajaxUrl + '?action=ads_check_create_user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1741,7 +1755,7 @@ window.refreshAccountDropdowns = async function(userId = null) {
 
   try {
     // Fetch accounts from API
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+    const response = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1838,7 +1852,7 @@ window.loadKDPAccounts = async function(userId = null) {
 
   try {
     // Fetch accounts from API
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+    const response = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -2095,7 +2109,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       try {
         // Call AJAX endpoint to add KDP profile
-        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=add_kdp_profile', {
+        const response = await fetch(ajaxUrl + '?action=add_kdp_profile', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -2298,7 +2312,7 @@ window.loadOptimizationSchedules = async function(userId = null) {
   try {
     // Fetch accounts and schedules in parallel
     const [accountsResponse, schedulesResponse] = await Promise.all([
-      fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+      fetch(ajaxUrl + '?action=get_kdp_accounts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2308,7 +2322,7 @@ window.loadOptimizationSchedules = async function(userId = null) {
           user_id: userId
         })
       }),
-      fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_optimization_schedules', {
+      fetch(ajaxUrl + '?action=get_optimization_schedules', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2610,7 +2624,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       try {
         // Call AJAX endpoint to schedule optimization
-        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=schedule_optimization', {
+        const response = await fetch(ajaxUrl + '?action=schedule_optimization', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -2671,7 +2685,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load KDP accounts automatically for campaign configuration
     (async function() {
       try {
-        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+        const response = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -2764,17 +2778,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Fetch campaigns, configurations, and books in parallel
         const [campaignsResponse, configsResponse, booksResponse] = await Promise.all([
-          fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_campaign_list', {
+          fetch(ajaxUrl + '?action=get_campaign_list', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ user_id: userId, account: account, region: region })
           }),
-          fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=list_campaign_configs', {
+          fetch(ajaxUrl + '?action=list_campaign_configs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ user_id: userId, kdp_profile: kdpProfile })
           }),
-          fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=list_books', {
+          fetch(ajaxUrl + '?action=list_books', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ user_id: userId, kdp_profile: kdpProfile })
@@ -2893,14 +2907,16 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
 
         const bookTitle = document.getElementById('keyword-book-title').value.trim();
-        const market = document.getElementById('keyword-market').value;
+        const region = document.getElementById('keyword-region').value;
         const asinsInput = document.getElementById('keyword-asins').value.trim();
+        const useAI = document.getElementById('keyword-use-ai').checked;
+        const maxKeywords = 300; // Fixed default value
 
         // Parse ASINs (split by comma and trim)
         const asins = asinsInput.split(',').map(asin => asin.trim()).filter(asin => asin);
 
-        if (!bookTitle || !market || asins.length === 0) {
-          alert('Please fill in all fields');
+        if (!bookTitle || !region || asins.length === 0) {
+          alert('Please fill in all required fields');
           return;
         }
 
@@ -2908,36 +2924,85 @@ document.addEventListener('DOMContentLoaded', function() {
         const submitButton = document.getElementById('get-keywords-btn');
         const originalButtonText = submitButton.innerHTML;
 
-        // Disable button and change text
+        // Disable button and show loading
         submitButton.disabled = true;
         submitButton.style.opacity = '0.6';
         submitButton.style.cursor = 'not-allowed';
-        submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Fetching...';
+        submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Fetching accounts...';
 
-        // Store market value globally for later use (e.g., suggested bids)
-        currentMarket = market;
+        // Fetch first account for this user
+        let kdpProfile;
+        try {
+          const accountsResponse = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              user_id: currentUserId
+            })
+          });
+
+          const accountsData = await accountsResponse.json();
+
+          if (!accountsData.success || !accountsData.data || !accountsData.data.account_names || accountsData.data.account_names.length === 0) {
+            alert('No KDP accounts found for your user. Please add a KDP account first.');
+            submitButton.disabled = false;
+            submitButton.style.opacity = '1';
+            submitButton.style.cursor = 'pointer';
+            submitButton.innerHTML = originalButtonText;
+            return;
+          }
+
+          // Use first account
+          const firstAccount = accountsData.data.account_names[0];
+          // Build kdp_profile from first account and region
+          // Account already includes "KDP-" prefix (e.g., "KDP-1"), just append region
+          kdpProfile = `${firstAccount}-${region}`;
+          currentMarket = region;
+
+          console.log('Using first account:', firstAccount);
+          console.log('Built KDP Profile:', kdpProfile);
+        } catch (error) {
+          console.error('Error fetching accounts:', error);
+          alert('Failed to fetch KDP accounts. Please try again.');
+          submitButton.disabled = false;
+          submitButton.style.opacity = '1';
+          submitButton.style.cursor = 'pointer';
+          submitButton.innerHTML = originalButtonText;
+          return;
+        }
+
+        // Update loading message
+        submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Fetching keywords...';
 
         // Show loading state
         document.getElementById('keywords-loading').style.display = 'block';
         document.getElementById('keywords-results').style.display = 'none';
 
-        // Prepare payload
+        // Prepare payload with new structure
         const payload = {
           book_title: bookTitle,
           asins: asins,
-          market: market
+          kdp_profile: kdpProfile,
+          use_ai: useAI,
+          max_keywords: maxKeywords
         };
 
         console.log('=== KEYWORD RECOMMENDATIONS REQUEST ===');
         console.log('Book Title:', bookTitle);
-        console.log('Market:', market);
+        console.log('Region:', region);
+        console.log('Built KDP Profile:', kdpProfile);
+        console.log('Use AI Filtering:', useAI);
+        console.log('Max Keywords:', maxKeywords);
         console.log('ASINs Input:', asinsInput);
         console.log('Parsed ASINs:', asins);
         console.log('Full Payload:', JSON.stringify(payload, null, 2));
         console.log('======================================');
 
         try {
-          const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_keyword_recommendations', {
+          const response = await fetch(ajaxUrl + '?action=get_keyword_recommendations', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -2954,7 +3019,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
           if (data.success && data.data && data.data.keywords) {
             console.log('Keywords received:', data.data.keywords.length);
-            displayKeywordResults(data.data.keywords, market);
+            console.log('Metadata:', data.data.metadata);
+            if (data.data.errors) {
+              console.warn('Partial results - Errors encountered:', data.data.errors);
+            }
+            displayKeywordResults(data.data.keywords, currentMarket);
           } else {
             console.error('API Error Response:', data);
             const errorMsg = data.data?.message || 'Unknown error';
@@ -3011,7 +3080,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function filterAndRenderKeywords() {
       const filteredKeywords = currentFilter === 'all'
         ? allKeywords
-        : allKeywords.filter(k => k.match_type === currentFilter);
+        : allKeywords.filter(k => k.match_types && k.match_types.includes(currentFilter));
 
       document.getElementById('keywords-count').textContent = filteredKeywords.length;
 
@@ -3024,17 +3093,24 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         ` : '';
 
+        // Display match types as badges (multiple badges if multiple match types)
+        const matchTypeBadges = (keyword.match_types || []).map(mt => 
+          `<span style="padding: 4px 8px; background: ${getMatchTypeColor(mt)}; color: white; border-radius: var(--radius-small); font-size: 0.75rem; font-weight: 600; margin-left: 4px;">${mt}</span>`
+        ).join('');
+
         return `
-        <div class="keyword-item" data-keyword="${keyword.keyword}" data-match-type="${keyword.match_type}" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-12) var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20);">
-          <span style="font-size: 0.9375rem; color: var(--color-neutral-90); flex: 1;">${keyword.keyword}</span>
+        <div class="keyword-item" data-keyword="${keyword.keyword}" data-match-types="${(keyword.match_types || []).join(',')}" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-12) var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20); margin-bottom: var(--spacing-8);">
+          <div style="flex: 1;">
+            <span style="font-size: 0.9375rem; color: var(--color-neutral-90);">${keyword.keyword}</span>
+          </div>
           <div style="display: flex; align-items: center; gap: var(--spacing-12);">
             ${bidInfo}
-            <span style="padding: 4px 8px; background: ${getMatchTypeColor(keyword.match_type)}; color: white; border-radius: var(--radius-small); font-size: 0.75rem; font-weight: 600;">
-              ${keyword.match_type}
-            </span>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              ${matchTypeBadges}
+            </div>
             <button
               class="delete-keyword-btn"
-              onclick="deleteKeyword('${keyword.keyword}', '${keyword.match_type}')"
+              onclick="deleteKeyword('${keyword.keyword}')"
               style="padding: 6px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
               onmouseover="this.style.background='#FFCCCC'"
               onmouseout="this.style.background='#FFE6E6'"
@@ -3085,13 +3161,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Global function to delete a keyword
-    window.deleteKeyword = function(keyword, matchType) {
-      if (!confirm(`Delete keyword "${keyword}" (${matchType})?`)) {
+    window.deleteKeyword = function(keyword) {
+      if (!confirm(`Delete keyword "${keyword}"?`)) {
         return;
       }
 
-      // Remove from allKeywords array
-      allKeywords = allKeywords.filter(k => !(k.keyword === keyword && k.match_type === matchType));
+      // Remove from allKeywords array (match by keyword text only)
+      allKeywords = allKeywords.filter(k => k.keyword !== keyword);
 
       // Re-render
       filterAndRenderKeywords();
@@ -3182,7 +3258,7 @@ document.addEventListener('DOMContentLoaded', function() {
       getSuggestedBidBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Fetching Bids...';
 
       try {
-        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_suggested_bids', {
+        const response = await fetch(ajaxUrl + '?action=get_suggested_bids', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -3264,14 +3340,25 @@ document.addEventListener('DOMContentLoaded', function() {
       // Get currently filtered keywords
       const keywordsToExport = currentFilter === 'all'
         ? allKeywords
-        : allKeywords.filter(k => k.match_type === currentFilter);
+        : allKeywords.filter(k => k.match_types && k.match_types.includes(currentFilter));
 
-      // Create CSV content
+      // Create CSV content with one row per keyword-match type combination
       let csvContent = 'Keyword,Match Type\n';
+      let totalRows = 0;
+      
       keywordsToExport.forEach(keyword => {
         // Escape commas and quotes in keyword text
         const escapedKeyword = keyword.keyword.replace(/"/g, '""');
-        csvContent += `"${escapedKeyword}","${keyword.match_type}"\n`;
+        
+        // Create one row for each match type
+        const matchTypes = keyword.match_types || [];
+        matchTypes.forEach(matchType => {
+          // Only include if filter matches or showing all
+          if (currentFilter === 'all' || matchType === currentFilter) {
+            csvContent += `"${escapedKeyword}","${matchType}"\n`;
+            totalRows++;
+          }
+        });
       });
 
       // Create blob and download
@@ -3289,7 +3376,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Show success message
       const successMsg = document.createElement('div');
       successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
-      successMsg.textContent = `✓ Exported ${keywordsToExport.length} keywords as CSV`;
+      successMsg.textContent = `✓ Exported ${totalRows} rows (${keywordsToExport.length} unique keywords) as CSV`;
       document.body.appendChild(successMsg);
 
       setTimeout(() => {
@@ -3307,12 +3394,21 @@ document.addEventListener('DOMContentLoaded', function() {
       // Get currently filtered keywords
       const keywordsToExport = currentFilter === 'all'
         ? allKeywords
-        : allKeywords.filter(k => k.match_type === currentFilter);
+        : allKeywords.filter(k => k.match_types && k.match_types.includes(currentFilter));
 
-      // Create HTML table for Excel
+      // Create HTML table for Excel with one row per keyword-match type combination
       let tableHTML = '<table><thead><tr><th>Keyword</th><th>Match Type</th></tr></thead><tbody>';
+      let totalRows = 0;
+      
       keywordsToExport.forEach(keyword => {
-        tableHTML += `<tr><td>${keyword.keyword}</td><td>${keyword.match_type}</td></tr>`;
+        const matchTypes = keyword.match_types || [];
+        matchTypes.forEach(matchType => {
+          // Only include if filter matches or showing all
+          if (currentFilter === 'all' || matchType === currentFilter) {
+            tableHTML += `<tr><td>${keyword.keyword}</td><td>${matchType}</td></tr>`;
+            totalRows++;
+          }
+        });
       });
       tableHTML += '</tbody></table>';
 
@@ -3331,7 +3427,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Show success message
       const successMsg = document.createElement('div');
       successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2196F3; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
-      successMsg.textContent = `✓ Exported ${keywordsToExport.length} keywords as Excel`;
+      successMsg.textContent = `✓ Exported ${totalRows} rows (${keywordsToExport.length} unique keywords) as Excel`;
       document.body.appendChild(successMsg);
 
       setTimeout(() => {
@@ -3571,7 +3667,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const region = document.getElementById('campaign-region').value;
             const kdpProfile = account + '-' + region;
             
-            const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_books', {
+            const response = await fetch(ajaxUrl + '?action=get_books', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -3670,7 +3766,7 @@ document.addEventListener('DOMContentLoaded', function() {
           console.log('Sending campaign targets request:', payload);
           
           // Make AJAX call to get campaign targets
-          const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_campaign_targets', {
+          const response = await fetch(ajaxUrl + '?action=get_campaign_targets', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -3930,7 +4026,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.style.opacity = '0.7';
 
         try {
-          const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=create_campaign_config', {
+          const response = await fetch(ajaxUrl + '?action=create_campaign_config', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -4326,7 +4422,7 @@ async function populateEditAsinDropdown(adGroupId, config) {
   
   let userBooks = [];
   try {
-    const booksResponse = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_books', {
+    const booksResponse = await fetch(ajaxUrl + '?action=get_books', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -4391,7 +4487,7 @@ async function handleEditAsinSelection(adGroupId, selectedAsin) {
   
   try {
     // Fetch book details
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_book', {
+    const response = await fetch(ajaxUrl + '?action=get_book', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -4493,7 +4589,7 @@ async function retrieveTargetsForEdit(adGroupId) {
     
     console.log('Fetching targets with payload:', payload);
     
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_campaign_targets', {
+    const response = await fetch(ajaxUrl + '?action=get_campaign_targets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -4696,7 +4792,7 @@ async function updateConfigInline(adGroupId) {
   console.log('Updating configuration with payload:', payload);
   
   try {
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=create_campaign_config', {
+    const response = await fetch(ajaxUrl + '?action=create_campaign_config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -4860,7 +4956,7 @@ async function reloadConfigurationsOnly(userId, kdpProfile) {
   console.log('reloadConfigurationsOnly called with:', { userId, kdpProfile });
 
   try {
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=list_campaign_configs', {
+    const response = await fetch(ajaxUrl + '?action=list_campaign_configs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ user_id: userId, kdp_profile: kdpProfile })
@@ -4900,7 +4996,7 @@ async function deleteCampaignConfig(userId, kdpProfile, adGroupId) {
       return;
     }
 
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=delete_campaign_config', {
+    const response = await fetch(ajaxUrl + '?action=delete_campaign_config', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -5044,7 +5140,7 @@ window.toggleRunDetails = async function(userId, runId, containerId) {
   container.innerHTML = '<div style="text-align: center; padding: var(--spacing-12);"><div style="display: inline-block; width: 20px; height: 20px; border: 2px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: var(--spacing-8); color: var(--color-neutral-60); font-size: 0.75rem;">Loading run details...</p></div>';
 
   try {
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_run_details', {
+    const response = await fetch(ajaxUrl + '?action=get_run_details', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -5319,7 +5415,7 @@ window.fetchOptimizationRuns = async function(userId, accountName, region = null
   runsDiv.innerHTML = '<div style="text-align: center; padding: var(--spacing-16);"><div style="display: inline-block; width: 24px; height: 24px; border: 3px solid var(--color-neutral-20); border-top-color: var(--color-primary-60); border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: var(--spacing-8); color: var(--color-neutral-60); font-size: 0.875rem;">Loading optimization runs...</p></div>';
 
   try {
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_optimization_runs', {
+    const response = await fetch(ajaxUrl + '?action=get_optimization_runs', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -5423,7 +5519,7 @@ window.fetchOptimizationRuns = async function(userId, accountName, region = null
 // Global functions for account management
 async function deleteKDPAccount(userId, accountName) {
   try {
-    await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=delete_kdp_account', {
+    await fetch(ajaxUrl + '?action=delete_kdp_account', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -5460,7 +5556,7 @@ async function toggleOptimization(userId, kdpProfile, currentlyActive) {
   const action = currentlyActive ? 'disable' : 'enable';
 
   try {
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=toggle_optimization', {
+    const response = await fetch(ajaxUrl + '?action=toggle_optimization', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -5505,7 +5601,7 @@ async function toggleOptimization(userId, kdpProfile, currentlyActive) {
 
 async function deleteOptimization(userId, kdpProfile) {
   try {
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=delete_optimization', {
+    const response = await fetch(ajaxUrl + '?action=delete_optimization', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -5595,7 +5691,7 @@ async function loadBooks() {
 
   try {
     // First call: Get books from Amazon Ads API
-    const listResponse = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=list_books', {
+    const listResponse = await fetch(ajaxUrl + '?action=list_books', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -5614,7 +5710,7 @@ async function loadBooks() {
     }
 
     // Second call: Get saved royalties data
-    const getResponse = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_books', {
+    const getResponse = await fetch(ajaxUrl + '?action=get_books', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -5871,7 +5967,7 @@ async function saveBooks() {
 
     console.log('Saving books:', booksToSave);
 
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=save_books', {
+    const response = await fetch(ajaxUrl + '?action=save_books', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -5952,7 +6048,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load KDP accounts for books dropdown
     (async function() {
       try {
-        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+        const response = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -5999,7 +6095,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load KDP accounts for pulse dropdown
     (async function() {
       try {
-        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=get_kdp_accounts', {
+        const response = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -6073,7 +6169,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('pulse-results').style.display = 'none';
 
       try {
-        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=pulse_money_wasters', {
+        const response = await fetch(ajaxUrl + '?action=pulse_money_wasters', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -6461,7 +6557,7 @@ async function loadPulseAccountSummary(userId, kdpProfile, language, dateFrom = 
   if (dateTo) requestData.date_to = dateTo;
 
   try {
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=pulse_account_summary', {
+    const response = await fetch(ajaxUrl + '?action=pulse_account_summary', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -6600,7 +6696,7 @@ async function loadPulseSpendEffectiveness(userId, kdpProfile, language) {
   };
 
   try {
-    const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=pulse_spend_effectiveness', {
+    const response = await fetch(ajaxUrl + '?action=pulse_spend_effectiveness', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

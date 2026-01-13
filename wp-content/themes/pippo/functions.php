@@ -2633,6 +2633,10 @@ add_action('wp_ajax_nopriv_get_keyword_recommendations', 'get_keyword_recommenda
 
 if (!function_exists('get_keyword_recommendations_handler')) {
     function get_keyword_recommendations_handler() {
+        // Set maximum execution time
+        set_time_limit(300);
+        ini_set('max_execution_time', '300');
+
         // Verify user is logged in
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'Unauthorized'], 401);
@@ -2642,82 +2646,65 @@ if (!function_exists('get_keyword_recommendations_handler')) {
         // Get POST data
         $payload = json_decode(file_get_contents('php://input'), true);
 
-        if (!$payload || !isset($payload['book_title']) || !isset($payload['asins']) || !isset($payload['market'])) {
-            wp_send_json_error(['message' => 'Missing required fields: book_title, asins, and market are required'], 400);
+        if (!$payload || !isset($payload['book_title']) || !isset($payload['asins']) || !isset($payload['kdp_profile'])) {
+            wp_send_json_error(['message' => 'Missing required fields: book_title, asins, and kdp_profile are required'], 400);
             wp_die();
         }
 
         $book_title = sanitize_text_field($payload['book_title']);
         $asins = $payload['asins'];
-        $market = sanitize_text_field($payload['market']);
-
-        // Validate ASINs array
-        if (!is_array($asins) || empty($asins)) {
-            wp_send_json_error(['message' => 'ASINs must be a non-empty array'], 400);
-            wp_die();
-        }
-
+        $kdp_profile = sanitize_text_field($payload['kdp_profile']);
+        $use_ai = isset($payload['use_ai']) ? (bool)$payload['use_ai'] : true;
+        $max_keywords = isset($payload['max_keywords']) ? intval($payload['max_keywords']) : 300;
+        
+        $user_id = get_current_user_id();
+        
         // Build API URL
-        $api_url = 'https://api-frontend-1044931876531.us-central1.run.app/amazon-ads/keyword-recommendations';
-
-        // Prepare request body
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/keywords/recommendation';
+        
         $request_body = [
+            'user_id' => strval($user_id),
+            'kdp_profile' => $kdp_profile,
             'book_title' => $book_title,
             'asins' => $asins,
-            'market' => $market
+            'use_ai' => $use_ai,
+            'max_keywords' => $max_keywords
         ];
-
-        // Use the actual external IP of the WordPress server
-        $server_external_ip = '95.110.231.49';
-
-        error_log('Keyword Recommendations: Request to ' . $api_url);
-        error_log('Keyword Recommendations: Payload = ' . json_encode($request_body));
-        error_log('Keyword Recommendations: Using API Key = ' . substr(PLOTTYBOT_API_KEY, 0, 8) . '...');
-
+        
+        // Make the API call
         $response = wp_remote_post($api_url, [
             'headers' => [
                 'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY,
-                'X-Forwarded-For' => $server_external_ip,
-                'X-Real-IP' => $server_external_ip,
-                'X-Forwarded-Proto' => 'https',
-                'X-Forwarded-Host' => 'insights.plottybot.com'
+                'Content-Type' => 'application/json'
             ],
             'body' => json_encode($request_body),
-            'timeout' => 60,
+            'timeout' => 3600,
             'sslverify' => true
         ]);
-
+        
         if (is_wp_error($response)) {
-            error_log('Keyword Recommendations: Error = ' . $response->get_error_message());
-            wp_send_json_error(['message' => 'Error fetching keyword recommendations: ' . $response->get_error_message()], 500);
+            wp_send_json_error([
+                'message' => 'Error calling API: ' . $response->get_error_message(),
+                'error_details' => $response->get_error_messages(),
+                'sent_payload' => $request_body
+            ]);
             wp_die();
         }
-
+        
         $status_code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
-
-        error_log('Keyword Recommendations: API Status = ' . $status_code);
-        error_log('Keyword Recommendations: API Response Body (full) = ' . $body);
-        error_log('Keyword Recommendations: Response Headers = ' . print_r(wp_remote_retrieve_headers($response), true));
-
+        
         if ($status_code === 200) {
             $response_data = json_decode($body, true);
             wp_send_json_success($response_data);
         } else {
-            // Parse error response for better debugging
-            $error_data = json_decode($body, true);
-            error_log('Keyword Recommendations: Error details = ' . print_r($error_data, true));
-
             wp_send_json_error([
-                'message' => 'Failed to fetch keyword recommendations',
-                'status' => $status_code,
-                'response' => $body,
-                'error_details' => $error_data,
+                'message' => 'API returned error status: ' . $status_code,
+                'response_body' => $body,
                 'sent_payload' => $request_body
-            ], $status_code);
+            ]);
         }
+        
         wp_die();
     }
 }
@@ -2837,3 +2824,368 @@ if (!function_exists('get_campaign_targets_handler')) {
     }
 }
 
+// ===========================================
+// AJAX Handlers for Books Management
+// ===========================================
+
+/**
+ * AJAX handler for listing books from Amazon Ads API
+ */
+add_action('wp_ajax_list_books', 'list_books_handler');
+add_action('wp_ajax_nopriv_list_books', 'list_books_handler');
+
+if (!function_exists('list_books_handler')) {
+    function list_books_handler() {
+        // Get JSON input
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        $user_id = isset($data['user_id']) ? sanitize_text_field($data['user_id']) : '';
+        $kdp_profile = isset($data['kdp_profile']) ? sanitize_text_field($data['kdp_profile']) : '';
+        
+        if (empty($user_id) || empty($kdp_profile)) {
+            wp_send_json_error(['error' => 'Missing required parameters']);
+            wp_die();
+        }
+        
+        try {
+            // Call the API
+            $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/books/list';
+            $response = wp_remote_post($api_url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode([
+                    'user_id' => $user_id,
+                    'kdp_profile' => $kdp_profile
+                ]),
+                'timeout' => 120
+            ]);
+            
+            if (is_wp_error($response)) {
+                wp_send_json_error(['error' => 'API request failed: ' . $response->get_error_message()]);
+                wp_die();
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $result = json_decode($body, true);
+            
+            if (isset($result['error'])) {
+                wp_send_json_error(['error' => $result['error']]);
+                wp_die();
+            }
+            
+            wp_send_json_success($result);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['error' => 'Failed to fetch books: ' . $e->getMessage()]);
+        }
+        wp_die();
+    }
+}
+
+/**
+ * AJAX handler for getting saved books from Firestore
+ */
+add_action('wp_ajax_get_books', 'get_books_handler');
+add_action('wp_ajax_nopriv_get_books', 'get_books_handler');
+
+if (!function_exists('get_books_handler')) {
+    function get_books_handler() {
+        // Get JSON input
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        $user_id = isset($data['user_id']) ? sanitize_text_field($data['user_id']) : '';
+        $kdp_profile = isset($data['kdp_profile']) ? sanitize_text_field($data['kdp_profile']) : '';
+        
+        if (empty($user_id) || empty($kdp_profile)) {
+            wp_send_json_error(['error' => 'Missing required parameters']);
+            wp_die();
+        }
+        
+        try {
+            // Call the API
+            $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/books/get';
+            $response = wp_remote_post($api_url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode([
+                    'user_id' => $user_id,
+                    'kdp_profile' => $kdp_profile
+                ]),
+                'timeout' => 30
+            ]);
+            
+            if (is_wp_error($response)) {
+                wp_send_json_error(['error' => 'API request failed: ' . $response->get_error_message()]);
+                wp_die();
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $result = json_decode($body, true);
+            
+            if (isset($result['error'])) {
+                wp_send_json_error(['error' => $result['error']]);
+                wp_die();
+            }
+            
+            wp_send_json_success($result);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['error' => 'Failed to fetch saved books: ' . $e->getMessage()]);
+        }
+        wp_die();
+    }
+}
+
+/**
+ * AJAX handler for saving books with royalties
+ */
+add_action('wp_ajax_save_books', 'save_books_handler');
+add_action('wp_ajax_nopriv_save_books', 'save_books_handler');
+
+if (!function_exists('save_books_handler')) {
+    function save_books_handler() {
+        // Get JSON input
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        $user_id = isset($data['user_id']) ? sanitize_text_field($data['user_id']) : '';
+        $kdp_profile = isset($data['kdp_profile']) ? sanitize_text_field($data['kdp_profile']) : '';
+        $books = isset($data['books']) ? $data['books'] : [];
+        
+        if (empty($user_id) || empty($kdp_profile) || empty($books)) {
+            wp_send_json_error(['error' => 'Missing required parameters']);
+            wp_die();
+        }
+        
+        try {
+            // Call the API
+            $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/books/save';
+            $response = wp_remote_post($api_url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode([
+                    'user_id' => $user_id,
+                    'kdp_profile' => $kdp_profile,
+                    'books' => $books
+                ]),
+                'timeout' => 60
+            ]);
+            
+            if (is_wp_error($response)) {
+                wp_send_json_error(['error' => 'API request failed: ' . $response->get_error_message()]);
+                wp_die();
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $result = json_decode($body, true);
+            
+            if (isset($result['error'])) {
+                wp_send_json_error(['error' => $result['error']]);
+                wp_die();
+            }
+            
+            wp_send_json_success($result);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['error' => 'Failed to save books: ' . $e->getMessage()]);
+        }
+        wp_die();
+    }
+}
+
+/**
+ * AJAX handler for getting money wasters from Pulse endpoint
+ */
+add_action('wp_ajax_pulse_money_wasters', 'pulse_money_wasters_handler');
+add_action('wp_ajax_nopriv_pulse_money_wasters', 'pulse_money_wasters_handler');
+
+if (!function_exists('pulse_money_wasters_handler')) {
+    function pulse_money_wasters_handler() {
+        // Get JSON input
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        $user_id = isset($data['user_id']) ? sanitize_text_field($data['user_id']) : '';
+        $kdp_profile = isset($data['kdp_profile']) ? sanitize_text_field($data['kdp_profile']) : '';
+        
+        if (empty($user_id) || empty($kdp_profile)) {
+            wp_send_json_error(['error' => 'Missing required parameters: user_id and kdp_profile']);
+            wp_die();
+        }
+        
+        try {
+            // Call the Pulse API endpoint
+            $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/pulse/search-terms/money-wasters';
+            $response = wp_remote_post($api_url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode([
+                    'user_id' => $user_id,
+                    'kdp_profile' => $kdp_profile
+                ]),
+                'timeout' => 60
+            ]);
+            
+            if (is_wp_error($response)) {
+                wp_send_json_error(['error' => 'API request failed: ' . $response->get_error_message()]);
+                wp_die();
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $result = json_decode($body, true);
+            
+            // Check if the response contains an error
+            if (isset($result['error'])) {
+                wp_send_json_error(['error' => $result['error']]);
+                wp_die();
+            }
+            
+            // Return the money wasters data (expecting an array)
+            wp_send_json_success($result);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['error' => 'Failed to fetch money wasters: ' . $e->getMessage()]);
+        }
+        wp_die();
+    }
+}
+
+/**
+ * AJAX handler for getting account summary from Pulse endpoint
+ */
+add_action('wp_ajax_pulse_account_summary', 'pulse_account_summary_handler');
+add_action('wp_ajax_nopriv_pulse_account_summary', 'pulse_account_summary_handler');
+
+if (!function_exists('pulse_account_summary_handler')) {
+    function pulse_account_summary_handler() {
+        // Get JSON input
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        $user_id = isset($data['user_id']) ? sanitize_text_field($data['user_id']) : '';
+        $kdp_profile = isset($data['kdp_profile']) ? sanitize_text_field($data['kdp_profile']) : '';
+        $language = isset($data['language']) ? sanitize_text_field($data['language']) : 'EN';
+        
+        if (empty($user_id) || empty($kdp_profile)) {
+            wp_send_json_error(['error' => 'Missing required parameters: user_id and kdp_profile']);
+            wp_die();
+        }
+        
+        try {
+            // Call the Pulse API endpoint
+            $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/pulse/account-summary';
+            
+            $request_body = [
+                'user_id' => $user_id,
+                'kdp_profile' => $kdp_profile,
+                'language' => $language
+            ];
+            
+            // Add optional date filters if provided
+            if (isset($data['date_from']) && !empty($data['date_from'])) {
+                $request_body['date_from'] = sanitize_text_field($data['date_from']);
+            }
+            if (isset($data['date_to']) && !empty($data['date_to'])) {
+                $request_body['date_to'] = sanitize_text_field($data['date_to']);
+            }
+            
+            $response = wp_remote_post($api_url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode($request_body),
+                'timeout' => 60
+            ]);
+            
+            if (is_wp_error($response)) {
+                wp_send_json_error(['error' => 'API request failed: ' . $response->get_error_message()]);
+                wp_die();
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $result = json_decode($body, true);
+            
+            // Check if the response contains an error
+            if (isset($result['error'])) {
+                wp_send_json_error(['error' => $result['error']]);
+                wp_die();
+            }
+            
+            // Return the account summary data
+            wp_send_json_success($result);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['error' => 'Failed to fetch account summary: ' . $e->getMessage()]);
+        }
+        wp_die();
+    }
+}
+
+/**
+ * AJAX handler for getting spend effectiveness from Pulse endpoint
+ */
+add_action('wp_ajax_pulse_spend_effectiveness', 'pulse_spend_effectiveness_handler');
+add_action('wp_ajax_nopriv_pulse_spend_effectiveness', 'pulse_spend_effectiveness_handler');
+
+if (!function_exists('pulse_spend_effectiveness_handler')) {
+    function pulse_spend_effectiveness_handler() {
+        // Get JSON input
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        $user_id = isset($data['user_id']) ? sanitize_text_field($data['user_id']) : '';
+        $kdp_profile = isset($data['kdp_profile']) ? sanitize_text_field($data['kdp_profile']) : '';
+        $language = isset($data['language']) ? sanitize_text_field($data['language']) : 'EN';
+        
+        if (empty($user_id) || empty($kdp_profile)) {
+            wp_send_json_error(['error' => 'Missing required parameters: user_id and kdp_profile']);
+            wp_die();
+        }
+        
+        try {
+            // Call the Pulse API endpoint
+            $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/pulse/spend-effectiveness';
+            
+            $request_body = [
+                'user_id' => $user_id,
+                'kdp_profile' => $kdp_profile,
+                'language' => $language
+            ];
+            
+            $response = wp_remote_post($api_url, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode($request_body),
+                'timeout' => 60
+            ]);
+            
+            if (is_wp_error($response)) {
+                wp_send_json_error(['error' => 'API request failed: ' . $response->get_error_message()]);
+                wp_die();
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $result = json_decode($body, true);
+            
+            // Check if the response contains an error
+            if (isset($result['error'])) {
+                wp_send_json_error(['error' => $result['error']]);
+                wp_die();
+            }
+            
+            // Return the spend effectiveness data
+            wp_send_json_success($result);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['error' => 'Failed to fetch spend effectiveness: ' . $e->getMessage()]);
+        }
+        wp_die();
+    }
+}
