@@ -961,7 +961,44 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                     <input type="hidden" id="keyword-book-title-hidden" required />
                     <input type="hidden" id="keyword-book-format-hidden" />
 
-                        <!-- Options -->
+                    <!-- Competitor ASINs Section -->
+                    <div id="competitor-section" style="display: none;">
+                      <label style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                        Competitor ASINs <span style="color: #FF6B6B;">*</span>
+                      </label>
+                      <p style="margin: 0 0 var(--spacing-12) 0; font-size: 0.75rem; color: var(--color-neutral-60);">
+                        Add at least one competitor ASIN to analyze
+                      </p>
+                      
+                      <!-- Add Competitor Input -->
+                      <div style="display: flex; gap: var(--spacing-8); margin-bottom: var(--spacing-12);">
+                        <input
+                          type="text"
+                          id="competitor-asin-input"
+                          placeholder="Enter competitor ASIN (e.g., B08XYZ1234)"
+                          style="flex: 1; height: 40px; padding: 0 12px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 0.875rem;"
+                        />
+                        <button
+                          type="button"
+                          id="add-competitor-btn"
+                          style="height: 40px; padding: 0 16px; background: var(--color-primary-60); color: white; border: none; border-radius: var(--radius-medium); font-size: 0.875rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s;"
+                          onmouseover="this.style.background='var(--color-primary-70)'"
+                          onmouseout="this.style.background='var(--color-primary-60)'"
+                        >
+                          + Add
+                        </button>
+                      </div>
+                      
+                      <!-- Competitor List -->
+                      <div id="competitor-list" style="display: none; border: 1px solid var(--color-neutral-20); border-radius: var(--radius-medium); padding: var(--spacing-12); background: var(--color-neutral-05); margin-bottom: var(--spacing-12);">
+                        <!-- Competitor items will be added here -->
+                      </div>
+                      
+                      <!-- Validation Message -->
+                      <p id="competitor-validation" style="display: none; margin: 0; font-size: 0.75rem; color: #FF6B6B;"></p>
+                    </div>
+
+                    <!-- Options -->
                     <div>
                       <div>
                         <label style="display: flex; align-items: center; gap: var(--spacing-8); cursor: pointer; user-select: none;">
@@ -3103,15 +3140,111 @@ document.addEventListener('DOMContentLoaded', function() {
       const selectedBook = keywordBooksData.find(b => b.originalIndex === index);
       
       if (selectedBook) {
-        // Update hidden form fields
+        // Update hidden form fields (only book ASIN, competitors will be added separately)
         document.getElementById('keyword-asins').value = selectedBook.asin || '';
         document.getElementById('keyword-book-title-hidden').value = selectedBook.title || '';
         document.getElementById('keyword-book-format-hidden').value = selectedBook.format || '';
+        
+        // Show competitor section
+        document.getElementById('competitor-section').style.display = 'block';
         
         // Re-render to show selection
         renderKeywordBooks();
       }
     };
+
+    // Competitor management
+    let competitorAsins = [];
+    
+    // Add competitor ASIN
+    const addCompetitorBtn = document.getElementById('add-competitor-btn');
+    const competitorInput = document.getElementById('competitor-asin-input');
+    const competitorList = document.getElementById('competitor-list');
+    const competitorValidation = document.getElementById('competitor-validation');
+    
+    function addCompetitor() {
+      const asin = competitorInput.value.trim();
+      
+      if (!asin) {
+        competitorValidation.textContent = 'Please enter an ASIN';
+        competitorValidation.style.display = 'block';
+        return;
+      }
+      
+      // Basic ASIN validation (alphanumeric, 10 characters)
+      if (!/^[A-Z0-9]{10}$/i.test(asin)) {
+        competitorValidation.textContent = 'ASIN must be 10 alphanumeric characters';
+        competitorValidation.style.display = 'block';
+        return;
+      }
+      
+      // Check if already added
+      if (competitorAsins.includes(asin.toUpperCase())) {
+        competitorValidation.textContent = 'This ASIN has already been added';
+        competitorValidation.style.display = 'block';
+        return;
+      }
+      
+      // Add to array
+      competitorAsins.push(asin.toUpperCase());
+      
+      // Clear input and validation
+      competitorInput.value = '';
+      competitorValidation.style.display = 'none';
+      
+      // Render competitor list
+      renderCompetitorList();
+    }
+    
+    function renderCompetitorList() {
+      if (competitorAsins.length === 0) {
+        competitorList.style.display = 'none';
+        return;
+      }
+      
+      competitorList.style.display = 'block';
+      competitorList.innerHTML = competitorAsins.map((asin, index) => `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-8); background: white; border: 1px solid var(--color-neutral-30); border-radius: var(--radius-small); margin-bottom: var(--spacing-6);">
+          <div style="display: flex; align-items: center; gap: var(--spacing-8);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-60)" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <span style="font-family: monospace; font-size: 0.875rem; color: var(--color-neutral-90); font-weight: 600;">${asin}</span>
+          </div>
+          <button
+            type="button"
+            onclick="removeCompetitor(${index})"
+            style="width: 24px; height: 24px; padding: 0; background: #FF6B6B; color: white; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+            onmouseover="this.style.background='#FF5252'"
+            onmouseout="this.style.background='#FF6B6B'"
+            title="Remove competitor"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      `).join('');
+    }
+    
+    window.removeCompetitor = function(index) {
+      competitorAsins.splice(index, 1);
+      renderCompetitorList();
+    };
+    
+    if (addCompetitorBtn && competitorInput) {
+      addCompetitorBtn.addEventListener('click', addCompetitor);
+      
+      // Allow Enter key to add competitor
+      competitorInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addCompetitor();
+        }
+      });
+    }
 
     // Handle keyword recommendations form submission (in Create Campaign tab)
     const keywordForm = document.getElementById('keyword-recommendations-form');
@@ -3122,18 +3255,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const bookTitle = document.getElementById('keyword-book-title-hidden').value.trim();
         const region = document.getElementById('keyword-region').value;
         const account = document.getElementById('keyword-account').value;
-        const asinsInput = document.getElementById('keyword-asins').value.trim();
+        const bookAsin = document.getElementById('keyword-asins').value.trim();
         const useAI = document.getElementById('keyword-use-ai').checked;
         const maxKeywords = 300; // Fixed default value
 
-        // Parse ASINs (split by comma and trim)
-        const asins = asinsInput.split(',').map(asin => asin.trim()).filter(asin => asin);
-
-        if (!bookTitle || !region || !account || asins.length === 0) {
+        // Validate book selection
+        if (!bookTitle || !region || !account || !bookAsin) {
           alert('Please select an account, region, and book');
           return;
         }
-
+        
+        // Validate at least one competitor
+        if (competitorAsins.length === 0) {
+          competitorValidation.textContent = 'Please add at least one competitor ASIN';
+          competitorValidation.style.display = 'block';
+          return;
+        }
+        
+        // Combine book ASIN with competitor ASINs
+        const allAsins = [bookAsin, ...competitorAsins];
+        
         // Get button reference
         const submitButton = document.getElementById('get-keywords-btn');
         const originalButtonText = submitButton.innerHTML;
@@ -3158,7 +3299,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Prepare payload with new structure
         const payload = {
           book_title: bookTitle,
-          asins: asins,
+          asins: allAsins,
           kdp_profile: kdpProfile,
           use_ai: useAI,
           max_keywords: maxKeywords
@@ -3171,8 +3312,9 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Built KDP Profile:', kdpProfile);
         console.log('Use AI Filtering:', useAI);
         console.log('Max Keywords:', maxKeywords);
-        console.log('ASINs Input:', asinsInput);
-        console.log('Parsed ASINs:', asins);
+        console.log('Book ASIN:', bookAsin);
+        console.log('Competitor ASINs:', competitorAsins);
+        console.log('All ASINs:', allAsins);
         console.log('Full Payload:', JSON.stringify(payload, null, 2));
         console.log('======================================');
 
@@ -3252,20 +3394,47 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         ` : '';
 
-        // Display match types as badges (multiple badges if multiple match types)
-        const matchTypeBadges = (keyword.match_types || []).map(mt => 
-          `<span style="padding: 4px 8px; background: ${getMatchTypeColor(mt)}; color: white; border-radius: var(--radius-small); font-size: 0.75rem; font-weight: 600; margin-left: 4px;">${mt}</span>`
-        ).join('');
+        // Create match type toggle buttons (always show all 3 in order: BROAD, PHRASE, EXACT)
+        const matchTypes = keyword.match_types || [];
+        const allMatchTypes = ['BROAD', 'PHRASE', 'EXACT'];
+        const matchTypeButtons = allMatchTypes.map(mt => {
+          const isActive = matchTypes.includes(mt);
+          const color = getMatchTypeColor(mt);
+          const escapedKeyword = keyword.keyword.replace(/'/g, "\\'");
+          
+          return `
+            <button
+              class="match-type-toggle-btn"
+              onclick="toggleMatchType('${escapedKeyword}', '${mt}')"
+              style="
+                padding: 6px 12px;
+                background: ${isActive ? color : '#f5f5f5'};
+                color: ${isActive ? 'white' : '#9e9e9e'};
+                border: 1px solid ${isActive ? color : '#e0e0e0'};
+                border-radius: var(--radius-small);
+                cursor: pointer;
+                transition: all 0.2s;
+                font-size: 0.75rem;
+                font-weight: 600;
+                min-width: 65px;
+                opacity: ${isActive ? '1' : '0.6'};
+              "
+              onmouseover="this.style.transform='scale(1.05)'"
+              onmouseout="this.style.transform='scale(1)'"
+              title="${isActive ? 'Click to remove' : 'Click to add'} ${mt} match type"
+            >${mt}</button>
+          `;
+        }).join('');
 
         return `
-        <div class="keyword-item" data-keyword="${keyword.keyword}" data-match-types="${(keyword.match_types || []).join(',')}" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-12) var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20); margin-bottom: var(--spacing-8);">
-          <div style="flex: 1;">
+        <div class="keyword-item" data-keyword="${keyword.keyword}" data-match-types="${matchTypes.join(',')}" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-12) var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20); margin-bottom: var(--spacing-8);">
+          <div style="flex: 1; margin-right: var(--spacing-12);">
             <span style="font-size: 0.9375rem; color: var(--color-neutral-90);">${keyword.keyword}</span>
           </div>
           <div style="display: flex; align-items: center; gap: var(--spacing-12);">
             ${bidInfo}
-            <div style="display: flex; gap: 4px; align-items: center;">
-              ${matchTypeBadges}
+            <div style="display: flex; gap: 6px; align-items: center;">
+              ${matchTypeButtons}
             </div>
             <button
               class="delete-keyword-btn"
@@ -3296,6 +3465,35 @@ document.addEventListener('DOMContentLoaded', function() {
         default: return '#9E9E9E';
       }
     }
+
+    // Global function to toggle match type for a keyword
+    window.toggleMatchType = function(keyword, matchType) {
+      // Find keyword in allKeywords
+      const keywordObj = allKeywords.find(k => k.keyword === keyword);
+      if (!keywordObj) return;
+
+      // Initialize match_types array if it doesn't exist
+      if (!keywordObj.match_types) {
+        keywordObj.match_types = [];
+      }
+
+      // Toggle the match type
+      const index = keywordObj.match_types.indexOf(matchType);
+      if (index > -1) {
+        // Remove match type
+        keywordObj.match_types.splice(index, 1);
+        
+        // If no match types left, keep at least one (the one we're toggling back on would be odd UX)
+        // Instead, we allow empty arrays - user must have at least one before export
+        
+      } else {
+        // Add match type
+        keywordObj.match_types.push(matchType);
+      }
+
+      // Re-render to show updated state
+      filterAndRenderKeywords();
+    };
 
     // Global function to delete a keyword
     window.deleteKeyword = function(keyword) {
@@ -3526,21 +3724,39 @@ document.addEventListener('DOMContentLoaded', function() {
       // Get all keywords
       const keywordsToExport = allKeywords;
 
-      // Create HTML table for Excel with one row per keyword-match type combination
-      let tableHTML = '<table><thead><tr><th>Keyword</th><th>Match Type</th></tr></thead><tbody>';
+      // Create proper Excel XML format
+      let excelContent = '<?xml version="1.0"?>\n';
+      excelContent += '<?mso-application progid="Excel.Sheet"?>\n';
+      excelContent += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n';
+      excelContent += '<Worksheet ss:Name="Keywords">\n';
+      excelContent += '<Table>\n';
+      
+      // Header row
+      excelContent += '<Row>\n';
+      excelContent += '<Cell><Data ss:Type="String">Keyword</Data></Cell>\n';
+      excelContent += '<Cell><Data ss:Type="String">Match Type</Data></Cell>\n';
+      excelContent += '</Row>\n';
+      
       let totalRows = 0;
       
+      // Data rows
       keywordsToExport.forEach(keyword => {
         const matchTypes = keyword.match_types || [];
         matchTypes.forEach(matchType => {
-          tableHTML += `<tr><td>${keyword.keyword}</td><td>${matchType}</td></tr>`;
+          excelContent += '<Row>\n';
+          excelContent += `<Cell><Data ss:Type="String">${keyword.keyword.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</Data></Cell>\n`;
+          excelContent += `<Cell><Data ss:Type="String">${matchType}</Data></Cell>\n`;
+          excelContent += '</Row>\n';
           totalRows++;
         });
       });
-      tableHTML += '</tbody></table>';
+      
+      excelContent += '</Table>\n';
+      excelContent += '</Worksheet>\n';
+      excelContent += '</Workbook>';
 
-      // Create blob with Excel MIME type
-      const blob = new Blob([tableHTML], { type: 'application/vnd.ms-excel' });
+      // Create blob with proper Excel XML MIME type
+      const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
 
