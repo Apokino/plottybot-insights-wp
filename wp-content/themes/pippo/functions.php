@@ -2709,6 +2709,343 @@ if (!function_exists('get_keyword_recommendations_handler')) {
     }
 }
 
+// AJAX handler for starting keyword recommendation job (async)
+add_action('wp_ajax_start_keyword_job', 'start_keyword_job_handler');
+add_action('wp_ajax_nopriv_start_keyword_job', 'start_keyword_job_handler');
+
+if (!function_exists('start_keyword_job_handler')) {
+    function start_keyword_job_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['book_title']) || !isset($payload['asins']) || !isset($payload['kdp_profile'])) {
+            wp_send_json_error(['message' => 'Missing required fields: user_id, book_title, asins, and kdp_profile are required'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+        $book_title = sanitize_text_field($payload['book_title']);
+        $asins = $payload['asins'];
+        $kdp_profile = sanitize_text_field($payload['kdp_profile']);
+        $use_ai = isset($payload['use_ai']) ? (bool)$payload['use_ai'] : true;
+        $max_keywords = isset($payload['max_keywords']) ? intval($payload['max_keywords']) : 300;
+        
+        // Verify user is authorized
+        if (intval($user_id) !== intval(get_current_user_id())) {
+            wp_send_json_error(['message' => 'Unauthorized - user_id mismatch'], 403);
+            wp_die();
+        }
+        
+        // Generate unique job ID
+        $job_id = 'keyword_job_' . $user_id . '_' . time() . '_' . wp_rand(1000, 9999);
+        
+        // Store job metadata in transient (expires in 1 hour)
+        set_transient($job_id . '_meta', [
+            'status' => 'pending',
+            'user_id' => $user_id,
+            'book_title' => $book_title,
+            'started_at' => current_time('mysql'),
+            'progress' => 0
+        ], 3600);
+        
+        // Initiate background request (non-blocking)
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/keywords/recommendation';
+        
+        // Build request body WITHOUT job_id (API doesn't expect it)
+        $request_body = [
+            'user_id' => $user_id,
+            'kdp_profile' => $kdp_profile,
+            'book_title' => $book_title,
+            'asins' => $asins,
+            'use_ai' => $use_ai,
+            'max_keywords' => $max_keywords
+        ];
+        
+        // Update status to processing
+        set_transient($job_id . '_meta', [
+            'status' => 'processing',
+            'user_id' => $user_id,
+            'book_title' => $book_title,
+            'started_at' => current_time('mysql'),
+            'progress' => 10,
+            'request_body' => $request_body
+        ], 3600);
+        
+        // Spawn background process using wp_remote_post to our own endpoint
+        // This makes an async call back to WordPress to process the job
+        wp_remote_post(admin_url('admin-ajax.php'), [
+            'blocking' => false,
+            'timeout' => 0.01,
+            'body' => [
+                'action' => 'process_keyword_job_background',
+                'job_id' => $job_id
+            ]
+        ]);
+        
+        // Return job ID immediately
+        wp_send_json_success([
+            'job_id' => $job_id,
+            'message' => 'Job started successfully'
+        ]);
+        
+        wp_die();
+    }
+}
+
+// Background hook to fetch keyword job results
+add_action('wp_ajax_process_keyword_job_background', 'process_keyword_job_background_handler');
+add_action('wp_ajax_nopriv_process_keyword_job_background', 'process_keyword_job_background_handler');
+
+if (!function_exists('process_keyword_job_background_handler')) {
+    function process_keyword_job_background_handler() {
+        // Get job ID
+        $job_id = isset($_POST['job_id']) ? sanitize_text_field($_POST['job_id']) : '';
+        
+        if (empty($job_id)) {
+            wp_die();
+        }
+        
+        // Get job metadata
+        $meta = get_transient($job_id . '_meta');
+        if ($meta === false || !isset($meta['request_body'])) {
+            error_log('process_keyword_job_background_handler: Job metadata not found for ' . $job_id);
+            wp_die();
+        }
+        
+        $request_body = $meta['request_body'];
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/keywords/recommendation';
+        
+        error_log('Starting background job: ' . $job_id);
+        
+        // Update progress
+        set_transient($job_id . '_meta', array_merge($meta, [
+            'progress' => 20,
+            'api_called_at' => current_time('mysql')
+        ]), 3600);
+        
+        // Make blocking API call
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($request_body),
+            'timeout' => 300,  // 5 minutes max
+            'blocking' => true,
+            'sslverify' => true
+        ]);
+        
+        if (is_wp_error($response)) {
+            error_log('API Error for job ' . $job_id . ': ' . $response->get_error_message());
+            // Store error (preserve user_id)
+            set_transient($job_id . '_meta', array_merge($meta, [
+                'status' => 'failed',
+                'error' => $response->get_error_message(),
+                'completed_at' => current_time('mysql')
+            ]), 3600);
+            wp_die();
+        }
+        
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+        
+        error_log('API Response for job ' . $job_id . ': Status ' . $status_code);
+        
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            
+            // Store results
+            set_transient($job_id . '_results', $response_data, 3600);
+            
+            // Update metadata (preserve user_id and other fields)
+            set_transient($job_id . '_meta', array_merge($meta, [
+                'status' => 'completed',
+                'completed_at' => current_time('mysql'),
+                'progress' => 100
+            ]), 3600);
+            
+            error_log('Job completed successfully: ' . $job_id);
+        } else {
+            error_log('API returned error for job ' . $job_id . ': ' . $body);
+            // Store error (preserve user_id)
+            set_transient($job_id . '_meta', array_merge($meta, [
+                'status' => 'failed',
+                'error' => 'API returned status ' . $status_code,
+                'response_body' => $body,
+                'completed_at' => current_time('mysql')
+            ]), 3600);
+        }
+        
+        wp_die();
+    }
+}
+
+// Legacy background hook (kept for compatibility)
+add_action('fetch_keyword_job_results', 'fetch_keyword_job_results_handler', 10, 3);
+
+if (!function_exists('fetch_keyword_job_results_handler')) {
+    function fetch_keyword_job_results_handler($job_id, $api_url, $request_body) {
+        // Get existing metadata to preserve user_id and other fields
+        $existing_meta = get_transient($job_id . '_meta');
+        if ($existing_meta === false) {
+            error_log('fetch_keyword_job_results_handler: Job metadata not found for ' . $job_id);
+            return;
+        }
+        
+        // Make blocking API call
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($request_body),
+            'timeout' => 300,  // 5 minutes max
+            'blocking' => true,
+            'sslverify' => true
+        ]);
+        
+        if (is_wp_error($response)) {
+            // Store error (preserve user_id)
+            set_transient($job_id . '_meta', array_merge($existing_meta, [
+                'status' => 'failed',
+                'error' => $response->get_error_message(),
+                'completed_at' => current_time('mysql')
+            ]), 3600);
+            return;
+        }
+        
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+        
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            
+            // Store results
+            set_transient($job_id . '_results', $response_data, 3600);
+            
+            // Update metadata (preserve user_id and other fields)
+            set_transient($job_id . '_meta', array_merge($existing_meta, [
+                'status' => 'completed',
+                'completed_at' => current_time('mysql'),
+                'progress' => 100
+            ]), 3600);
+        } else {
+            // Store error (preserve user_id)
+            set_transient($job_id . '_meta', array_merge($existing_meta, [
+                'status' => 'failed',
+                'error' => 'API returned status ' . $status_code,
+                'response_body' => $body,
+                'completed_at' => current_time('mysql')
+            ]), 3600);
+        }
+    }
+}
+
+// AJAX handler for checking keyword job status
+add_action('wp_ajax_check_keyword_job_status', 'check_keyword_job_status_handler');
+add_action('wp_ajax_nopriv_check_keyword_job_status', 'check_keyword_job_status_handler');
+
+if (!function_exists('check_keyword_job_status_handler')) {
+    function check_keyword_job_status_handler() {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        $job_id = isset($_GET['job_id']) ? sanitize_text_field($_GET['job_id']) : '';
+        
+        if (empty($job_id)) {
+            wp_send_json_error(['message' => 'Missing job_id'], 400);
+            wp_die();
+        }
+        
+        // Get job metadata
+        $meta = get_transient($job_id . '_meta');
+        
+        if ($meta === false) {
+            wp_send_json_error(['message' => 'Job not found or expired'], 404);
+            wp_die();
+        }
+        
+        // Verify user owns this job (convert both to int for proper comparison)
+        $job_user_id = intval($meta['user_id']);
+        $current_user_id = intval(get_current_user_id());
+        
+        if ($job_user_id !== $current_user_id) {
+            error_log('Job ownership mismatch: job_user_id=' . $job_user_id . ', current_user_id=' . $current_user_id);
+            wp_send_json_error(['message' => 'Unauthorized access to job'], 403);
+            wp_die();
+        }
+        
+        wp_send_json_success($meta);
+        wp_die();
+    }
+}
+
+// AJAX handler for getting keyword job results
+add_action('wp_ajax_get_keyword_job_results', 'get_keyword_job_results_handler');
+add_action('wp_ajax_nopriv_get_keyword_job_results', 'get_keyword_job_results_handler');
+
+if (!function_exists('get_keyword_job_results_handler')) {
+    function get_keyword_job_results_handler() {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        $job_id = isset($_GET['job_id']) ? sanitize_text_field($_GET['job_id']) : '';
+        
+        if (empty($job_id)) {
+            wp_send_json_error(['message' => 'Missing job_id'], 400);
+            wp_die();
+        }
+        
+        // Get job metadata to verify ownership
+        $meta = get_transient($job_id . '_meta');
+        
+        if ($meta === false) {
+            wp_send_json_error(['message' => 'Job not found or expired'], 404);
+            wp_die();
+        }
+        
+        // Verify user owns this job (convert both to int for proper comparison)
+        $job_user_id = intval($meta['user_id']);
+        $current_user_id = intval(get_current_user_id());
+        
+        if ($job_user_id !== $current_user_id) {
+            error_log('Job ownership mismatch: job_user_id=' . $job_user_id . ', current_user_id=' . $current_user_id);
+            wp_send_json_error(['message' => 'Unauthorized access to job'], 403);
+            wp_die();
+        }
+        
+        if ($meta['status'] !== 'completed') {
+            wp_send_json_error(['message' => 'Job not completed yet'], 400);
+            wp_die();
+        }
+        
+        // Get results
+        $results = get_transient($job_id . '_results');
+        
+        if ($results === false) {
+            wp_send_json_error(['message' => 'Results not found'], 404);
+            wp_die();
+        }
+        
+        // Clean up transients after fetching
+        delete_transient($job_id . '_meta');
+        delete_transient($job_id . '_results');
+        
+        wp_send_json_success($results);
+        wp_die();
+    }
+}
+
 // AJAX handler for retrieving campaign keywords/targets
 add_action('wp_ajax_get_campaign_targets', 'get_campaign_targets_handler');
 add_action('wp_ajax_nopriv_get_campaign_targets', 'get_campaign_targets_handler');

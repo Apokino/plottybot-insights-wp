@@ -1005,15 +1005,15 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                           <input
                             type="checkbox"
                             id="keyword-use-ai"
-                            checked
+                            unchecked
                             style="width: 18px; height: 18px; cursor: pointer;"
                           />
                           <span style="font-size: 0.875rem; color: var(--color-neutral-90); font-weight: 600;">
-                            Use AI Filtering
+                            Use AI Validation
                           </span>
                         </label>
                         <p style="margin: var(--spacing-4) 0 0 24px; font-size: 0.75rem; color: var(--color-neutral-60);">
-                          Slower but more relevant results
+                          Slower but highlights relevant results
                         </p>
                       </div>
                     </div>
@@ -3298,6 +3298,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Prepare payload with new structure
         const payload = {
+          user_id: currentUserId,
           book_title: bookTitle,
           asins: allAsins,
           kdp_profile: kdpProfile,
@@ -3306,6 +3307,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         console.log('=== KEYWORD RECOMMENDATIONS REQUEST ===');
+        console.log('User ID:', currentUserId);
         console.log('Book Title:', bookTitle);
         console.log('Region:', region);
         console.log('Account:', account);
@@ -3319,7 +3321,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('======================================');
 
         try {
-          const response = await fetch(ajaxUrl + '?action=get_keyword_recommendations', {
+          // Step 1: Start the background job
+          const startResponse = await fetch(ajaxUrl + '?action=start_keyword_job', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -3328,41 +3331,88 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify(payload)
           });
 
-          console.log('Response Status:', response.status);
-          console.log('Response OK:', response.ok);
+          const startData = await startResponse.json();
+          console.log('Job Start Response:', startData);
 
-          const data = await response.json();
-          console.log('Response Data:', data);
-
-          if (data.success && data.data && data.data.keywords) {
-            console.log('Keywords received:', data.data.keywords.length);
-            console.log('Metadata:', data.data.metadata);
-            if (data.data.errors) {
-              console.warn('Partial results - Errors encountered:', data.data.errors);
-            }
-            displayKeywordResults(data.data.keywords, currentMarket);
-          } else {
-            console.error('API Error Response:', data);
-            const errorMsg = data.data?.message || 'Unknown error';
-            const errorDetails = data.data?.error_details || {};
-            const sentPayload = data.data?.sent_payload || {};
-
-            console.error('Error Message:', errorMsg);
-            console.error('Error Details:', errorDetails);
-            console.error('Sent Payload (from backend):', sentPayload);
-
-            alert('Failed to fetch keyword recommendations:\n' + errorMsg + '\n\nCheck console for details.');
+          if (!startData.success || !startData.data.job_id) {
+            throw new Error(startData.data?.message || 'Failed to start job');
           }
+
+          const jobId = startData.data.job_id;
+          console.log('Job ID:', jobId);
+
+          // Update button to show processing state
+          submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Processing (0%)...';
+
+          // Step 2: Poll for job status
+          let attempts = 0;
+          const maxAttempts = 180; // 6 minutes max (2 seconds * 180)
+          const pollInterval = 2000; // Poll every 2 seconds
+
+          const pollJobStatus = async () => {
+            attempts++;
+            
+            if (attempts > maxAttempts) {
+              throw new Error('Job timeout - please try again');
+            }
+
+            const statusResponse = await fetch(ajaxUrl + '?action=check_keyword_job_status&job_id=' + encodeURIComponent(jobId));
+            const statusData = await statusResponse.json();
+
+            console.log('Job Status:', statusData);
+
+            if (!statusData.success) {
+              throw new Error(statusData.data?.message || 'Failed to check job status');
+            }
+
+            const jobStatus = statusData.data.status;
+            const progress = statusData.data.progress || 0;
+
+            // Update progress in button
+            submitButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Processing (${progress}%)...`;
+
+            if (jobStatus === 'completed') {
+              // Step 3: Fetch results
+              submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Loading results...';
+              
+              const resultsResponse = await fetch(ajaxUrl + '?action=get_keyword_job_results&job_id=' + encodeURIComponent(jobId));
+              const resultsData = await resultsResponse.json();
+
+              console.log('Job Results:', resultsData);
+
+              if (resultsData.success && resultsData.data && resultsData.data.keywords) {
+                console.log('Keywords received:', resultsData.data.keywords.length);
+                console.log('Metadata:', resultsData.data.metadata);
+                if (resultsData.data.errors) {
+                  console.warn('Partial results - Errors encountered:', resultsData.data.errors);
+                }
+                displayKeywordResults(resultsData.data.keywords, currentMarket);
+              } else {
+                throw new Error(resultsData.data?.message || 'No keywords returned');
+              }
+            } else if (jobStatus === 'failed') {
+              const errorMsg = statusData.data.error || 'Job failed';
+              throw new Error(errorMsg);
+            } else if (jobStatus === 'processing' || jobStatus === 'pending') {
+              // Continue polling
+              setTimeout(pollJobStatus, pollInterval);
+            } else {
+              throw new Error('Unknown job status: ' + jobStatus);
+            }
+          };
+
+          // Start polling
+          setTimeout(pollJobStatus, pollInterval);
+
         } catch (error) {
-          console.error('Exception during fetch:', error);
+          console.error('Exception during job processing:', error);
           alert('Error fetching keyword recommendations. Please try again.\n\nError: ' + error.message);
-        } finally {
-          // Re-enable button
+          
+          // Re-enable button on error
           submitButton.disabled = false;
           submitButton.style.opacity = '1';
           submitButton.style.cursor = 'pointer';
           submitButton.innerHTML = originalButtonText;
-
           document.getElementById('keywords-loading').style.display = 'none';
         }
       });
@@ -3378,10 +3428,30 @@ document.addEventListener('DOMContentLoaded', function() {
       filterAndRenderKeywords();
 
       document.getElementById('keywords-results').style.display = 'block';
+      document.getElementById('keywords-loading').style.display = 'none';
+      
+      // Re-enable submit button
+      const submitButton = document.getElementById('get-keywords-btn');
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.style.opacity = '1';
+        submitButton.style.cursor = 'pointer';
+        submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Get Keyword Recommendations';
+      }
     }
 
     function filterAndRenderKeywords() {
-      const filteredKeywords = allKeywords;
+      // Sort keywords: AI-recommended first, then by priority/source
+      const filteredKeywords = [...allKeywords].sort((a, b) => {
+        // AI-recommended keywords come first
+        if (a.ai_recommended && !b.ai_recommended) return -1;
+        if (!a.ai_recommended && b.ai_recommended) return 1;
+        
+        // Within same AI status, sort by priority (if available)
+        const priorityA = a.priority || 0;
+        const priorityB = b.priority || 0;
+        return priorityB - priorityA;
+      });
 
       document.getElementById('keywords-count').textContent = filteredKeywords.length;
 
@@ -3426,10 +3496,35 @@ document.addEventListener('DOMContentLoaded', function() {
           `;
         }).join('');
 
+        // AI-recommended badge (only show if true)
+        const aiRecommendedBadge = keyword.ai_recommended ? `
+          <span style="
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            margin-left: 8px;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+          " title="This keyword was analyzed and recommended by AI as highly relevant for your book">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            AI Pick
+          </span>
+        ` : '';
+
         return `
         <div class="keyword-item" data-keyword="${keyword.keyword}" data-match-types="${matchTypes.join(',')}" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-12) var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20); margin-bottom: var(--spacing-8);">
-          <div style="flex: 1; margin-right: var(--spacing-12);">
+          <div style="flex: 1; margin-right: var(--spacing-12); display: flex; align-items: center;">
             <span style="font-size: 0.9375rem; color: var(--color-neutral-90);">${keyword.keyword}</span>
+            ${aiRecommendedBadge}
           </div>
           <div style="display: flex; align-items: center; gap: var(--spacing-12);">
             ${bidInfo}
