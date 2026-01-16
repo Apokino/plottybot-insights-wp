@@ -3046,6 +3046,91 @@ if (!function_exists('get_keyword_job_results_handler')) {
     }
 }
 
+// AJAX handler for getting product recommendations (synchronous)
+add_action('wp_ajax_get_product_recommendations', 'get_product_recommendations_handler');
+add_action('wp_ajax_nopriv_get_product_recommendations', 'get_product_recommendations_handler');
+
+if (!function_exists('get_product_recommendations_handler')) {
+    function get_product_recommendations_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['book_title']) || !isset($payload['asins']) || !isset($payload['kdp_profile'])) {
+            wp_send_json_error(['message' => 'Missing required fields: user_id, book_title, asins, and kdp_profile are required'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+        $book_title = sanitize_text_field($payload['book_title']);
+        $asins = $payload['asins'];
+        $kdp_profile = sanitize_text_field($payload['kdp_profile']);
+        $use_ai = isset($payload['use_ai']) ? (bool)$payload['use_ai'] : true;
+        $max_competitors = isset($payload['max_competitors']) ? intval($payload['max_competitors']) : 300;
+        
+        // Verify user is authorized
+        if (intval($user_id) !== intval(get_current_user_id())) {
+            wp_send_json_error(['message' => 'Unauthorized - user_id mismatch'], 403);
+            wp_die();
+        }
+        
+        // Build API URL - use test endpoint
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/campaign/products/recommendation';
+        
+        // Build request body
+        $request_body = [
+            'user_id' => $user_id,
+            'kdp_profile' => $kdp_profile,
+            'book_title' => $book_title,
+            'asins' => $asins,
+            'use_ai' => $use_ai,
+            'max_competitors' => $max_competitors
+        ];
+        
+        // Make blocking API call
+        $response = wp_remote_post($api_url, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($request_body),
+            'timeout' => 120,  // 2 minutes max (products is faster than keywords)
+            'blocking' => true,
+            'sslverify' => true
+        ]);
+        
+        if (is_wp_error($response)) {
+            wp_send_json_error([
+                'message' => 'Error fetching product recommendations: ' . $response->get_error_message()
+            ], 500);
+            wp_die();
+        }
+        
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+        
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            
+            // API returns {products: [...], metadata: {...}, errors: [...]}
+            wp_send_json_success($response_data);
+        } else {
+            $error_data = json_decode($body, true);
+            wp_send_json_error([
+                'message' => 'API returned status ' . $status_code,
+                'details' => $error_data
+            ], $status_code);
+        }
+        
+        wp_die();
+    }
+}
+
 // AJAX handler for retrieving campaign keywords/targets
 add_action('wp_ajax_get_campaign_targets', 'get_campaign_targets_handler');
 add_action('wp_ajax_nopriv_get_campaign_targets', 'get_campaign_targets_handler');

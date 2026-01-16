@@ -87,7 +87,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <circle cx="12" cy="12" r="10"></circle>
           </svg>
         </span>
-        <span>⚠️ Create Campaign - WIP DO NOT TOUCH</span>
+        <span>Target Research</span>
       </button>
 
       <!-- Pulse Nav Item -->
@@ -890,25 +890,57 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
             <!-- Header -->
             <div style="text-align: center; margin-bottom: var(--spacing-40);">
               <h1 class="text--heading-lg" style="color: var(--color-neutral-90); margin-bottom: var(--spacing-16);">
-                ⚠️ Create Campaign - WIP DO NOT TOUCH
+                Target Research
               </h1>
               <p class="text--body-lg" style="color: var(--color-neutral-70);">
-                Get keyword recommendations to optimize your advertising campaigns
+                Discover relevant keywords and products to target in your ad campaigns
               </p>
             </div>
 
             <!-- Keyword Recommendations Section -->
             <div style="background: var(--color-neutral-05); border-radius: var(--radius-medium); padding: var(--spacing-32);">
-              <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-24) 0; display: flex; align-items: center; gap: var(--spacing-12);">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <path d="m21 21-4.35-4.35"></path>
-                </svg>
-                Keyword Recommendations
-              </h2>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-24);">
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-neutral-90); margin: 0; display: flex; align-items: center; gap: var(--spacing-12);">
+                  <svg id="recommendation-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                  <span id="recommendation-title">Keyword Recommendations</span>
+                </h2>
+                
+                <!-- Toggle Switch -->
+                <div style="display: flex; align-items: center; gap: var(--spacing-12); background: white; padding: 4px; border-radius: var(--radius-large); border: 2px solid var(--color-neutral-20);">
+                  <button
+                    type="button"
+                    id="toggle-keywords"
+                    class="recommendation-toggle active"
+                    onclick="switchRecommendationType('keywords')"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    Keywords
+                  </button>
+                  <button
+                    type="button"
+                    id="toggle-products"
+                    class="recommendation-toggle"
+                    onclick="switchRecommendationType('products')"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    Products
+                  </button>
+                </div>
+              </div>
 
               <!-- Input Form with 2-Column Layout -->
               <form id="keyword-recommendations-form" style="margin-bottom: var(--spacing-24);">
+                <!-- Hidden field to track recommendation type -->
+                <input type="hidden" id="recommendation-type" value="keywords" />
                 <div style="display: grid; grid-template-columns: 400px 1fr; gap: var(--spacing-24);">
                   
                   <!-- LEFT COLUMN: Selectors and Options -->
@@ -1026,11 +1058,11 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(59, 130, 246, 0.3)'"
                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.2)'"
                     >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <svg id="submit-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <path d="m21 21-4.35-4.35"></path>
                       </svg>
-                      Get Keyword Recommendations
+                      <span id="submit-text">Get Keyword Recommendations</span>
                     </button>
                   </div>
                   
@@ -1593,6 +1625,35 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
 
 .service-nav-btn.active span:first-of-type {
   background: var(--color-primary-50) !important;
+}
+
+/* Recommendation Toggle Buttons */
+.recommendation-toggle {
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--color-neutral-60);
+  border: 1px solid transparent;
+  border-radius: var(--radius-medium);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.recommendation-toggle:hover {
+  background: var(--color-neutral-10);
+  color: var(--color-neutral-80);
+  transform: translateY(-1px);
+}
+
+.recommendation-toggle.active {
+  background: var(--color-primary-50);
+  color: white;
+  border-color: var(--color-primary-60);
+  box-shadow: 0 2px 8px rgba(0, 194, 168, 0.3);
 }
 
 .service-nav-btn.active span:first-of-type svg {
@@ -3251,13 +3312,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (keywordForm) {
       keywordForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-
+        
+        const recommendationType = document.getElementById('recommendation-type').value;
         const bookTitle = document.getElementById('keyword-book-title-hidden').value.trim();
         const region = document.getElementById('keyword-region').value;
         const account = document.getElementById('keyword-account').value;
         const bookAsin = document.getElementById('keyword-asins').value.trim();
         const useAI = document.getElementById('keyword-use-ai').checked;
-        const maxKeywords = 300; // Fixed default value
 
         // Validate book selection
         if (!bookTitle || !region || !account || !bookAsin) {
@@ -3277,13 +3338,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Get button reference
         const submitButton = document.getElementById('get-keywords-btn');
-        const originalButtonText = submitButton.innerHTML;
+        const submitText = document.getElementById('submit-text');
+        const originalButtonHTML = submitButton.innerHTML;
 
         // Disable button and show loading
         submitButton.disabled = true;
         submitButton.style.opacity = '0.6';
         submitButton.style.cursor = 'not-allowed';
-        submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Fetching keywords...';
+        
+        const loadingText = recommendationType === 'products' ? 'Fetching products...' : 'Fetching keywords...';
+        submitText.textContent = loadingText;
 
         // Build kdp_profile from selected account and region
         const kdpProfile = `${account}-${region}`;
@@ -3296,123 +3360,181 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('keywords-loading').style.display = 'block';
         document.getElementById('keywords-results').style.display = 'none';
 
-        // Prepare payload with new structure
-        const payload = {
-          user_id: currentUserId,
-          book_title: bookTitle,
-          asins: allAsins,
-          kdp_profile: kdpProfile,
-          use_ai: useAI,
-          max_keywords: maxKeywords
-        };
-
-        console.log('=== KEYWORD RECOMMENDATIONS REQUEST ===');
-        console.log('User ID:', currentUserId);
-        console.log('Book Title:', bookTitle);
-        console.log('Region:', region);
-        console.log('Account:', account);
-        console.log('Built KDP Profile:', kdpProfile);
-        console.log('Use AI Filtering:', useAI);
-        console.log('Max Keywords:', maxKeywords);
-        console.log('Book ASIN:', bookAsin);
-        console.log('Competitor ASINs:', competitorAsins);
-        console.log('All ASINs:', allAsins);
-        console.log('Full Payload:', JSON.stringify(payload, null, 2));
-        console.log('======================================');
+        // Prepare payload based on recommendation type
+        let endpoint, payload;
+        
+        if (recommendationType === 'products') {
+          // Products recommendation endpoint
+          endpoint = 'campaign/products/recommendation';
+          payload = {
+            user_id: currentUserId,
+            book_title: bookTitle,
+            asins: allAsins,
+            kdp_profile: kdpProfile,
+            use_ai: useAI,
+            max_competitors: 300  // Fixed default for products
+          };
+          
+          console.log('=== PRODUCT RECOMMENDATIONS REQUEST ===');
+          console.log('User ID:', currentUserId);
+          console.log('Book Title:', bookTitle);
+          console.log('Region:', region);
+          console.log('Account:', account);
+          console.log('Built KDP Profile:', kdpProfile);
+          console.log('Use AI Filtering:', useAI);
+          console.log('Max Competitors:', 300);
+          console.log('Book ASIN:', bookAsin);
+          console.log('Competitor ASINs:', competitorAsins);
+          console.log('All ASINs:', allAsins);
+          console.log('Full Payload:', JSON.stringify(payload, null, 2));
+          console.log('======================================');
+        } else {
+          // Keywords recommendation endpoint (existing logic)
+          endpoint = 'start_keyword_job';
+          payload = {
+            user_id: currentUserId,
+            book_title: bookTitle,
+            asins: allAsins,
+            kdp_profile: kdpProfile,
+            use_ai: useAI,
+            max_keywords: 300  // Fixed default for keywords
+          };
+          
+          console.log('=== KEYWORD RECOMMENDATIONS REQUEST ===');
+          console.log('User ID:', currentUserId);
+          console.log('Book Title:', bookTitle);
+          console.log('Region:', region);
+          console.log('Account:', account);
+          console.log('Built KDP Profile:', kdpProfile);
+          console.log('Use AI Filtering:', useAI);
+          console.log('Max Keywords:', 300);
+          console.log('Book ASIN:', bookAsin);
+          console.log('Competitor ASINs:', competitorAsins);
+          console.log('All ASINs:', allAsins);
+          console.log('Full Payload:', JSON.stringify(payload, null, 2));
+          console.log('======================================');
+        }
 
         try {
-          // Step 1: Start the background job
-          const startResponse = await fetch(ajaxUrl + '?action=start_keyword_job', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify(payload)
-          });
+          if (recommendationType === 'products') {
+            // Use backend AJAX endpoint for products (like keywords)
+            const response = await fetch(ajaxUrl + '?action=get_product_recommendations', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            });
 
-          const startData = await startResponse.json();
-          console.log('Job Start Response:', startData);
+            const data = await response.json();
+            console.log('Products Response:', data);
 
-          if (!startData.success || !startData.data.job_id) {
-            throw new Error(startData.data?.message || 'Failed to start job');
+            if (!data.success || !data.data || !data.data.products) {
+              throw new Error(data.data?.message || 'Failed to get product recommendations');
+            }
+
+            console.log('Products received:', data.data.products.length);
+            if (data.data.metadata) {
+              console.log('Metadata:', data.data.metadata);
+            }
+            if (data.data.errors) {
+              console.warn('Partial results - Errors encountered:', data.data.errors);
+            }
+            
+            // Display products
+            displayProductResults(data.data.products, currentMarket);
+            
+          } else {
+            // Existing keyword job flow
+            const startResponse = await fetch(ajaxUrl + '?action=' + endpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            });
+
+            const startData = await startResponse.json();
+            console.log('Job Start Response:', startData);
+
+            if (!startData.success || !startData.data.job_id) {
+              throw new Error(startData.data?.message || 'Failed to start job');
+            }
+
+            const jobId = startData.data.job_id;
+            console.log('Job ID:', jobId);
+
+            // Update button to show processing state
+            submitText.textContent = 'Processing (0%)...';
+
+            // Poll for job status
+            let attempts = 0;
+            const maxAttempts = 180;
+            const pollInterval = 2000;
+
+            const pollJobStatus = async () => {
+              attempts++;
+              
+              if (attempts > maxAttempts) {
+                throw new Error('Job timeout - please try again');
+              }
+
+              const statusResponse = await fetch(ajaxUrl + '?action=check_keyword_job_status&job_id=' + encodeURIComponent(jobId));
+              const statusData = await statusResponse.json();
+
+              console.log('Job Status:', statusData);
+
+              if (!statusData.success) {
+                throw new Error(statusData.data?.message || 'Failed to check job status');
+              }
+
+              const jobStatus = statusData.data.status;
+              const progress = statusData.data.progress || 0;
+
+              submitText.textContent = `Processing (${progress}%)...`;
+
+              if (jobStatus === 'completed') {
+                submitText.textContent = 'Loading results...';
+                
+                const resultsResponse = await fetch(ajaxUrl + '?action=get_keyword_job_results&job_id=' + encodeURIComponent(jobId));
+                const resultsData = await resultsResponse.json();
+
+                console.log('Job Results:', resultsData);
+
+                if (resultsData.success && resultsData.data && resultsData.data.keywords) {
+                  console.log('Keywords received:', resultsData.data.keywords.length);
+                  console.log('Metadata:', resultsData.data.metadata);
+                  if (resultsData.data.errors) {
+                    console.warn('Partial results - Errors encountered:', resultsData.data.errors);
+                  }
+                  displayKeywordResults(resultsData.data.keywords, currentMarket);
+                } else {
+                  throw new Error(resultsData.data?.message || 'No keywords returned');
+                }
+              } else if (jobStatus === 'failed') {
+                const errorMsg = statusData.data.error || 'Job failed';
+                throw new Error(errorMsg);
+              } else if (jobStatus === 'processing' || jobStatus === 'pending') {
+                setTimeout(pollJobStatus, pollInterval);
+              } else {
+                throw new Error('Unknown job status: ' + jobStatus);
+              }
+            };
+
+            setTimeout(pollJobStatus, pollInterval);
           }
 
-          const jobId = startData.data.job_id;
-          console.log('Job ID:', jobId);
-
-          // Update button to show processing state
-          submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Processing (0%)...';
-
-          // Step 2: Poll for job status
-          let attempts = 0;
-          const maxAttempts = 180; // 6 minutes max (2 seconds * 180)
-          const pollInterval = 2000; // Poll every 2 seconds
-
-          const pollJobStatus = async () => {
-            attempts++;
-            
-            if (attempts > maxAttempts) {
-              throw new Error('Job timeout - please try again');
-            }
-
-            const statusResponse = await fetch(ajaxUrl + '?action=check_keyword_job_status&job_id=' + encodeURIComponent(jobId));
-            const statusData = await statusResponse.json();
-
-            console.log('Job Status:', statusData);
-
-            if (!statusData.success) {
-              throw new Error(statusData.data?.message || 'Failed to check job status');
-            }
-
-            const jobStatus = statusData.data.status;
-            const progress = statusData.data.progress || 0;
-
-            // Update progress in button
-            submitButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Processing (${progress}%)...`;
-
-            if (jobStatus === 'completed') {
-              // Step 3: Fetch results
-              submitButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle></svg> Loading results...';
-              
-              const resultsResponse = await fetch(ajaxUrl + '?action=get_keyword_job_results&job_id=' + encodeURIComponent(jobId));
-              const resultsData = await resultsResponse.json();
-
-              console.log('Job Results:', resultsData);
-
-              if (resultsData.success && resultsData.data && resultsData.data.keywords) {
-                console.log('Keywords received:', resultsData.data.keywords.length);
-                console.log('Metadata:', resultsData.data.metadata);
-                if (resultsData.data.errors) {
-                  console.warn('Partial results - Errors encountered:', resultsData.data.errors);
-                }
-                displayKeywordResults(resultsData.data.keywords, currentMarket);
-              } else {
-                throw new Error(resultsData.data?.message || 'No keywords returned');
-              }
-            } else if (jobStatus === 'failed') {
-              const errorMsg = statusData.data.error || 'Job failed';
-              throw new Error(errorMsg);
-            } else if (jobStatus === 'processing' || jobStatus === 'pending') {
-              // Continue polling
-              setTimeout(pollJobStatus, pollInterval);
-            } else {
-              throw new Error('Unknown job status: ' + jobStatus);
-            }
-          };
-
-          // Start polling
-          setTimeout(pollJobStatus, pollInterval);
-
         } catch (error) {
-          console.error('Exception during job processing:', error);
-          alert('Error fetching keyword recommendations. Please try again.\n\nError: ' + error.message);
+          console.error('Exception during processing:', error);
+          alert('Error fetching recommendations. Please try again.\\n\\nError: ' + error.message);
           
           // Re-enable button on error
           submitButton.disabled = false;
           submitButton.style.opacity = '1';
           submitButton.style.cursor = 'pointer';
-          submitButton.innerHTML = originalButtonText;
+          submitButton.innerHTML = originalButtonHTML;
           document.getElementById('keywords-loading').style.display = 'none';
         }
       });
@@ -3560,6 +3682,195 @@ document.addEventListener('DOMContentLoaded', function() {
         default: return '#9E9E9E';
       }
     }
+
+    // Global function to switch between keywords and products recommendation type
+    window.switchRecommendationType = function(type) {
+      // Update hidden field
+      document.getElementById('recommendation-type').value = type;
+      
+      // Update toggle button states - force remove/add to ensure proper state
+      const keywordsBtn = document.getElementById('toggle-keywords');
+      const productsBtn = document.getElementById('toggle-products');
+      
+      if (type === 'keywords') {
+        // Remove active from products first, then add to keywords
+        productsBtn.classList.remove('active');
+        keywordsBtn.classList.add('active');
+        
+        // Update heading
+        document.getElementById('recommendation-title').textContent = 'Keyword Recommendations';
+        document.getElementById('recommendation-icon').innerHTML = `
+          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        `;
+        
+        // Update submit button
+        document.getElementById('submit-text').textContent = 'Get Keyword Recommendations';
+        document.getElementById('submit-icon').innerHTML = `
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        `;
+      } else {
+        // Remove active from keywords first, then add to products
+        keywordsBtn.classList.remove('active');
+        productsBtn.classList.add('active');
+        
+        // Update heading
+        document.getElementById('recommendation-title').textContent = 'Product Recommendations';
+        document.getElementById('recommendation-icon').innerHTML = `
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        `;
+        
+        // Update submit button
+        document.getElementById('submit-text').textContent = 'Get Product Recommendations';
+        document.getElementById('submit-icon').innerHTML = `
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        `;
+      }
+    };
+
+    // Display product results (products always use EXACT match type)
+    let allProducts = [];
+
+    function displayProductResults(products, market) {
+      allProducts = products;
+      currentMarket = market;
+
+      document.getElementById('keywords-count').textContent = products.length;
+      
+      const keywordsList = document.getElementById('keywords-list');
+      keywordsList.innerHTML = products.map((product) => {
+        // Products always use EXACT match type - show as non-toggleable badge
+        const matchTypeBadge = `
+          <span style="
+            padding: 6px 12px;
+            background: #4CAF50;
+            color: white;
+            border: 1px solid #4CAF50;
+            border-radius: var(--radius-small);
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 65px;
+            text-align: center;
+          ">EXACT</span>
+        `;
+
+        // AI-recommended badge (only show if true)
+        const aiRecommendedBadge = product.ai_recommended ? `
+          <span style="
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            margin-left: 8px;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+          " title="This product was analyzed and recommended by AI as highly relevant for your book">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            AI Pick
+          </span>
+        ` : '';
+
+        // Product cover image (optional)
+        const coverHtml = product.cover ? `
+          <img src="${product.cover}" alt="Product cover" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px; margin-right: 12px; border: 1px solid var(--color-neutral-20);" onerror="this.style.display='none'" />
+        ` : '';
+
+        // Display title if available, otherwise just ASIN
+        const displayTitle = product.title || `Product ${product.asin}`;
+
+        return `
+        <div class="keyword-item" data-asin="${product.asin}" data-match-types="EXACT" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-12) var(--spacing-16); background: var(--color-neutral-05); border-radius: var(--radius-small); border: 1px solid var(--color-neutral-20); margin-bottom: var(--spacing-8);">
+          <div style="flex: 1; margin-right: var(--spacing-12); display: flex; align-items: center;">
+            ${coverHtml}
+            <div>
+              <div style="display: flex; align-items: center;">
+                <span style="font-size: 0.9375rem; color: var(--color-neutral-90); font-weight: 500;">${displayTitle}</span>
+                ${aiRecommendedBadge}
+              </div>
+              <div style="font-size: 0.8rem; color: var(--color-neutral-60); margin-top: 2px;">ASIN: ${product.asin}</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: var(--spacing-12);">
+            <div style="display: flex; gap: 6px; align-items: center;">
+              ${matchTypeBadge}
+            </div>
+            <button
+              class="delete-keyword-btn"
+              onclick="deleteProduct('${product.asin}')"
+              style="padding: 6px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
+              onmouseover="this.style.background='#FFCCCC'"
+              onmouseout="this.style.background='#FFE6E6'"
+              title="Delete product"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `;
+      }).join('');
+
+      document.getElementById('keywords-results').style.display = 'block';
+      document.getElementById('keywords-loading').style.display = 'none';
+      
+      // Re-enable submit button
+      const submitButton = document.getElementById('get-keywords-btn');
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.style.opacity = '1';
+        submitButton.style.cursor = 'pointer';
+        const submitText = document.getElementById('submit-text');
+        const submitIcon = document.getElementById('submit-icon');
+        if (submitText && submitIcon) {
+          submitText.textContent = 'Get Product Recommendations';
+          submitIcon.innerHTML = `
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          `;
+        }
+      }
+    }
+
+    // Global function to delete a product
+    window.deleteProduct = function(asin) {
+      if (!confirm(`Delete product "${asin}"?`)) {
+        return;
+      }
+
+      // Remove from allProducts array
+      const index = allProducts.findIndex(p => p.asin === asin);
+      if (index > -1) {
+        allProducts.splice(index, 1);
+      }
+
+      // Re-render
+      displayProductResults(allProducts, currentMarket);
+
+      // Show success message
+      const successMsg = document.createElement('div');
+      successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
+      successMsg.textContent = `✓ Product "${asin}" deleted`;
+      document.body.appendChild(successMsg);
+
+      setTimeout(() => {
+        successMsg.remove();
+      }, 3000);
+    };
 
     // Global function to toggle match type for a keyword
     window.toggleMatchType = function(keyword, matchType) {
@@ -3760,117 +4071,217 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     };
 
-    // Global function to export keywords as CSV
+    // Global function to export keywords/products as CSV
     window.exportKeywordsAsCSV = function() {
-      if (allKeywords.length === 0) {
-        alert('No keywords to export');
-        return;
-      }
-
-      // Get all keywords
-      const keywordsToExport = allKeywords;
-
-      // Create CSV content with one row per keyword-match type combination
-      let csvContent = 'Keyword,Match Type\n';
-      let totalRows = 0;
+      const recommendationType = document.getElementById('recommendation-type').value;
       
-      keywordsToExport.forEach(keyword => {
-        // Escape commas and quotes in keyword text
-        const escapedKeyword = keyword.keyword.replace(/"/g, '""');
+      if (recommendationType === 'products') {
+        // Export products
+        if (allProducts.length === 0) {
+          alert('No products to export');
+          return;
+        }
+
+        // Create CSV content with ASIN and EXACT match type
+        let csvContent = 'ASIN,Match Type\n';
         
-        // Create one row for each match type
-        const matchTypes = keyword.match_types || [];
-        matchTypes.forEach(matchType => {
-          csvContent += `"${escapedKeyword}","${matchType}"\n`;
-          totalRows++;
+        allProducts.forEach(product => {
+          csvContent += `"${product.asin}","EXACT"\n`;
         });
-      });
 
-      // Create blob and download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
+        // Create blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
 
-      link.setAttribute('href', url);
-      link.setAttribute('download', `keywords_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `products_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      // Show success message
-      const successMsg = document.createElement('div');
-      successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
-      successMsg.textContent = `✓ Exported ${totalRows} rows (${keywordsToExport.length} unique keywords) as CSV`;
-      document.body.appendChild(successMsg);
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
+        successMsg.textContent = `✓ Exported ${allProducts.length} products as CSV`;
+        document.body.appendChild(successMsg);
 
-      setTimeout(() => {
-        successMsg.remove();
-      }, 3000);
+        setTimeout(() => {
+          successMsg.remove();
+        }, 3000);
+        
+      } else {
+        // Export keywords
+        if (allKeywords.length === 0) {
+          alert('No keywords to export');
+          return;
+        }
+
+        // Get all keywords
+        const keywordsToExport = allKeywords;
+
+        // Create CSV content with one row per keyword-match type combination
+        let csvContent = 'Keyword,Match Type\n';
+        let totalRows = 0;
+        
+        keywordsToExport.forEach(keyword => {
+          // Escape commas and quotes in keyword text
+          const escapedKeyword = keyword.keyword.replace(/"/g, '""');
+          
+          // Create one row for each match type
+          const matchTypes = keyword.match_types || [];
+          matchTypes.forEach(matchType => {
+            csvContent += `"${escapedKeyword}","${matchType}"\n`;
+            totalRows++;
+          });
+        });
+
+        // Create blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', `keywords_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
+        successMsg.textContent = `✓ Exported ${totalRows} rows (${keywordsToExport.length} unique keywords) as CSV`;
+        document.body.appendChild(successMsg);
+
+        setTimeout(() => {
+          successMsg.remove();
+        }, 3000);
+      }
     };
 
-    // Global function to export keywords as Excel
+    // Global function to export keywords/products as Excel
     window.exportKeywordsAsExcel = function() {
-      if (allKeywords.length === 0) {
-        alert('No keywords to export');
-        return;
-      }
+      const recommendationType = document.getElementById('recommendation-type').value;
+      
+      if (recommendationType === 'products') {
+        // Export products
+        if (allProducts.length === 0) {
+          alert('No products to export');
+          return;
+        }
 
-      // Get all keywords
-      const keywordsToExport = allKeywords;
-
-      // Create proper Excel XML format
-      let excelContent = '<?xml version="1.0"?>\n';
-      excelContent += '<?mso-application progid="Excel.Sheet"?>\n';
-      excelContent += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n';
-      excelContent += '<Worksheet ss:Name="Keywords">\n';
-      excelContent += '<Table>\n';
-      
-      // Header row
-      excelContent += '<Row>\n';
-      excelContent += '<Cell><Data ss:Type="String">Keyword</Data></Cell>\n';
-      excelContent += '<Cell><Data ss:Type="String">Match Type</Data></Cell>\n';
-      excelContent += '</Row>\n';
-      
-      let totalRows = 0;
-      
-      // Data rows
-      keywordsToExport.forEach(keyword => {
-        const matchTypes = keyword.match_types || [];
-        matchTypes.forEach(matchType => {
+        // Create proper Excel XML format
+        let excelContent = '<?xml version="1.0"?>\n';
+        excelContent += '<?mso-application progid="Excel.Sheet"?>\n';
+        excelContent += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n';
+        excelContent += '<Worksheet ss:Name="Products">\n';
+        excelContent += '<Table>\n';
+        
+        // Header row
+        excelContent += '<Row>\n';
+        excelContent += '<Cell><Data ss:Type="String">ASIN</Data></Cell>\n';
+        excelContent += '<Cell><Data ss:Type="String">Match Type</Data></Cell>\n';
+        excelContent += '</Row>\n';
+        
+        // Data rows
+        allProducts.forEach(product => {
           excelContent += '<Row>\n';
-          excelContent += `<Cell><Data ss:Type="String">${keyword.keyword.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</Data></Cell>\n`;
-          excelContent += `<Cell><Data ss:Type="String">${matchType}</Data></Cell>\n`;
+          excelContent += `<Cell><Data ss:Type="String">${product.asin}</Data></Cell>\n`;
+          excelContent += '<Cell><Data ss:Type="String">EXACT</Data></Cell>\n';
           excelContent += '</Row>\n';
-          totalRows++;
         });
-      });
-      
-      excelContent += '</Table>\n';
-      excelContent += '</Worksheet>\n';
-      excelContent += '</Workbook>';
+        
+        excelContent += '</Table>\n';
+        excelContent += '</Worksheet>\n';
+        excelContent += '</Workbook>';
 
-      // Create blob with proper Excel XML MIME type
-      const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
+        // Create blob with proper Excel XML MIME type
+        const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
 
-      link.setAttribute('href', url);
-      link.setAttribute('download', `keywords_${new Date().toISOString().split('T')[0]}.xls`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `products_${new Date().toISOString().split('T')[0]}.xls`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      // Show success message
-      const successMsg = document.createElement('div');
-      successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2196F3; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
-      successMsg.textContent = `✓ Exported ${totalRows} rows (${keywordsToExport.length} unique keywords) as Excel`;
-      document.body.appendChild(successMsg);
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2196F3; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
+        successMsg.textContent = `✓ Exported ${allProducts.length} products as Excel`;
+        document.body.appendChild(successMsg);
 
-      setTimeout(() => {
-        successMsg.remove();
-      }, 3000);
+        setTimeout(() => {
+          successMsg.remove();
+        }, 3000);
+        
+      } else {
+        // Export keywords
+        if (allKeywords.length === 0) {
+          alert('No keywords to export');
+          return;
+        }
+
+        // Get all keywords
+        const keywordsToExport = allKeywords;
+
+        // Create proper Excel XML format
+        let excelContent = '<?xml version="1.0"?>\n';
+        excelContent += '<?mso-application progid="Excel.Sheet"?>\n';
+        excelContent += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n';
+        excelContent += '<Worksheet ss:Name="Keywords">\n';
+        excelContent += '<Table>\n';
+        
+        // Header row
+        excelContent += '<Row>\n';
+        excelContent += '<Cell><Data ss:Type="String">Keyword</Data></Cell>\n';
+        excelContent += '<Cell><Data ss:Type="String">Match Type</Data></Cell>\n';
+        excelContent += '</Row>\n';
+        
+        let totalRows = 0;
+        
+        // Data rows
+        keywordsToExport.forEach(keyword => {
+          const matchTypes = keyword.match_types || [];
+          matchTypes.forEach(matchType => {
+            excelContent += '<Row>\n';
+            excelContent += `<Cell><Data ss:Type="String">${keyword.keyword.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</Data></Cell>\n`;
+            excelContent += `<Cell><Data ss:Type="String">${matchType}</Data></Cell>\n`;
+            excelContent += '</Row>\n';
+            totalRows++;
+          });
+        });
+        
+        excelContent += '</Table>\n';
+        excelContent += '</Worksheet>\n';
+        excelContent += '</Workbook>';
+
+        // Create blob with proper Excel XML MIME type
+        const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', `keywords_${new Date().toISOString().split('T')[0]}.xls`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #2196F3; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
+        successMsg.textContent = `✓ Exported ${totalRows} rows (${keywordsToExport.length} unique keywords) as Excel`;
+        document.body.appendChild(successMsg);
+
+        setTimeout(() => {
+          successMsg.remove();
+        }, 3000);
+      }
     };
 
     // When campaign is selected, populate ad group dropdown
