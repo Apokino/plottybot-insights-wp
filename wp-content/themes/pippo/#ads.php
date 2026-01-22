@@ -4125,16 +4125,34 @@ document.addEventListener('DOMContentLoaded', function() {
         let csvContent = 'Keyword,Match Type\n';
         let totalRows = 0;
         
+        // Define match type order: broad -> phrase -> exact
+        const matchTypeOrder = { 'BROAD': 1, 'PHRASE': 2, 'EXACT': 3 };
+        
+        // Collect all rows with keyword-matchtype pairs
+        const rows = [];
         keywordsToExport.forEach(keyword => {
-          // Escape commas and quotes in keyword text
-          const escapedKeyword = keyword.keyword.replace(/"/g, '""');
-          
-          // Create one row for each match type
           const matchTypes = keyword.match_types || [];
           matchTypes.forEach(matchType => {
-            csvContent += `"${escapedKeyword}","${matchType}"\n`;
-            totalRows++;
+            rows.push({
+              keyword: keyword.keyword,
+              matchType: matchType
+            });
           });
+        });
+        
+        // Sort rows by match type (broad, phrase, exact)
+        rows.sort((a, b) => {
+          const orderA = matchTypeOrder[a.matchType.toUpperCase()] || 999;
+          const orderB = matchTypeOrder[b.matchType.toUpperCase()] || 999;
+          return orderA - orderB;
+        });
+        
+        // Generate CSV content from sorted rows
+        rows.forEach(row => {
+          // Escape commas and quotes in keyword text
+          const escapedKeyword = row.keyword.replace(/"/g, '""');
+          csvContent += `"${escapedKeyword}","${row.matchType}"\n`;
+          totalRows++;
         });
 
         // Create blob and download
@@ -4244,16 +4262,35 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let totalRows = 0;
         
-        // Data rows
+        // Define match type order: broad -> phrase -> exact
+        const matchTypeOrder = { 'BROAD': 1, 'PHRASE': 2, 'EXACT': 3 };
+        
+        // Collect all rows with keyword-matchtype pairs
+        const rows = [];
         keywordsToExport.forEach(keyword => {
           const matchTypes = keyword.match_types || [];
           matchTypes.forEach(matchType => {
-            excelContent += '<Row>\n';
-            excelContent += `<Cell><Data ss:Type="String">${keyword.keyword.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</Data></Cell>\n`;
-            excelContent += `<Cell><Data ss:Type="String">${matchType}</Data></Cell>\n`;
-            excelContent += '</Row>\n';
-            totalRows++;
+            rows.push({
+              keyword: keyword.keyword,
+              matchType: matchType
+            });
           });
+        });
+        
+        // Sort rows by match type (broad, phrase, exact)
+        rows.sort((a, b) => {
+          const orderA = matchTypeOrder[a.matchType.toUpperCase()] || 999;
+          const orderB = matchTypeOrder[b.matchType.toUpperCase()] || 999;
+          return orderA - orderB;
+        });
+        
+        // Data rows from sorted array
+        rows.forEach(row => {
+          excelContent += '<Row>\n';
+          excelContent += `<Cell><Data ss:Type="String">${row.keyword.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</Data></Cell>\n`;
+          excelContent += `<Cell><Data ss:Type="String">${row.matchType}</Data></Cell>\n`;
+          excelContent += '</Row>\n';
+          totalRows++;
         });
         
         excelContent += '</Table>\n';
