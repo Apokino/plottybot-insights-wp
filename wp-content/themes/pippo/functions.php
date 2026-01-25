@@ -1521,6 +1521,67 @@ if (!function_exists('ads_check_create_user_handler')) {
     }
 }
 
+// AJAX handler for updating user language preference
+add_action('wp_ajax_ads_update_user_language', 'ads_update_user_language_handler');
+add_action('wp_ajax_nopriv_ads_update_user_language', 'ads_update_user_language_handler');
+
+if (!function_exists('ads_update_user_language_handler')) {
+    function ads_update_user_language_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get current user ID
+        $user_id = get_current_user_id();
+        
+        // Get language from request
+        $language = isset($_POST['language']) ? sanitize_text_field($_POST['language']) : 'EN';
+        
+        // Validate language (IT or EN only)
+        if (!in_array($language, ['IT', 'EN'])) {
+            $language = 'EN';
+        }
+
+        // Update user language via API
+        $update_url = "https://ads-optimizer-api-1044931876531.europe-west1.run.app/user/{$user_id}";
+        
+        $update_response = wp_remote_request($update_url, [
+            'method' => 'PATCH',
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode(['language' => $language]),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($update_response)) {
+            wp_send_json_error(['message' => 'Error updating user language'], 500);
+            wp_die();
+        }
+
+        $update_status = wp_remote_retrieve_response_code($update_response);
+        $update_body = wp_remote_retrieve_body($update_response);
+
+        if ($update_status === 200) {
+            wp_send_json_success([
+                'message' => 'User language updated successfully',
+                'language' => $language,
+                'response' => json_decode($update_body, true)
+            ]);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to update user language',
+                'status' => $update_status
+            ], $update_status);
+        }
+        wp_die();
+    }
+}
+
 // AJAX handler for adding KDP profile
 add_action('wp_ajax_add_kdp_profile', 'add_kdp_profile_handler');
 add_action('wp_ajax_nopriv_add_kdp_profile', 'add_kdp_profile_handler');

@@ -1784,6 +1784,25 @@ document.addEventListener('DOMContentLoaded', function() {
         indicator.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" style="stroke-dasharray: 50; stroke-dashoffset: 0; animation: checkmark 0.3s ease;"></polyline></svg>';
       }
 
+      // Update user language preference in the backend
+      try {
+        const userLanguage = '<?php echo $user_language; ?>';
+        
+        const formData = new FormData();
+        formData.append('action', 'ads_update_user_language');
+        formData.append('language', userLanguage);
+        
+        await fetch(ajaxUrl, {
+          method: 'POST',
+          body: formData
+        });
+        
+        console.log(`User language updated to: ${userLanguage}`);
+      } catch (langError) {
+        console.warn('Failed to update user language preference:', langError);
+        // Continue even if language update fails
+      }
+
       // Step 2: Loading workspace
       await new Promise(resolve => setTimeout(resolve, 500));
       if (statusText) statusText.textContent = 'Setting up your workspace...';
