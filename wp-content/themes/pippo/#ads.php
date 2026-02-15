@@ -247,7 +247,7 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                       id="kdp-display-name"
                       name="display_name"
                       maxlength="100"
-                      placeholder="e.g., Fitness, Romance, Mystery"
+                      placeholder="e.g., Account1, BobAccount, BrandX"
                       required
                       style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s;"
                     />

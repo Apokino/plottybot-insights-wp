@@ -1597,13 +1597,14 @@ if (!function_exists('add_kdp_profile_handler')) {
         // Get POST data
         $payload = json_decode(file_get_contents('php://input'), true);
 
-        if (!$payload || !isset($payload['account_name']) || !isset($payload['auth_code']) || !isset($payload['user_id'])) {
+        if (!$payload || !isset($payload['display_name']) || !isset($payload['auth_code']) || !isset($payload['user_id'])) {
             wp_send_json_error(['message' => 'Missing required fields'], 400);
             wp_die();
         }
 
         // Use user_id from request (temporary - will be replaced with logged-in user later)
         $user_id = sanitize_text_field($payload['user_id']);
+        $display_name = sanitize_text_field($payload['display_name']);
 
         // Log what we received from frontend
         error_log('Add KDP Profile: Received from frontend = ' . json_encode($payload));
@@ -1611,9 +1612,10 @@ if (!function_exists('add_kdp_profile_handler')) {
         // Prepare API payload - use redirect_uri from frontend if provided, otherwise use default
         $redirect_uri = isset($payload['redirect_uri']) ? $payload['redirect_uri'] : 'https://insights.plottybot.com/ads';
 
+        // Account_name is now auto-generated server-side
         $api_payload = [
             'user_id' => (string) $user_id,
-            'account_name' => (string) $payload['account_name'],
+            'display_name' => (string) $display_name,
             'auth_code' => (string) $payload['auth_code'],
             'redirect_uri' => (string) $redirect_uri
         ];
