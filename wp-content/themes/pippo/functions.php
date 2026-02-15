@@ -1776,6 +1776,81 @@ if (!function_exists('get_kdp_accounts_handler')) {
     }
 }
 
+// AJAX handler for updating KDP account display name
+add_action('wp_ajax_update_kdp_display_name', 'update_kdp_display_name_handler');
+add_action('wp_ajax_nopriv_update_kdp_display_name', 'update_kdp_display_name_handler');
+
+if (!function_exists('update_kdp_display_name_handler')) {
+    function update_kdp_display_name_handler() {
+        // Verify user is logged in
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        // Get POST data
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+        if (!$payload || !isset($payload['user_id']) || !isset($payload['account_name']) || !isset($payload['display_name'])) {
+            wp_send_json_error(['message' => 'Missing required fields (user_id, account_name, display_name)'], 400);
+            wp_die();
+        }
+
+        $user_id = sanitize_text_field($payload['user_id']);
+        $account_name = sanitize_text_field($payload['account_name']);
+        $display_name = sanitize_text_field($payload['display_name']);
+
+        error_log('Update KDP Display Name: user_id=' . $user_id . ', account_name=' . $account_name . ', display_name=' . $display_name);
+
+        // Prepare API payload
+        $api_payload = [
+            'user_id' => (string) $user_id,
+            'account_name' => (string) $account_name,
+            'display_name' => (string) $display_name
+        ];
+
+        $api_url = 'https://ads-optimizer-api-1044931876531.europe-west1.run.app/account';
+
+        $response = wp_remote_request($api_url, [
+            'method' => 'PATCH',
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode($api_payload),
+            'timeout' => 30,
+            'sslverify' => true
+        ]);
+
+        if (is_wp_error($response)) {
+            error_log('Update KDP Display Name: WP Error = ' . $response->get_error_message());
+            wp_send_json_error(['message' => 'Error updating display name: ' . $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        error_log('Update KDP Display Name: API Response Status = ' . $status_code);
+        error_log('Update KDP Display Name: API Response Body = ' . $body);
+
+        if ($status_code === 200) {
+            $response_data = json_decode($body, true);
+            wp_send_json_success([
+                'message' => 'Display name updated successfully',
+                'data' => $response_data
+            ]);
+        } else {
+            wp_send_json_error([
+                'message' => 'Failed to update display name',
+                'status' => $status_code,
+                'response' => $body
+            ], $status_code);
+        }
+        wp_die();
+    }
+}
+
 // AJAX handler for getting optimization schedules
 add_action('wp_ajax_get_optimization_schedules', 'get_optimization_schedules_handler');
 add_action('wp_ajax_nopriv_get_optimization_schedules', 'get_optimization_schedules_handler');

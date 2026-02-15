@@ -237,32 +237,23 @@ $ads_enabled = true; // Set to true to enable ads access, false to disable
                     </p>
                   </div>
 
-                  <!-- Account Name Dropdown -->
+                  <!-- Display Name Input -->
                   <div>
-                    <label for="kdp-account-name" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
-                      Account Name <span style="color: #FF6B6B;">*</span>
+                    <label for="kdp-display-name" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+                      Display Name <span style="color: #FF6B6B;">*</span>
                     </label>
-                    <select
-                      id="kdp-account-name"
-                      name="account_name"
+                    <input
+                      type="text"
+                      id="kdp-display-name"
+                      name="display_name"
+                      maxlength="100"
+                      placeholder="e.g., Fitness, Romance, Mystery"
                       required
-                      style="width: 100%; padding: 12px 40px 12px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; font-weight: 500; color: #000; transition: border-color 0.2s; background-color: white; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 18px; line-height: normal; display: block; min-height: 44px;"
-                    >
-                      <option value="" style="color: #999;">Select an account name...</option>
-                      <option value="KDP-1" style="color: #000; background: white;">KDP-1</option>
-                      <option value="KDP-2" style="color: #000; background: white;">KDP-2</option>
-                      <option value="KDP-3" style="color: #000; background: white;">KDP-3</option>
-                      <option value="KDP-4" style="color: #000; background: white;">KDP-4</option>
-                      <option value="KDP-5" style="color: #000; background: white;">KDP-5</option>
-                      <option value="KDP-6" style="color: #000; background: white;">KDP-6</option>
-                      <option value="KDP-7" style="color: #000; background: white;">KDP-7</option>
-                      <option value="KDP-8" style="color: #000; background: white;">KDP-8</option>
-                      <option value="KDP-9" style="color: #000; background: white;">KDP-9</option>
-                      <option value="KDP-10" style="color: #000; background: white;">KDP-10</option>
-                    </select>
-                    <p id="account-name-error" style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: #FF6B6B; display: none;"></p>
+                      style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s;"
+                    />
+                    <p id="display-name-error" style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: #FF6B6B; display: none;"></p>
                     <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">
-                      Select an available account name (unavailable names are greyed out)
+                      Enter a friendly name for this account (alphanumeric characters only)
                     </p>
                   </div>
                 </div>
@@ -1897,8 +1888,8 @@ window.refreshAccountDropdowns = async function(userId = null) {
 
     const data = await response.json();
 
-    if (data.success && data.data && data.data.account_names) {
-      const accounts = data.data.account_names;
+    if (data.success && data.data && data.data.accounts) {
+      const accounts = data.data.accounts;
 
       // Update Campaign Configuration dropdown
       const campaignAccountSelect = document.getElementById('campaign-account');
@@ -1912,14 +1903,15 @@ window.refreshAccountDropdowns = async function(userId = null) {
         } else {
           accounts.forEach(account => {
             const option = document.createElement('option');
-            option.value = account;
-            option.textContent = account;
+            option.value = account.account_name;
+            option.textContent = account.display_name || account.account_name;
             campaignAccountSelect.appendChild(option);
           });
           campaignAccountSelect.disabled = false;
 
           // Restore previous selection if still valid
-          if (accounts.includes(currentValue)) {
+          const accountNames = accounts.map(a => a.account_name);
+          if (accountNames.includes(currentValue)) {
             campaignAccountSelect.value = currentValue;
           }
         }
@@ -1933,13 +1925,14 @@ window.refreshAccountDropdowns = async function(userId = null) {
 
         accounts.forEach(account => {
           const option = document.createElement('option');
-          option.value = account;
-          option.textContent = account;
+          option.value = account.account_name;
+          option.textContent = account.display_name || account.account_name;
           scheduleAccountSelect.appendChild(option);
         });
 
         // Restore previous selection if still valid
-        if (accounts.includes(currentValue)) {
+        const accountNames = accounts.map(a => a.account_name);
+        if (accountNames.includes(currentValue)) {
           scheduleAccountSelect.value = currentValue;
         }
       }
@@ -1994,8 +1987,8 @@ window.loadKDPAccounts = async function(userId = null) {
 
     const data = await response.json();
 
-    if (data.success && data.data && data.data.account_names) {
-      const accounts = data.data.account_names;
+    if (data.success && data.data && data.data.accounts) {
+      const accounts = data.data.accounts;
 
       if (accounts.length === 0) {
         loadingEl.style.display = 'none';
@@ -2006,14 +1999,26 @@ window.loadKDPAccounts = async function(userId = null) {
         listEl.style.display = 'grid';
 
         // Render accounts
-        listEl.innerHTML = accounts.map(accountName => `
+        listEl.innerHTML = accounts.map(account => {
+          const displayName = account.display_name || account.account_name;
+          const accountName = account.account_name;
+          return `
           <div style="padding: var(--spacing-20); background: var(--color-neutral-00); border: 2px solid var(--color-neutral-20); border-radius: var(--radius-medium); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
             <div>
               <h3 style="margin: 0; font-size: 1.125rem; font-weight: 700; color: var(--color-neutral-90);">
-                ${accountName}
+                ${displayName}
               </h3>
+              ${account.display_name ? `<p style="margin: 4px 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">${accountName}</p>` : ''}
             </div>
             <div style="display: flex; gap: var(--spacing-12);">
+              <button
+                onclick="editKDPAccountDisplayName('${userId}', '${accountName}', '${displayName.replace(/'/g, "\\'")}')"
+                style="padding: 10px 16px; background: #E3F2FD; color: #1976D2; border: 1px solid #BBDEFB; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
+                onmouseover="this.style.background='#BBDEFB'; this.style.transform='translateY(-2px)';"
+                onmouseout="this.style.background='#E3F2FD'; this.style.transform='translateY(0)';"
+              >
+                Edit
+              </button>
               <button
                 onclick="deleteKDPAccount('${userId}', '${accountName}')"
                 style="padding: 10px 16px; background: #FFE6E6; color: #FF6B6B; border: 1px solid #FFCCCC; border-radius: var(--radius-small); cursor: pointer; font-weight: 600; transition: all 0.2s;"
@@ -2024,14 +2029,12 @@ window.loadKDPAccounts = async function(userId = null) {
               </button>
             </div>
           </div>
-        `).join('');
+        `;
+        }).join('');
       }
 
       // Refresh account dropdowns in other tabs after loading accounts list
       await window.refreshAccountDropdowns(userId);
-
-      // Update the account name dropdown to disable taken names
-      window.updateAccountNameDropdown(accounts);
     } else {
       throw new Error(data.data?.message || 'Failed to load accounts');
     }
@@ -2043,32 +2046,6 @@ window.loadKDPAccounts = async function(userId = null) {
   }
 };
 
-// Function to update account name dropdown based on existing accounts
-window.updateAccountNameDropdown = function(existingAccounts) {
-  const dropdown = document.getElementById('kdp-account-name');
-  if (!dropdown) return;
-
-  // Get all options except the first (placeholder)
-  const options = dropdown.querySelectorAll('option:not(:first-child)');
-
-  options.forEach(option => {
-    const accountName = option.value;
-    const isTaken = existingAccounts.includes(accountName);
-
-    if (isTaken) {
-      option.disabled = true;
-      option.style.color = '#999';
-      option.style.background = '#f5f5f5';
-      option.textContent = accountName + ' (Already in use)';
-    } else {
-      option.disabled = false;
-      option.style.color = '';
-      option.style.background = '';
-      option.textContent = accountName;
-    }
-  });
-};
-
 document.addEventListener('DOMContentLoaded', function() {
   // Show initial empty state on page load
   if (document.getElementById('kdp-accounts-list')) {
@@ -2078,9 +2055,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // KDP Account Form Validation and Submission
   const kdpForm = document.getElementById('add-kdp-account-form');
   const authCodeInput = document.getElementById('kdp-auth-code');
-  const accountNameInput = document.getElementById('kdp-account-name');
+  const displayNameInput = document.getElementById('kdp-display-name');
   const authCodeError = document.getElementById('auth-code-error');
-  const accountNameError = document.getElementById('account-name-error');
+  const displayNameError = document.getElementById('display-name-error');
   const submitButton = document.getElementById('submit-kdp-account');
   const submitButtonText = document.getElementById('submit-button-text');
 
@@ -2121,18 +2098,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Trigger validation
         authCodeInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-        // Focus on account name field
-        const accountNameInput = document.getElementById('kdp-account-name');
-        if (accountNameInput) {
+        // Focus on display name field
+        const displayNameInput = document.getElementById('kdp-display-name');
+        if (displayNameInput) {
           setTimeout(() => {
-            accountNameInput.focus();
+            displayNameInput.focus();
           }, 300);
         }
 
         // Show success message
         const successMessage = document.createElement('div');
         successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideInRight 0.3s ease;';
-        successMessage.innerHTML = '✓ Authorization code retrieved!<br><small>Now enter your Account Name and submit.</small>';
+        successMessage.innerHTML = '✓ Authorization code retrieved!<br><small>Now enter a Display Name and submit.</small>';
         document.body.appendChild(successMessage);
 
         setTimeout(() => {
@@ -2169,15 +2146,21 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // Real-time validation for account name dropdown
-    accountNameInput.addEventListener('change', function() {
+    // Real-time validation for display name
+    displayNameInput.addEventListener('input', function() {
       const value = this.value;
+      const alphanumericPattern = /^[a-zA-Z0-9]+$/;
 
-      if (value && value !== '') {
-        this.style.borderColor = '#00C2A8';
-        accountNameError.style.display = 'none';
-      } else {
+      if (value.length === 0) {
+        displayNameError.style.display = 'none';
         this.style.borderColor = 'var(--color-neutral-30)';
+      } else if (!alphanumericPattern.test(value)) {
+        displayNameError.textContent = 'Only alphanumeric characters are allowed (no spaces or special characters)';
+        displayNameError.style.display = 'block';
+        this.style.borderColor = '#FF6B6B';
+      } else if (value.length > 0) {
+        displayNameError.style.display = 'none';
+        this.style.borderColor = '#00C2A8';
       }
     });
 
@@ -2186,12 +2169,13 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
 
       const authCode = authCodeInput.value.trim();
-      const accountName = accountNameInput.value.trim();
+      const displayName = displayNameInput.value.trim();
       const userId = currentUserId; // Use current WordPress user ID
+      const alphanumericPattern = /^[a-zA-Z0-9]+$/;
 
       console.log('Form submission - Auth Code:', authCode);
       console.log('Form submission - Auth Code Length:', authCode.length);
-      console.log('Form submission - Account Name:', accountName);
+      console.log('Form submission - Display Name:', displayName);
       console.log('Form submission - User ID:', userId);
 
       // Validate authorization code
@@ -2202,20 +2186,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
-      // Validate account name
-      if (!accountName || accountName === '') {
-        accountNameError.textContent = 'Please select an account name';
-        accountNameError.style.display = 'block';
-        accountNameInput.focus();
+      // Validate display name
+      if (!displayName || displayName === '') {
+        displayNameError.textContent = 'Please enter a display name';
+        displayNameError.style.display = 'block';
+        displayNameInput.focus();
         return;
       }
 
-      // Check if the selected option is disabled (already taken)
-      const selectedOption = accountNameInput.querySelector(`option[value="${accountName}"]`);
-      if (selectedOption && selectedOption.disabled) {
-        accountNameError.textContent = 'This account name is already in use. Please select another.';
-        accountNameError.style.display = 'block';
-        accountNameInput.focus();
+      // Validate alphanumeric only
+      if (!alphanumericPattern.test(displayName)) {
+        displayNameError.textContent = 'Only alphanumeric characters are allowed (no spaces or special characters)';
+        displayNameError.style.display = 'block';
+        displayNameInput.focus();
         return;
       }
 
@@ -2227,9 +2210,8 @@ document.addEventListener('DOMContentLoaded', function() {
       // Prepare payload
       const payload = {
         user_id: userId,
-        account_name: accountName,
-        auth_code: authCode,
-        redirect_uri: 'https://insights.plottybot.com/ads'
+        display_name: displayName,
+        auth_code: authCode
       };
 
       console.log('=== ADD KDP ACCOUNT REQUEST ===');
@@ -2257,14 +2239,15 @@ document.addEventListener('DOMContentLoaded', function() {
           // Success - clear form
           kdpForm.reset();
           authCodeInput.style.borderColor = 'var(--color-neutral-30)';
-          accountNameInput.style.borderColor = 'var(--color-neutral-30)';
+          displayNameInput.style.borderColor = 'var(--color-neutral-30)';
 
-
+          // Get the generated account name from the response
+          const generatedAccountName = data.data?.account_name || 'Unknown';
 
           // Show success message
           const successMessage = document.createElement('div');
           successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideInRight 0.3s ease;';
-          successMessage.textContent = `✓ Account "${accountName}" added successfully!`;
+          successMessage.innerHTML = `✓ Account "${displayName}" added successfully!<br><small>Account ID: ${generatedAccountName}</small>`;
           document.body.appendChild(successMessage);
 
           setTimeout(() => {
@@ -2598,8 +2581,8 @@ function updateAccountDropdown(accountsData, schedulesData) {
   if (!accountDropdown) return;
 
   // Get list of accounts
-  const accounts = accountsData.success && accountsData.data && accountsData.data.account_names
-    ? accountsData.data.account_names
+  const accounts = accountsData.success && accountsData.data && accountsData.data.accounts
+    ? accountsData.data.accounts
     : [];
 
   // Clear existing options except the first one
@@ -2608,8 +2591,8 @@ function updateAccountDropdown(accountsData, schedulesData) {
   // Add all accounts
   accounts.forEach(account => {
     const option = document.createElement('option');
-    option.value = account;
-    option.textContent = account;
+    option.value = account.account_name;
+    option.textContent = account.display_name || account.account_name;
     accountDropdown.appendChild(option);
   });
 }
@@ -2827,16 +2810,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const data = await response.json();
 
-        if (data.success && data.data && data.data.account_names) {
-          const accounts = data.data.account_names;
+        if (data.success && data.data && data.data.accounts) {
+          const accounts = data.data.accounts;
 
           // Clear and populate account dropdown
           campaignAccountSelect.innerHTML = '<option value="">Select an account...</option>';
 
           accounts.forEach(account => {
             const option = document.createElement('option');
-            option.value = account;
-            option.textContent = account;
+            option.value = account.account_name;
+            option.textContent = account.display_name || account.account_name;
             campaignAccountSelect.appendChild(option);
           });
 
@@ -3052,11 +3035,11 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .then(response => response.json())
       .then(data => {
-        if (data.success && data.data && data.data.account_names && data.data.account_names.length > 0) {
-          data.data.account_names.forEach(account => {
+        if (data.success && data.data && data.data.accounts && data.data.accounts.length > 0) {
+          data.data.accounts.forEach(account => {
             const option = document.createElement('option');
-            option.value = account;
-            option.textContent = account;
+            option.value = account.account_name;
+            option.textContent = account.display_name || account.account_name;
             keywordAccountSelect.appendChild(option);
           });
         }
@@ -6422,6 +6405,205 @@ window.fetchOptimizationRuns = async function(userId, accountName, region = null
 };
 
 // Global functions for account management
+// Edit KDP account display name
+async function editKDPAccountDisplayName(userId, accountName, currentDisplayName) {
+  // Create modal overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+  
+  // Create modal content
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background: white; padding: var(--spacing-32); border-radius: var(--radius-large); box-shadow: 0 10px 40px rgba(0,0,0,0.2); max-width: 500px; width: 90%;';
+  
+  modal.innerHTML = `
+    <h2 style="margin: 0 0 var(--spacing-16) 0; font-size: 1.5rem; font-weight: 700; color: var(--color-neutral-90);">
+      Edit Display Name
+    </h2>
+    <p style="margin: 0 0 var(--spacing-20) 0; color: var(--color-neutral-60); font-size: 0.875rem;">
+      Account ID: <strong>${accountName}</strong>
+    </p>
+    <div style="margin-bottom: var(--spacing-20);">
+      <label for="edit-display-name-input" style="display: block; margin-bottom: var(--spacing-8); color: var(--color-neutral-90); font-weight: 600; font-size: 0.875rem;">
+        Display Name <span style="color: #FF6B6B;">*</span>
+      </label>
+      <input
+        type="text"
+        id="edit-display-name-input"
+        value="${currentDisplayName}"
+        maxlength="100"
+        placeholder="e.g., Fitness, Romance, Mystery"
+        style="width: 100%; padding: 14px 16px; border: 2px solid var(--color-neutral-30); border-radius: var(--radius-medium); font-size: 1rem; transition: border-color 0.2s;"
+      />
+      <p id="edit-display-name-error" style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: #FF6B6B; display: none;"></p>
+      <p style="margin: var(--spacing-8) 0 0 0; font-size: 0.875rem; color: var(--color-neutral-60);">
+        Only alphanumeric characters allowed (no spaces or special characters)
+      </p>
+    </div>
+    <div style="display: flex; gap: var(--spacing-12); justify-content: flex-end;">
+      <button
+        id="edit-cancel-btn"
+        style="padding: 12px 24px; background: var(--color-neutral-10); color: var(--color-neutral-70); border: 1px solid var(--color-neutral-30); border-radius: var(--radius-medium); cursor: pointer; font-weight: 600; transition: all 0.2s;"
+      >
+        Cancel
+      </button>
+      <button
+        id="edit-save-btn"
+        style="padding: 12px 24px; background: linear-gradient(135deg, #00C2A8, #00A890); color: white; border: none; border-radius: var(--radius-medium); cursor: pointer; font-weight: 600; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0, 194, 168, 0.3);"
+      >
+        <span id="edit-save-text">Save</span>
+      </button>
+    </div>
+  `;
+  
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  
+  const input = document.getElementById('edit-display-name-input');
+  const errorEl = document.getElementById('edit-display-name-error');
+  const saveBtn = document.getElementById('edit-save-btn');
+  const cancelBtn = document.getElementById('edit-cancel-btn');
+  const saveText = document.getElementById('edit-save-text');
+  
+  // Focus and select the input
+  setTimeout(() => {
+    input.focus();
+    input.select();
+  }, 100);
+  
+  // Validation pattern
+  const alphanumericPattern = /^[a-zA-Z0-9]+$/;
+  
+  // Real-time validation
+  input.addEventListener('input', function() {
+    const value = this.value;
+    
+    if (value.length === 0) {
+      errorEl.style.display = 'none';
+      this.style.borderColor = 'var(--color-neutral-30)';
+    } else if (!alphanumericPattern.test(value)) {
+      errorEl.textContent = 'Only alphanumeric characters are allowed (no spaces or special characters)';
+      errorEl.style.display = 'block';
+      this.style.borderColor = '#FF6B6B';
+    } else {
+      errorEl.style.display = 'none';
+      this.style.borderColor = '#00C2A8';
+    }
+  });
+  
+  // Cancel button
+  cancelBtn.addEventListener('click', () => {
+    overlay.remove();
+  });
+  
+  // Close on overlay click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+  
+  // Save button
+  saveBtn.addEventListener('click', async () => {
+    const newDisplayName = input.value.trim();
+    
+    // Validate
+    if (!newDisplayName) {
+      errorEl.textContent = 'Display name cannot be empty';
+      errorEl.style.display = 'block';
+      input.focus();
+      return;
+    }
+    
+    if (!alphanumericPattern.test(newDisplayName)) {
+      errorEl.textContent = 'Only alphanumeric characters are allowed (no spaces or special characters)';
+      errorEl.style.display = 'block';
+      input.focus();
+      return;
+    }
+    
+    // No change?
+    if (newDisplayName === currentDisplayName) {
+      overlay.remove();
+      return;
+    }
+    
+    // Show loading state
+    saveBtn.disabled = true;
+    saveText.textContent = 'Saving...';
+    saveBtn.style.opacity = '0.7';
+    input.disabled = true;
+    cancelBtn.disabled = true;
+    
+    try {
+      const response = await fetch(ajaxUrl + '?action=update_kdp_display_name', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          account_name: accountName,
+          display_name: newDisplayName
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Show success message
+        const successMessage = document.createElement('div');
+        successMessage.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #00C2A8; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10001; animation: slideInRight 0.3s ease;';
+        successMessage.textContent = '✓ Display name updated successfully!';
+        document.body.appendChild(successMessage);
+        
+        setTimeout(() => {
+          successMessage.remove();
+        }, 3000);
+        
+        // Close modal
+        overlay.remove();
+        
+        // Reload accounts list
+        window.loadKDPAccounts(userId);
+        
+        // Also refresh dropdowns
+        if (window.refreshAccountDropdowns) {
+          window.refreshAccountDropdowns(userId);
+        }
+      } else {
+        throw new Error(data.data?.message || 'Failed to update display name');
+      }
+    } catch (error) {
+      console.error('Error updating display name:', error);
+      errorEl.textContent = error.message || 'Failed to update display name. Please try again.';
+      errorEl.style.display = 'block';
+      
+      // Restore button state
+      saveBtn.disabled = false;
+      saveText.textContent = 'Save';
+      saveBtn.style.opacity = '1';
+      input.disabled = false;
+      cancelBtn.disabled = false;
+    }
+  });
+  
+  // Allow Enter key to submit
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      saveBtn.click();
+    }
+  });
+  
+  // Allow Escape key to cancel
+  document.addEventListener('keydown', function escapeHandler(e) {
+    if (e.key === 'Escape') {
+      overlay.remove();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  });
+}
+
 async function deleteKDPAccount(userId, accountName) {
   try {
     await fetch(ajaxUrl + '?action=delete_kdp_account', {
@@ -6966,16 +7148,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const data = await response.json();
 
-        if (data.success && data.data && data.data.account_names) {
-          const accounts = data.data.account_names;
+        if (data.success && data.data && data.data.accounts) {
+          const accounts = data.data.accounts;
 
           // Clear and populate account dropdown
           booksAccountSelect.innerHTML = '<option value="">Select an account...</option>';
 
           accounts.forEach(account => {
             const option = document.createElement('option');
-            option.value = account;
-            option.textContent = account;
+            option.value = account.account_name;
+            option.textContent = account.display_name || account.account_name;
             booksAccountSelect.appendChild(option);
           });
 
@@ -7013,16 +7195,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const data = await response.json();
 
-        if (data.success && data.data && data.data.account_names) {
-          const accounts = data.data.account_names;
+        if (data.success && data.data && data.data.accounts) {
+          const accounts = data.data.accounts;
 
           // Clear and populate account dropdown
           pulseAccountSelect.innerHTML = '<option value="">Select an account...</option>';
 
           accounts.forEach(account => {
             const option = document.createElement('option');
-            option.value = account;
-            option.textContent = account;
+            option.value = account.account_name;
+            option.textContent = account.display_name || account.account_name;
             pulseAccountSelect.appendChild(option);
           });
 
