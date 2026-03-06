@@ -1285,6 +1285,8 @@ select option {
 }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
 <script>
 // Global access level configuration
 const USER_ACCESS_LEVEL = '<?php echo esc_js($user_plottyinsights_access_level); ?>';
@@ -2252,8 +2254,37 @@ document.addEventListener('DOMContentLoaded', function() {
                   ${bidRecommendationsHtml}
                 </div>
               </div>
+
+              <!-- Book History Charts -->
+              <div style="margin-top: var(--spacing-24);">
+                <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-16) 0; display: flex; align-items: center; gap: var(--spacing-8);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                  Historical Data (Last 365 Days)
+                </h4>
+                <div class="history-tabs" style="display: flex; gap: 0; margin-bottom: var(--spacing-16); border-bottom: 2px solid var(--color-neutral-20);">
+                  <button class="history-tab active" data-tab="bsr" data-asin="${asin}" style="padding: 10px 20px; background: none; border: none; border-bottom: 2px solid #00C2A8; margin-bottom: -2px; font-weight: 600; font-size: 0.875rem; color: #00C2A8; cursor: pointer;">BSR</button>
+                  <button class="history-tab" data-tab="price" data-asin="${asin}" style="padding: 10px 20px; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-60); cursor: pointer;">Price</button>
+                  <button class="history-tab" data-tab="rating" data-asin="${asin}" style="padding: 10px 20px; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-60); cursor: pointer;">Avg Rating</button>
+                  <button class="history-tab" data-tab="reviews" data-asin="${asin}" style="padding: 10px 20px; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 600; font-size: 0.875rem; color: var(--color-neutral-60); cursor: pointer;">Reviews</button>
+                </div>
+                <div class="history-chart-container" data-asin="${asin}" style="position: relative; height: 300px; background: var(--color-neutral-00); border-radius: var(--radius-medium); padding: var(--spacing-16); border: 1px solid var(--color-neutral-20);">
+                  <div class="history-loading" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+                    <div style="text-align: center; color: var(--color-neutral-60);">
+                      <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid var(--color-neutral-20); border-top-color: #00C2A8; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                      <p style="margin-top: 8px; font-size: 0.875rem;">Loading history...</p>
+                    </div>
+                  </div>
+                  <canvas class="history-chart-canvas" style="display: none;"></canvas>
+                  <div class="history-error" style="display: none; position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: var(--color-neutral-60); font-size: 0.875rem;"></div>
+                </div>
+              </div>
             </div>
           `;
+
+          // Fetch and render book history
+          fetchBookHistory(asin, currentMarket, bookCard);
 
           // Release global lock and re-enable all other buttons (keep this one disabled)
           isAnalysisRunning = false;
@@ -2290,6 +2321,161 @@ document.addEventListener('DOMContentLoaded', function() {
           // Collapse the section
           expandedSection.style.display = 'none';
         }
+        });
+      });
+    }
+
+    // --- Book History Chart Functions ---
+
+    // Store chart instances and fetched data per ASIN
+    const historyCharts = {};
+    const historyDataCache = {};
+
+    async function fetchBookHistory(asin, market, bookCard) {
+      const container = bookCard.querySelector('.history-chart-container[data-asin="' + asin + '"]');
+      const loading = container.querySelector('.history-loading');
+      const canvas = container.querySelector('.history-chart-canvas');
+      const errorDiv = container.querySelector('.history-error');
+
+      try {
+        const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=plottybot_book_history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ asin: asin, market: market.toUpperCase() })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load history (HTTP ' + response.status + ')');
+        }
+
+        const data = await response.json();
+        historyDataCache[asin] = data;
+
+        loading.style.display = 'none';
+        canvas.style.display = 'block';
+
+        renderHistoryChart(asin, 'bsr', bookCard);
+        attachHistoryTabListeners(asin, bookCard);
+
+      } catch (err) {
+        loading.style.display = 'none';
+        errorDiv.style.display = 'flex';
+        errorDiv.textContent = err.message;
+      }
+    }
+
+    function renderHistoryChart(asin, tab, bookCard) {
+      const container = bookCard.querySelector('.history-chart-container[data-asin="' + asin + '"]');
+      const canvas = container.querySelector('.history-chart-canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Destroy existing chart for this ASIN
+      if (historyCharts[asin]) {
+        historyCharts[asin].destroy();
+      }
+
+      const data = historyDataCache[asin];
+      if (!data) return;
+
+      let series, label, color, yPrefix, yCallback;
+
+      if (tab === 'bsr') {
+        series = data.bsr_history || [];
+        label = 'BSR';
+        color = '#6366F1';
+        yCallback = (v) => v.toLocaleString();
+      } else if (tab === 'price') {
+        series = data.price_history || [];
+        label = 'Price';
+        color = '#00C2A8';
+        yPrefix = '$';
+        yCallback = (v) => '$' + v.toFixed(2);
+      } else if (tab === 'reviews') {
+        series = data.review_count_history || [];
+        label = 'Review Count';
+        color = '#8B5CF6';
+        yCallback = (v) => v.toLocaleString();
+      } else {
+        series = data.rating_history || [];
+        label = 'Avg Rating';
+        color = '#F59E0B';
+        yCallback = (v) => v.toFixed(1);
+      }
+
+      const labels = series.map(p => p.timestamp);
+      const values = series.map(p => p.value);
+
+      historyCharts[asin] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: label,
+            data: values,
+            borderColor: color,
+            backgroundColor: color + '1A',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 0,
+            pointHitRadius: 8,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => label + ': ' + yCallback(ctx.parsed.y)
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                maxTicksLimit: 12,
+                maxRotation: 0,
+                font: { size: 11 }
+              },
+              grid: { display: false }
+            },
+            y: {
+              ticks: {
+                callback: (v) => yCallback(v),
+                font: { size: 11 }
+              },
+              reverse: tab === 'bsr'
+            }
+          }
+        }
+      });
+    }
+
+    function attachHistoryTabListeners(asin, bookCard) {
+      const tabs = bookCard.querySelectorAll('.history-tab[data-asin="' + asin + '"]');
+      tabs.forEach(tabBtn => {
+        tabBtn.addEventListener('click', function() {
+          // Update active tab styles
+          tabs.forEach(t => {
+            t.style.borderBottomColor = 'transparent';
+            t.style.color = 'var(--color-neutral-60)';
+            t.classList.remove('active');
+          });
+          this.style.borderBottomColor = '#00C2A8';
+          this.style.color = '#00C2A8';
+          this.classList.add('active');
+
+          const selectedTab = this.getAttribute('data-tab');
+          renderHistoryChart(asin, selectedTab, bookCard);
         });
       });
     }

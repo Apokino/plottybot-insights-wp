@@ -1421,6 +1421,74 @@ if (!function_exists('plottybot_analyze_book_handler')) {
     }
 }
 
+// AJAX handler for book history
+add_action('wp_ajax_plottybot_book_history', 'plottybot_book_history_handler');
+add_action('wp_ajax_nopriv_plottybot_book_history', 'plottybot_book_history_handler');
+
+if (!function_exists('plottybot_book_history_handler')) {
+    function plottybot_book_history_handler() {
+        error_log('Plottybot Book History: Handler called');
+
+        if (!is_user_logged_in()) {
+            error_log('Plottybot Book History: Auth failed - not logged in');
+            wp_send_json_error(['message' => 'Unauthorized'], 401);
+            wp_die();
+        }
+
+        $raw_input = file_get_contents('php://input');
+        error_log('Plottybot Book History: Raw input = ' . $raw_input);
+        $payload = json_decode($raw_input, true);
+        error_log('Plottybot Book History: Payload = ' . json_encode($payload));
+
+        if (!$payload || !isset($payload['asin']) || !isset($payload['market'])) {
+            error_log('Plottybot Book History: Invalid payload');
+            wp_send_json_error(['message' => 'Invalid payload - asin and market required'], 400);
+            wp_die();
+        }
+
+        $asin = sanitize_text_field($payload['asin']);
+        $market = strtoupper(sanitize_text_field($payload['market']));
+        error_log('Plottybot Book History: asin=' . $asin . ' market=' . $market);
+
+        $server_external_ip = '95.110.231.49';
+
+        $api_url = 'https://api-frontend-1044931876531.us-central1.run.app/books/history';
+
+        $request_args = [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . PLOTTYBOT_API_KEY,
+                'X-Forwarded-For' => $server_external_ip,
+                'X-Real-IP' => $server_external_ip,
+                'X-Forwarded-Proto' => 'https',
+                'X-Forwarded-Host' => 'insights.plottybot.com'
+            ],
+            'body' => json_encode([
+                'asin' => $asin,
+                'market' => $market
+            ]),
+            'timeout' => 30,
+            'sslverify' => true
+        ];
+
+        $response = wp_remote_post($api_url, $request_args);
+
+        if (is_wp_error($response)) {
+            wp_send_json_error(['message' => $response->get_error_message()], 500);
+            wp_die();
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $status_code = wp_remote_retrieve_response_code($response);
+
+        status_header($status_code);
+        header('Content-Type: application/json');
+        echo $body;
+        wp_die();
+    }
+}
+
 // AJAX handler for checking/creating ads optimizer user
 add_action('wp_ajax_ads_check_create_user', 'ads_check_create_user_handler');
 add_action('wp_ajax_nopriv_ads_check_create_user', 'ads_check_create_user_handler');
