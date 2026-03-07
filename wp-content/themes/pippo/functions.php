@@ -1454,6 +1454,9 @@ if (!function_exists('plottybot_book_history_handler')) {
 
         $api_url = 'https://api-frontend-1044931876531.us-central1.run.app/books/history';
 
+        $include_analysis = !empty($payload['include_description_analysis']);
+        $user_language = isset($payload['user_language']) ? strtoupper(sanitize_text_field($payload['user_language'])) : 'EN';
+
         $request_args = [
             'headers' => [
                 'Accept' => 'application/json',
@@ -1466,7 +1469,9 @@ if (!function_exists('plottybot_book_history_handler')) {
             ],
             'body' => json_encode([
                 'asin' => $asin,
-                'market' => $market
+                'market' => $market,
+                'include_description_analysis' => $include_analysis,
+                'user_language' => $user_language
             ]),
             'timeout' => 30,
             'sslverify' => true

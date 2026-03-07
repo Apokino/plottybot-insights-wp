@@ -2255,6 +2255,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
               </div>
 
+              <!-- Book Analysis -->
+              <div class="description-analysis-section" data-asin="${asin}" style="margin-bottom: var(--spacing-16);">
+                <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-16) 0; display: flex; align-items: center; gap: var(--spacing-8);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00C2A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                  </svg>
+                  Booky Analysis
+                </h4>
+                <div class="description-analysis-content" data-asin="${asin}" style="display: flex; align-items: center; justify-content: center; padding: var(--spacing-16); color: var(--color-neutral-60); font-size: 0.875rem;">
+                  <div style="text-align: center;">
+                    <div style="display: inline-block; width: 24px; height: 24px; border: 3px solid var(--color-neutral-20); border-top-color: #00C2A8; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="margin-top: 8px;">Analyzing description...</p>
+                  </div>
+                </div>
+              </div>
+
               <!-- Book History Charts -->
               <div style="margin-top: var(--spacing-24);">
                 <h4 style="font-size: 1rem; font-weight: 700; color: var(--color-neutral-90); margin: 0 0 var(--spacing-16) 0; display: flex; align-items: center; gap: var(--spacing-8);">
@@ -2337,6 +2354,10 @@ document.addEventListener('DOMContentLoaded', function() {
       const canvas = container.querySelector('.history-chart-canvas');
       const errorDiv = container.querySelector('.history-error');
 
+      // Detect user language from WP locale
+      const wpLocale = '<?php echo esc_js(get_locale()); ?>';
+      const userLang = wpLocale.startsWith('it') ? 'IT' : 'EN';
+
       try {
         const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>?action=plottybot_book_history', {
           method: 'POST',
@@ -2344,7 +2365,12 @@ document.addEventListener('DOMContentLoaded', function() {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify({ asin: asin, market: market.toUpperCase() })
+          body: JSON.stringify({
+            asin: asin,
+            market: market.toUpperCase(),
+            include_description_analysis: true,
+            user_language: userLang
+          })
         });
 
         if (!response.ok) {
@@ -2359,6 +2385,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         renderHistoryChart(asin, 'bsr', bookCard);
         attachHistoryTabListeners(asin, bookCard);
+
+        // Render description analysis if available
+        renderDescriptionAnalysis(asin, data, bookCard);
 
       } catch (err) {
         loading.style.display = 'none';
@@ -2478,6 +2507,37 @@ document.addEventListener('DOMContentLoaded', function() {
           renderHistoryChart(asin, selectedTab, bookCard);
         });
       });
+    }
+
+    function renderDescriptionAnalysis(asin, data, bookCard) {
+      const container = bookCard.querySelector('.description-analysis-content[data-asin="' + asin + '"]');
+      if (!container) return;
+
+      const analysis = data.description_analysis;
+      if (!analysis) {
+        container.innerHTML = '<p style="margin: 0; font-size: 0.875rem; color: var(--color-neutral-60); font-style: italic;">Description analysis not available.</p>';
+        return;
+      }
+
+      const fields = [
+        { key: 'angle',      label: 'Angle',       icon: '🎯', color: '#6366F1' },
+        { key: 'target',     label: 'Target',      icon: '👥', color: '#00C2A8' },
+        { key: 'usp',        label: 'USP',         icon: '💎', color: '#F59E0B' },
+        { key: 'pain_point', label: 'Pain Point',  icon: '🔥', color: '#FF6B6B' },
+      ];
+
+      const cards = fields.map(f => {
+        const value = analysis[f.key] || 'Not identifiable';
+        const faded = value === 'Not identifiable';
+        return `
+          <div style="padding: 14px; background: var(--color-neutral-00); border-radius: var(--radius-medium); border-left: 3px solid ${f.color};">
+            <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-neutral-60); margin: 0 0 6px 0; font-weight: 600;">${f.icon} ${f.label}</p>
+            <p style="margin: 0; font-size: 0.875rem; line-height: 1.55; color: ${faded ? 'var(--color-neutral-50)' : 'var(--color-neutral-90)'}; ${faded ? 'font-style: italic;' : ''}">${value}</p>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12);">${cards}</div>`;
     }
 
     // Show and update pagination controls
