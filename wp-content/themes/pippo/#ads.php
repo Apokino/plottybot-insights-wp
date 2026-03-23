@@ -1743,6 +1743,42 @@ let currentConfigurations = [];
 let specialHandlingRules = [];
 let currentBooksData = []; // Array to store books data
 
+// Cached accounts data to avoid duplicate get_kdp_accounts calls
+window.cachedAccountsData = null;
+
+// Track which tabs have been initialized (lazy loading)
+const initializedTabs = {};
+
+// Helper: populate any account dropdown from cached accounts data
+function populateAccountDropdownFromCache(selectId) {
+  const selectEl = document.getElementById(selectId);
+  if (!selectEl || !window.cachedAccountsData) return;
+
+  const accounts = window.cachedAccountsData;
+  const currentValue = selectEl.value;
+
+  selectEl.innerHTML = '<option value="">Select an account...</option>';
+
+  if (accounts.length === 0) {
+    selectEl.innerHTML = '<option value="">No accounts found</option>';
+    selectEl.disabled = true;
+  } else {
+    accounts.forEach(account => {
+      const option = document.createElement('option');
+      option.value = account.account_name;
+      option.textContent = account.display_name || account.account_name;
+      selectEl.appendChild(option);
+    });
+    selectEl.disabled = false;
+
+    // Restore previous selection if still valid
+    const accountNames = accounts.map(a => a.account_name);
+    if (accountNames.includes(currentValue)) {
+      selectEl.value = currentValue;
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
 
   // Check/create user in ads optimizer system
@@ -1867,83 +1903,28 @@ document.addEventListener('DOMContentLoaded', function() {
   checkCreateAdsUser();
 });
 
-// Global function to refresh account dropdowns across all tabs
-window.refreshAccountDropdowns = async function(userId = null) {
-  userId = userId || currentUserId;
+// Global function to refresh account dropdowns across all tabs (uses cached data, no fetch)
+window.refreshAccountDropdowns = function(userId = null) {
+  if (!window.cachedAccountsData) return;
 
-  if (!userId) return;
+  // Update Campaign Configuration dropdown
+  populateAccountDropdownFromCache('campaign-account');
 
-  try {
-    // Fetch accounts from API
-    const response = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        user_id: userId
-      })
-    });
+  // Update Optimization Schedule dropdown
+  populateAccountDropdownFromCache('schedule-account');
 
-    const data = await response.json();
+  // Update Books dropdown
+  populateAccountDropdownFromCache('books-account');
 
-    if (data.success && data.data && data.data.accounts) {
-      const accounts = data.data.accounts;
+  // Update Pulse dropdown
+  populateAccountDropdownFromCache('pulse-kdp-account');
 
-      // Update Campaign Configuration dropdown
-      const campaignAccountSelect = document.getElementById('campaign-account');
-      if (campaignAccountSelect) {
-        const currentValue = campaignAccountSelect.value;
-        campaignAccountSelect.innerHTML = '<option value="">Select an account...</option>';
+  // Update Keyword Recommendations dropdown
+  populateAccountDropdownFromCache('keyword-account');
 
-        if (accounts.length === 0) {
-          campaignAccountSelect.innerHTML = '<option value="">No accounts found</option>';
-          campaignAccountSelect.disabled = true;
-        } else {
-          accounts.forEach(account => {
-            const option = document.createElement('option');
-            option.value = account.account_name;
-            option.textContent = account.display_name || account.account_name;
-            campaignAccountSelect.appendChild(option);
-          });
-          campaignAccountSelect.disabled = false;
-
-          // Restore previous selection if still valid
-          const accountNames = accounts.map(a => a.account_name);
-          if (accountNames.includes(currentValue)) {
-            campaignAccountSelect.value = currentValue;
-          }
-        }
-      }
-
-      // Update Optimization Schedule dropdown
-      const scheduleAccountSelect = document.getElementById('schedule-account');
-      if (scheduleAccountSelect) {
-        const currentValue = scheduleAccountSelect.value;
-        scheduleAccountSelect.innerHTML = '<option value="">Select an account...</option>';
-
-        accounts.forEach(account => {
-          const option = document.createElement('option');
-          option.value = account.account_name;
-          option.textContent = account.display_name || account.account_name;
-          scheduleAccountSelect.appendChild(option);
-        });
-
-        // Restore previous selection if still valid
-        const accountNames = accounts.map(a => a.account_name);
-        if (accountNames.includes(currentValue)) {
-          scheduleAccountSelect.value = currentValue;
-        }
-      }
-
-      // Update global accounts data for optimization schedule
-      if (window.currentAccountsData) {
-        window.currentAccountsData = data;
-      }
-    }
-  } catch (error) {
-    console.error('Error refreshing account dropdowns:', error);
+  // Update global accounts data for optimization schedule
+  if (window.currentAccountsData) {
+    window.currentAccountsData = { success: true, data: { accounts: window.cachedAccountsData } };
   }
 };
 
@@ -1990,6 +1971,9 @@ window.loadKDPAccounts = async function(userId = null) {
     if (data.success && data.data && data.data.accounts) {
       const accounts = data.data.accounts;
 
+      // Cache accounts globally for lazy-loaded tabs
+      window.cachedAccountsData = accounts;
+
       if (accounts.length === 0) {
         loadingEl.style.display = 'none';
         emptyEl.style.display = 'block';
@@ -2033,8 +2017,8 @@ window.loadKDPAccounts = async function(userId = null) {
         }).join('');
       }
 
-      // Refresh account dropdowns in other tabs after loading accounts list
-      await window.refreshAccountDropdowns(userId);
+      // Refresh account dropdowns in other tabs using cached data (no extra fetch)
+      window.refreshAccountDropdowns(userId);
     } else {
       throw new Error(data.data?.message || 'Failed to load accounts');
     }
@@ -2047,11 +2031,6 @@ window.loadKDPAccounts = async function(userId = null) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Show initial empty state on page load
-  if (document.getElementById('kdp-accounts-list')) {
-    window.loadKDPAccounts(null);
-  }
-
   // KDP Account Form Validation and Submission
   const kdpForm = document.getElementById('add-kdp-account-form');
   const authCodeInput = document.getElementById('kdp-auth-code');
@@ -2365,6 +2344,27 @@ document.addEventListener('DOMContentLoaded', function() {
       activeSection.classList.add('active');
       activeSection.style.display = 'block';
     }
+
+    // Lazy-initialize tab data on first visit
+    if (!initializedTabs[targetService]) {
+      initializedTabs[targetService] = true;
+      switch (targetService) {
+        case 'placeholder-2': // Optimization Schedule
+          populateAccountDropdownFromCache('schedule-account');
+          window.loadOptimizationSchedules(currentUserId);
+          break;
+        case 'placeholder-3': // Campaign Configuration
+          populateAccountDropdownFromCache('campaign-account');
+          populateAccountDropdownFromCache('keyword-account');
+          break;
+        case 'placeholder-books': // Books
+          populateAccountDropdownFromCache('books-account');
+          break;
+        case 'placeholder-pulse': // Pulse
+          populateAccountDropdownFromCache('pulse-kdp-account');
+          break;
+      }
+    }
   }
 
   // Add click event listeners to navigation buttons
@@ -2390,10 +2390,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.currentSchedulesData = null;
   window.currentAccountsData = null;
 
-  // Load optimization schedules automatically for current user
-  if (document.getElementById('schedules-list')) {
-    window.loadOptimizationSchedules(currentUserId);
-  }
+  // Optimization schedules are loaded lazily when the tab is first visited
 });
 
 // Global function for loading optimization schedules (accessible from global scope)
@@ -2422,31 +2419,23 @@ window.loadOptimizationSchedules = async function(userId = null) {
   listEl.style.display = 'none';
 
   try {
-    // Fetch accounts and schedules in parallel
-    const [accountsResponse, schedulesResponse] = await Promise.all([
-      fetch(ajaxUrl + '?action=get_kdp_accounts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          user_id: userId
-        })
-      }),
-      fetch(ajaxUrl + '?action=get_optimization_schedules', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          user_id: userId
-        })
-      })
-    ]);
+    // Use cached accounts data instead of fetching again
+    const accountsData = window.cachedAccountsData
+      ? { success: true, data: { accounts: window.cachedAccountsData } }
+      : { success: false, data: { accounts: [] } };
 
-    const accountsData = await accountsResponse.json();
+    // Fetch only schedules
+    const schedulesResponse = await fetch(ajaxUrl + '?action=get_optimization_schedules', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: userId
+      })
+    });
+
     const data = await schedulesResponse.json();
 
     // Store data globally for use in form
@@ -2794,48 +2783,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const campaignRegionSelect = document.getElementById('campaign-region');
 
   if (campaignAccountSelect) {
-    // Load KDP accounts automatically for campaign configuration
-    (async function() {
-      try {
-        const response = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            user_id: currentUserId
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.success && data.data && data.data.accounts) {
-          const accounts = data.data.accounts;
-
-          // Clear and populate account dropdown
-          campaignAccountSelect.innerHTML = '<option value="">Select an account...</option>';
-
-          accounts.forEach(account => {
-            const option = document.createElement('option');
-            option.value = account.account_name;
-            option.textContent = account.display_name || account.account_name;
-            campaignAccountSelect.appendChild(option);
-          });
-
-          // Enable the dropdown
-          campaignAccountSelect.disabled = false;
-        } else {
-          // No accounts found
-          campaignAccountSelect.innerHTML = '<option value="">No accounts found</option>';
-          campaignAccountSelect.disabled = true;
-        }
-      } catch (error) {
-        console.error('Error loading accounts for campaign:', error);
-        campaignAccountSelect.innerHTML = '<option value="">Error loading accounts</option>';
-        campaignAccountSelect.disabled = true;
-      }
-    })();
+    // Campaign account dropdown is populated lazily via populateAccountDropdownFromCache('campaign-account')
+    // when the user navigates to this tab
 
     // Load campaigns and configurations when both account and region are selected
     async function loadCampaignData() {
@@ -3021,31 +2970,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let keywordBooksData = [];
     let selectedBookIndex = null;
 
-    // Load accounts on page load
-    if (keywordAccountSelect) {
-      fetch(ajaxUrl + '?action=get_kdp_accounts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          user_id: currentUserId
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success && data.data && data.data.accounts && data.data.accounts.length > 0) {
-          data.data.accounts.forEach(account => {
-            const option = document.createElement('option');
-            option.value = account.account_name;
-            option.textContent = account.display_name || account.account_name;
-            keywordAccountSelect.appendChild(option);
-          });
-        }
-      })
-      .catch(error => console.error('Error loading accounts:', error));
-    }
+    // Keyword account dropdown is populated lazily via populateAccountDropdownFromCache('keyword-account')
+    // when the user navigates to this tab
 
     // Handle account or region change to load books
     function loadKeywordBooks() {
@@ -7128,100 +7054,8 @@ function showBooksSuccess(message) {
   }, 3000);
 }
 
-// Populate books account dropdown when service is loaded
+// Books and Pulse account dropdowns are populated lazily when their tabs are first visited
 document.addEventListener('DOMContentLoaded', function() {
-  const booksAccountSelect = document.getElementById('books-account');
-  if (booksAccountSelect) {
-    // Load KDP accounts for books dropdown
-    (async function() {
-      try {
-        const response = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            user_id: currentUserId
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.success && data.data && data.data.accounts) {
-          const accounts = data.data.accounts;
-
-          // Clear and populate account dropdown
-          booksAccountSelect.innerHTML = '<option value="">Select an account...</option>';
-
-          accounts.forEach(account => {
-            const option = document.createElement('option');
-            option.value = account.account_name;
-            option.textContent = account.display_name || account.account_name;
-            booksAccountSelect.appendChild(option);
-          });
-
-          // Enable the dropdown
-          booksAccountSelect.disabled = false;
-        } else {
-          // No accounts found
-          booksAccountSelect.innerHTML = '<option value="">No accounts found</option>';
-          booksAccountSelect.disabled = true;
-        }
-      } catch (error) {
-        console.error('Error loading accounts for books:', error);
-        booksAccountSelect.innerHTML = '<option value="">Error loading accounts</option>';
-        booksAccountSelect.disabled = true;
-      }
-    })();
-  }
-
-  // Populate pulse account dropdown
-  const pulseAccountSelect = document.getElementById('pulse-kdp-account');
-  if (pulseAccountSelect) {
-    // Load KDP accounts for pulse dropdown
-    (async function() {
-      try {
-        const response = await fetch(ajaxUrl + '?action=get_kdp_accounts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            user_id: currentUserId
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.success && data.data && data.data.accounts) {
-          const accounts = data.data.accounts;
-
-          // Clear and populate account dropdown
-          pulseAccountSelect.innerHTML = '<option value="">Select an account...</option>';
-
-          accounts.forEach(account => {
-            const option = document.createElement('option');
-            option.value = account.account_name;
-            option.textContent = account.display_name || account.account_name;
-            pulseAccountSelect.appendChild(option);
-          });
-
-          // Enable the dropdown
-          pulseAccountSelect.disabled = false;
-        } else {
-          // No accounts found
-          pulseAccountSelect.innerHTML = '<option value="">No accounts found</option>';
-          pulseAccountSelect.disabled = true;
-        }
-      } catch (error) {
-        console.error('Error loading accounts for pulse:', error);
-        pulseAccountSelect.innerHTML = '<option value="">Error loading accounts</option>';
-        pulseAccountSelect.disabled = true;
-      }
-    })();
-  }
 
   // Pulse form submission handler
   const pulseForm = document.getElementById('pulse-filters-form');
